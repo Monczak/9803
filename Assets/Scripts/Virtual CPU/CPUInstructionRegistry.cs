@@ -27,6 +27,12 @@ namespace NineEightOhThree.VirtualCPU
                 {
                     byte opcode = metadata.Value.Opcode;
 
+                    if (cpuInstructionsByOpcode.ContainsKey(opcode))
+                    {
+                        Debug.LogError($"Conflicting opcode {opcode:X2} for instruction {instruction.Mnemonic} {metadata.Key} (originally {cpuInstructionsByOpcode[opcode].Item1.Mnemonic} {cpuInstructionsByOpcode[opcode].Item2})");
+                        continue;
+                    }
+
                     cpuInstructionsByOpcode.Add(opcode, (instruction, metadata.Key, metadata.Value));
                     cpuInstructionsByMnemonic[instruction.Mnemonic].Add((instruction, metadata.Key, metadata.Value));
 
