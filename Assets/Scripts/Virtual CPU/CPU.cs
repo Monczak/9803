@@ -46,6 +46,11 @@ namespace NineEightOhThree.VirtualCPU
         public byte ProgramCounter { get; protected internal set; }
         private byte preCycleProgramCounter;
 
+        public int stackSize = 256;
+        public byte[] Stack { get; protected internal set; }
+        public byte StackPointer { get; protected internal set; }
+
+
         private CPUInstruction currentInstruction;
         private AddressingMode addressingMode;
 
@@ -57,6 +62,8 @@ namespace NineEightOhThree.VirtualCPU
         private void Awake()
         {
             Memory = GetComponent<Memory>();
+
+            InitProcessor();
         }
 
         // Start is called before the first frame update
@@ -74,6 +81,11 @@ namespace NineEightOhThree.VirtualCPU
             Memory.Write(0x04, 0xA9);   // LDA 3
             Memory.Write(0x05, 0x03);
 
+            Memory.Write(0x06, 0x18);   // CLC
+
+            Memory.Write(0x07, 0x69);   // ADC 1
+            Memory.Write(0x08, 0x01);
+
             Memory.Write(0x0a, 0x4C);   // JMP 6
             Memory.Write(0x0b, 0x06);
         }
@@ -87,6 +99,29 @@ namespace NineEightOhThree.VirtualCPU
         private void FixedUpdate()
         {
             Cycle();
+        }
+
+        public void InitProcessor()
+        {
+            Stack = new byte[stackSize];
+            StackPointer = 0xFF;
+        }
+
+        public void PushStack(byte b)
+        {
+            Stack[StackPointer--] = b;
+            StackPointer %= (byte)stackSize;
+            if (StackPointer == stackSize - 1)
+                throw new StackOverflowException();
+        }
+
+        public byte PullStack()
+        {
+            byte b = Stack[StackPointer++];
+            StackPointer %= (byte)stackSize;
+            if (StackPointer == 0x00)
+                throw new StackUnderflowException();
+            return b;
         }
 
         public void Cycle()

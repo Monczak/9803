@@ -9,7 +9,7 @@ namespace NineEightOhThree.VirtualCPU
     internal class CPUInstructionRegistry
     {
         private static Dictionary<byte, (CPUInstruction, AddressingMode, CPUInstructionMetadata)> cpuInstructionsByOpcode;
-        private static Dictionary<string, HashSet<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>> cpuInstructionsByMnemonic;
+        private static Dictionary<string, List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>> cpuInstructionsByMnemonic;
 
         public static void RegisterInstructions()
         {
@@ -22,6 +22,9 @@ namespace NineEightOhThree.VirtualCPU
 
                 if (!cpuInstructionsByMnemonic.ContainsKey(instruction.Mnemonic))
                     cpuInstructionsByMnemonic.Add(instruction.Mnemonic, new());
+                foreach (string alias in instruction.Aliases)
+                    if (!cpuInstructionsByMnemonic.ContainsKey(alias))
+                        cpuInstructionsByMnemonic.Add(alias, new());
 
                 foreach (KeyValuePair<AddressingMode, CPUInstructionMetadata> metadata in instruction.Metadata)
                 {
@@ -35,6 +38,8 @@ namespace NineEightOhThree.VirtualCPU
 
                     cpuInstructionsByOpcode.Add(opcode, (instruction, metadata.Key, metadata.Value));
                     cpuInstructionsByMnemonic[instruction.Mnemonic].Add((instruction, metadata.Key, metadata.Value));
+                    foreach (string alias in instruction.Aliases)
+                        cpuInstructionsByMnemonic[alias].Add((instruction, metadata.Key, metadata.Value));
 
                     instructionCount++;
                 }
@@ -50,7 +55,7 @@ namespace NineEightOhThree.VirtualCPU
             throw new UnknownOpcodeException(opcode);
         }
 
-        public static HashSet<(CPUInstruction, AddressingMode, CPUInstructionMetadata)> GetInstructions(string mnemonic)
+        public static List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)> GetInstructions(string mnemonic)
         {
             if (cpuInstructionsByMnemonic.ContainsKey(mnemonic))
                 return cpuInstructionsByMnemonic[mnemonic];

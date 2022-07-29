@@ -7,6 +7,7 @@ namespace NineEightOhThree.VirtualCPU
         public byte[] args;
 
         public abstract string Mnemonic { get; }
+        public virtual List<string> Aliases { get; } = new();
         public abstract Dictionary<AddressingMode, CPUInstructionMetadata> Metadata { get; }
 
         public abstract void Execute(CPU cpu, AddressingMode addressingMode);
