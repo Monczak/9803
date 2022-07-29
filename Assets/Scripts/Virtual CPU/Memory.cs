@@ -10,11 +10,12 @@ namespace NineEightOhThree.VirtualCPU
         public byte[] Data => data;
         public int size;
 
-        public HashSet<int> writeProtectedAddresses;
+        public HashSet<byte> writeProtectedAddresses;
 
         private void Awake()
         {
             Clear();
+            writeProtectedAddresses = new HashSet<byte>();
         }
 
         public void Clear()
@@ -22,12 +23,17 @@ namespace NineEightOhThree.VirtualCPU
             data = new byte[size];
         }
 
-        public byte Read(int address)
+        public byte Read(byte address)
         {
             return data[address];
         }
 
-        public bool Write(int address, byte value)
+        public byte Read(byte address, byte offset)
+        {
+            return Read((byte)(address + offset));
+        }
+
+        public bool Write(byte address, byte value)
         {
             if (writeProtectedAddresses.Contains(address))
                 return false;
@@ -35,20 +41,25 @@ namespace NineEightOhThree.VirtualCPU
             return true;
         }
 
-        public byte[] ReadBlock(int address, int count)
+        public bool Write(byte address, byte offset, byte value)
+        {
+            return Write((byte)(address + offset), value);
+        }
+
+        public byte[] ReadBlock(byte address, int count)
         {
             return data[address..(address + count)];
         }
 
-        public void ProtectWrites(params int[] addresses)
+        public void ProtectWrites(params byte[] addresses)
         {
-            foreach (int address in addresses)
+            foreach (byte address in addresses)
                 writeProtectedAddresses.Add(address);
         }
 
-        public void UnprotectWrites(params int[] addresses)
+        public void UnprotectWrites(params byte[] addresses)
         {
-            foreach (int address in addresses)
+            foreach (byte address in addresses)
                 writeProtectedAddresses.Remove(address);
         }
     }

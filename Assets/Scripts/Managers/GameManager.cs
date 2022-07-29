@@ -14,7 +14,7 @@ namespace NineEightOhThree.Managers
             // Disable Unity URP Debug Canvas
             UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false;
 
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
 
             LoadEverything();
         }
