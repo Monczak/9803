@@ -6,13 +6,11 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     {
         public override string Mnemonic => "JMP";
 
-        public override Dictionary<AddressingMode, byte> Opcode => new()
+        public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.Absolute, 0x4C },
-            { AddressingMode.Indirect, 0x6C },
+            { AddressingMode.Absolute, new(0x4C, 1) },
+            { AddressingMode.Indirect, new(0x6C, 1) },
         };
-
-        public override int ArgumentCount => 1;
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {

@@ -6,14 +6,12 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     {
         public override string Mnemonic => "LDY";
 
-        public override Dictionary<AddressingMode, byte> Opcode => new()
+        public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.Immediate, 0xA0 },
-            { AddressingMode.ZeroPage, 0xA4 },
-            { AddressingMode.ZeroPageX, 0xB4 },
+            { AddressingMode.Immediate, new(0xA0, 1) },
+            { AddressingMode.ZeroPage, new(0xA4, 1) },
+            { AddressingMode.ZeroPageX, new(0xB4, 1) },
         };
-
-        public override int ArgumentCount => 1;
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {

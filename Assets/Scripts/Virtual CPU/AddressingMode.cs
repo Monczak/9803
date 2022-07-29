@@ -13,5 +13,6 @@
         Indirect,
         IndirectX,
         IndirectY,
+        Accumulator,
     }
 }

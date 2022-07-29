@@ -1,3 +1,4 @@
+using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU
@@ -12,7 +13,15 @@ namespace NineEightOhThree.VirtualCPU
         public byte RegisterX { get; protected internal set; }
         public byte RegisterY { get; protected internal set; }
 
-        public byte StatusRegister { get; protected internal set; }
+        private byte statusRegister;
+        public byte StatusRegister
+        {
+            get => statusRegister;
+            protected internal set
+            {
+                statusRegister = value;
+            }
+        }
         public bool NegativeFlag
         {
             get => (StatusRegister & 0b10000000) != 0;
@@ -42,8 +51,7 @@ namespace NineEightOhThree.VirtualCPU
 
         private void SetStatusRegisterBit(byte bit, bool set)
         {
-            byte x = (byte)(set ? 1 : 0);
-            StatusRegister ^= (byte)((-x ^ StatusRegister) & (1 << bit));
+            BitUtils.SetBit(ref statusRegister, bit, set);
         }
 
         private void Awake()
@@ -94,8 +102,9 @@ namespace NineEightOhThree.VirtualCPU
         {
             try
             {
-                (currentInstruction, addressingMode) = CPUInstructionRegistry.GetInstruction(Memory.Read(ProgramCounter));
-                byte[] args = Memory.ReadBlock((byte)(ProgramCounter + 1), currentInstruction.ArgumentCount);
+                CPUInstructionMetadata metadata;
+                (currentInstruction, addressingMode, metadata) = CPUInstructionRegistry.GetInstruction(Memory.Read(ProgramCounter));
+                byte[] args = Memory.ReadBlock((byte)(ProgramCounter + 1), metadata.ArgumentCount);
                 currentInstruction.Setup(args);
 
                 ProgramCounter += (byte)(1 + args.Length);

@@ -8,8 +8,8 @@ namespace NineEightOhThree.VirtualCPU
 {
     internal class CPUInstructionRegistry
     {
-        private static Dictionary<byte, (CPUInstruction, AddressingMode)> cpuInstructionsByOpcode;
-        private static Dictionary<string, HashSet<(CPUInstruction, AddressingMode)>> cpuInstructionsByMnemonic;
+        private static Dictionary<byte, (CPUInstruction, AddressingMode, CPUInstructionMetadata)> cpuInstructionsByOpcode;
+        private static Dictionary<string, HashSet<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>> cpuInstructionsByMnemonic;
 
         public static void RegisterInstructions()
         {
@@ -23,10 +23,12 @@ namespace NineEightOhThree.VirtualCPU
                 if (!cpuInstructionsByMnemonic.ContainsKey(instruction.Mnemonic))
                     cpuInstructionsByMnemonic.Add(instruction.Mnemonic, new());
 
-                foreach (KeyValuePair<AddressingMode, byte> opcode in instruction.Opcode)
+                foreach (KeyValuePair<AddressingMode, CPUInstructionMetadata> metadata in instruction.Metadata)
                 {
-                    cpuInstructionsByOpcode.Add(opcode.Value, (instruction, opcode.Key));
-                    cpuInstructionsByMnemonic[instruction.Mnemonic].Add((instruction, opcode.Key));
+                    byte opcode = metadata.Value.Opcode;
+
+                    cpuInstructionsByOpcode.Add(opcode, (instruction, metadata.Key, metadata.Value));
+                    cpuInstructionsByMnemonic[instruction.Mnemonic].Add((instruction, metadata.Key, metadata.Value));
 
                     instructionCount++;
                 }
@@ -35,14 +37,14 @@ namespace NineEightOhThree.VirtualCPU
             Debug.Log($"Loaded {instructionCount} instructions");
         }
 
-        public static (CPUInstruction, AddressingMode) GetInstruction(byte opcode)
+        public static (CPUInstruction, AddressingMode, CPUInstructionMetadata) GetInstruction(byte opcode)
         {
             if (cpuInstructionsByOpcode.ContainsKey(opcode))
                 return cpuInstructionsByOpcode[opcode];
             throw new UnknownOpcodeException(opcode);
         }
 
-        public static HashSet<(CPUInstruction, AddressingMode)> GetInstructions(string mnemonic)
+        public static HashSet<(CPUInstruction, AddressingMode, CPUInstructionMetadata)> GetInstructions(string mnemonic)
         {
             if (cpuInstructionsByMnemonic.ContainsKey(mnemonic))
                 return cpuInstructionsByMnemonic[mnemonic];

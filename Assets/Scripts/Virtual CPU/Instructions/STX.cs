@@ -6,13 +6,11 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     {
         public override string Mnemonic => "STX";
 
-        public override Dictionary<AddressingMode, byte> Opcode => new()
+        public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.ZeroPage, 0x86 },
-            { AddressingMode.ZeroPageY, 0x96 },
+            { AddressingMode.ZeroPage, new(0x86, 1) },
+            { AddressingMode.ZeroPageY, new(0x96, 1) },
         };
-
-        public override int ArgumentCount => 1;
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {

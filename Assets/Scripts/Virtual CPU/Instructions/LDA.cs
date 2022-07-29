@@ -6,16 +6,14 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     {
         public override string Mnemonic => "LDA";
 
-        public override Dictionary<AddressingMode, byte> Opcode => new()
+        public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.Immediate, 0xA9 },
-            { AddressingMode.ZeroPage, 0xA5 },
-            { AddressingMode.ZeroPageX, 0xB5 },
-            { AddressingMode.IndirectX, 0xA1 },
-            { AddressingMode.IndirectY, 0xB1 },
+            { AddressingMode.Immediate, new(0xA9, 1) },
+            { AddressingMode.ZeroPage, new(0xA5, 1) },
+            { AddressingMode.ZeroPageX, new(0xB5, 1) },
+            { AddressingMode.IndirectX, new(0xA1, 1) },
+            { AddressingMode.IndirectY, new(0xB1, 1) },
         };
-
-        public override int ArgumentCount => 1;
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
