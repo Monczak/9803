@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+using ReflectionAssembly = System.Reflection.Assembly;
+
 namespace NineEightOhThree.VirtualCPU
 {
     internal class CPUInstructionRegistry
@@ -16,7 +18,7 @@ namespace NineEightOhThree.VirtualCPU
             cpuInstructionsByOpcode = new();
             cpuInstructionsByMnemonic = new();
             int instructionCount = 0;
-            foreach (Type type in Assembly.GetAssembly(typeof(CPUInstruction)).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CPUInstruction))))
+            foreach (Type type in ReflectionAssembly.GetAssembly(typeof(CPUInstruction)).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CPUInstruction))))
             {
                 CPUInstruction instruction = (CPUInstruction)Activator.CreateInstance(type);
 

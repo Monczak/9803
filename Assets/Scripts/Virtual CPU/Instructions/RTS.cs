@@ -8,7 +8,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.Absolute, new(0x60, 1) },
+            { AddressingMode.ZeroPage, new(0x60, 1) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)

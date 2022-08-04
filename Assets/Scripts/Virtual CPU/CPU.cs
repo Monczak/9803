@@ -1,5 +1,6 @@
 using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 
 namespace NineEightOhThree.VirtualCPU
 {
@@ -69,25 +70,12 @@ namespace NineEightOhThree.VirtualCPU
         // Start is called before the first frame update
         void Start()
         {
-            for (byte i = 0x00; i < 0xFF; i++)
-                Memory.Write(i, 0xEA);  // NOP
+            for (int i = 0x00; i < Memory.size; i++)
+                Memory.Write((byte)i, 0xEA);  // NOP
 
-            Memory.Write(0x00, 0xA9);   // LDA 1
-            Memory.Write(0x01, 0x01);
-
-            Memory.Write(0x02, 0xA9);   // LDA 2
-            Memory.Write(0x03, 0x02);
-
-            Memory.Write(0x04, 0xA9);   // LDA 3
-            Memory.Write(0x05, 0x03);
-
-            Memory.Write(0x06, 0x18);   // CLC
-
-            Memory.Write(0x07, 0x69);   // ADC 1
-            Memory.Write(0x08, 0x01);
-
-            Memory.Write(0x0a, 0x4C);   // JMP 6
-            Memory.Write(0x0b, 0x06);
+            var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\ncpx #$00\nbne $f8\njmp $00");
+            for (int i = 0x00; i < program.Count; i++)
+                Memory.Write((byte)i, program[i]);
         }
 
         // Update is called once per frame
