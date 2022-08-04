@@ -14,7 +14,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
             if (cpu.OverflowFlag)
-                cpu.ProgramCounter += args[0];
+                cpu.ProgramCounter = (ushort)(cpu.ProgramCounter + (sbyte)args[0]);
         }
     }
 }

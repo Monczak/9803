@@ -44,8 +44,8 @@ namespace NineEightOhThree.VirtualCPU
             set { SetStatusRegisterBit(0, value); }
         }
 
-        public byte ProgramCounter { get; protected internal set; }
-        private byte preCycleProgramCounter;
+        public ushort ProgramCounter { get; protected internal set; }
+        private ushort preCycleProgramCounter;
 
         public int stackSize = 256;
         public byte[] Stack { get; protected internal set; }
@@ -73,7 +73,7 @@ namespace NineEightOhThree.VirtualCPU
             for (int i = 0x00; i < Memory.size; i++)
                 Memory.Write((byte)i, 0xEA);  // NOP
 
-            var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\ncpx #$00\nbne $f8\njmp $00");
+            var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\ncpx #$00\nbne $f8\njmp $0000");
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((byte)i, program[i]);
         }
@@ -127,14 +127,14 @@ namespace NineEightOhThree.VirtualCPU
             {
                 CPUInstructionMetadata metadata;
                 (currentInstruction, addressingMode, metadata) = CPUInstructionRegistry.GetInstruction(Memory.Read(ProgramCounter));
-                byte[] args = Memory.ReadBlock((byte)(ProgramCounter + 1), metadata.ArgumentCount);
+                byte[] args = Memory.ReadBlock((ushort)(ProgramCounter + 1), metadata.ArgumentCount);
                 currentInstruction.Setup(args);
 
-                ProgramCounter += (byte)(1 + args.Length);
+                ProgramCounter += (ushort)(1 + args.Length);
             }
             catch (UnknownOpcodeException e)
             {
-                Debug.LogError($"Unknown opcode {e.Opcode} at {ProgramCounter}");
+                Debug.LogError($"Unknown opcode {e.Opcode} at {ProgramCounter:X4}");
             }
         }
 
@@ -145,7 +145,7 @@ namespace NineEightOhThree.VirtualCPU
 
         private void PrintStatus()
         {
-            Debug.Log($"PC: {preCycleProgramCounter} | {currentInstruction.Mnemonic} {string.Join(" ", currentInstruction.args)} | A: {RegisterA} X: {RegisterX} Y: {RegisterY}");
+            Debug.Log($"PC: {preCycleProgramCounter:X4} | {currentInstruction.Mnemonic} {string.Join(" ", currentInstruction.args)} | A: {RegisterA} X: {RegisterX} Y: {RegisterY}");
         }
     }
 }

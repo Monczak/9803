@@ -8,16 +8,17 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.ZeroPage, new(0x20, 1) },
+            { AddressingMode.Absolute, new(0x20, 1) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
-            cpu.PushStack((byte)(cpu.ProgramCounter + 1));  // Address of next instruction - 1
+            cpu.PushStack((byte)((cpu.ProgramCounter + 2) >> 8));  // Current program counter + 2 (this does NOT implement the bug present in the 6502)
+            cpu.PushStack((byte)((cpu.ProgramCounter + 2) & 0xFF));
 
-            byte address = args[0];
+            ushort address = (ushort)(args[0] + args[1] << 8);
             if (addressingMode == AddressingMode.Indirect)
-                address = cpu.Memory.Read(address);
+                address = (ushort)(cpu.Memory.Read(address) + cpu.Memory.Read((ushort)(address + 1)) << 8);
             cpu.ProgramCounter = address;
         }
     }

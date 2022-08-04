@@ -39,7 +39,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                     break;
             }
 
-            int result = a + b;
+            int result = a + b + (cpu.CarryFlag ? 1 : 0);
             cpu.RegisterA = (byte)result;
 
             cpu.NegativeFlag = ((byte)result & 0x80) != 0;
