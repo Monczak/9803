@@ -13,7 +13,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
-            cpu.RegisterX = cpu.StackPointer;
+            cpu.RegisterX = (byte)(cpu.StackPointer & 0xFF);
         }
     }
 }

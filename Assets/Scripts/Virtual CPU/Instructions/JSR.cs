@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Utilities;
 
 namespace NineEightOhThree.VirtualCPU.Instructions
 {
@@ -8,7 +9,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
-            { AddressingMode.Absolute, new(0x20, 1) },
+            { AddressingMode.Absolute, new(0x20, 2) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
@@ -16,7 +17,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
             cpu.PushStack((byte)((cpu.ProgramCounter + 2) >> 8));  // Current program counter + 2 (this does NOT implement the bug present in the 6502)
             cpu.PushStack((byte)((cpu.ProgramCounter + 2) & 0xFF));
 
-            ushort address = (ushort)(args[0] + args[1] << 8);
+            ushort address = BitUtils.FromLittleEndian(args[0], args[1]);
             if (addressingMode == AddressingMode.Indirect)
                 address = (ushort)(cpu.Memory.Read(address) + cpu.Memory.Read((ushort)(address + 1)) << 8);
             cpu.ProgramCounter = address;

@@ -47,9 +47,10 @@ namespace NineEightOhThree.VirtualCPU
         public ushort ProgramCounter { get; protected internal set; }
         private ushort preCycleProgramCounter;
 
+        public ushort StackTopPointer { get; protected internal set; } = 0x01FF;
+
         public int stackSize = 256;
-        public byte[] Stack { get; protected internal set; }
-        public byte StackPointer { get; protected internal set; }
+        public ushort StackPointer { get; protected internal set; }
 
 
         private CPUInstruction currentInstruction;
@@ -73,7 +74,7 @@ namespace NineEightOhThree.VirtualCPU
             for (int i = 0x00; i < Memory.size; i++)
                 Memory.Write((byte)i, 0xEA);  // NOP
 
-            var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\ncpx #$00\nbne $f8\njmp $0000");
+            var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\nbne $fa\njmp $0000");
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((byte)i, program[i]);
         }
@@ -91,23 +92,20 @@ namespace NineEightOhThree.VirtualCPU
 
         public void InitProcessor()
         {
-            Stack = new byte[stackSize];
-            StackPointer = 0xFF;
+            StackPointer = StackTopPointer;
         }
 
         public void PushStack(byte b)
         {
-            Stack[StackPointer--] = b;
-            StackPointer %= (byte)stackSize;
-            if (StackPointer == stackSize - 1)
+            Memory.Write(StackPointer--, b);
+            if (StackPointer == (ushort)(StackTopPointer - stackSize - 1))
                 throw new StackOverflowException();
         }
 
         public byte PullStack()
         {
-            byte b = Stack[StackPointer++];
-            StackPointer %= (byte)stackSize;
-            if (StackPointer == 0x00)
+            byte b = Memory.Read(StackPointer++);
+            if (StackPointer == (ushort)(StackTopPointer + 1))
                 throw new StackUnderflowException();
             return b;
         }

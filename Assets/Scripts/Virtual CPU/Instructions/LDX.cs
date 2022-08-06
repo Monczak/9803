@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NineEightOhThree.VirtualCPU.Utilities;
+using System.Collections.Generic;
 
 namespace NineEightOhThree.VirtualCPU.Instructions
 {
@@ -11,6 +12,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
             { AddressingMode.Immediate, new(0xA2, 1) },
             { AddressingMode.ZeroPage, new(0xA6, 1) },
             { AddressingMode.ZeroPageY, new(0xB6, 1) },
+            { AddressingMode.Absolute, new(0xAE, 2) },
+            { AddressingMode.AbsoluteY, new(0xBE, 2) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
@@ -25,6 +28,12 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                     break;
                 case AddressingMode.ZeroPageY:
                     cpu.RegisterX = cpu.Memory.Read(args[0], cpu.RegisterY);
+                    break;
+                case AddressingMode.Absolute:
+                    cpu.RegisterX = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]));
+                    break;
+                case AddressingMode.AbsoluteY:
+                    cpu.RegisterX = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterY);
                     break;
             }
 

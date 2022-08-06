@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NineEightOhThree.VirtualCPU.Utilities;
+using System.Collections.Generic;
 
 namespace NineEightOhThree.VirtualCPU.Instructions
 {
@@ -11,6 +12,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
             { AddressingMode.Accumulator, new(0x6A, 0) },
             { AddressingMode.ZeroPage, new(0x66, 1) },
             { AddressingMode.ZeroPageX, new(0x76, 1) },
+            { AddressingMode.Absolute, new(0x6E, 2) },
+            { AddressingMode.AbsoluteX, new(0x7E, 2) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
@@ -35,6 +38,20 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                     break;
                 case AddressingMode.ZeroPageX:
                     value = cpu.Memory.Read(args[0], cpu.RegisterX);
+                    bit0 = (byte)(value & 0x1);
+                    result = (byte)(value >> 1);
+                    result |= (byte)((cpu.CarryFlag ? 1 : 0) << 7);
+                    cpu.Memory.Write(args[0], result);
+                    break;
+                case AddressingMode.Absolute:
+                    value = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]));
+                    bit0 = (byte)(value & 0x1);
+                    result = (byte)(value >> 1);
+                    result |= (byte)((cpu.CarryFlag ? 1 : 0) << 7);
+                    cpu.Memory.Write(args[0], result);
+                    break;
+                case AddressingMode.AbsoluteX:
+                    value = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterX);
                     bit0 = (byte)(value & 0x1);
                     result = (byte)(value >> 1);
                     result |= (byte)((cpu.CarryFlag ? 1 : 0) << 7);

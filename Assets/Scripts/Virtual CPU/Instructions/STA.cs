@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NineEightOhThree.VirtualCPU.Utilities;
+using System.Collections.Generic;
 
 namespace NineEightOhThree.VirtualCPU.Instructions
 {
@@ -10,6 +11,9 @@ namespace NineEightOhThree.VirtualCPU.Instructions
         {
             { AddressingMode.ZeroPage, new(0x85, 1) },
             { AddressingMode.ZeroPageX, new(0x95, 1) },
+            { AddressingMode.Absolute, new(0x8D, 2) },
+            { AddressingMode.AbsoluteX, new(0x9D, 2) },
+            { AddressingMode.AbsoluteY, new(0x99, 2) },
             { AddressingMode.IndirectX, new(0x81, 1) },
             { AddressingMode.IndirectY, new(0x91, 1) },
         };
@@ -23,6 +27,15 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                     break;
                 case AddressingMode.ZeroPageX:
                     cpu.Memory.Write(args[0], offset: cpu.RegisterX, cpu.RegisterA);
+                    break;
+                case AddressingMode.Absolute:
+                    cpu.Memory.Write(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterA);
+                    break;
+                case AddressingMode.AbsoluteX:
+                    cpu.Memory.Write(BitUtils.FromLittleEndian(args[0], args[1]), offset: cpu.RegisterX, cpu.RegisterA);
+                    break;
+                case AddressingMode.AbsoluteY:
+                    cpu.Memory.Write(BitUtils.FromLittleEndian(args[0], args[1]), offset: cpu.RegisterY, cpu.RegisterA);
                     break;
                 case AddressingMode.IndirectX:
                     cpu.Memory.Write(cpu.Memory.Read(args[0], cpu.RegisterX), cpu.RegisterA);

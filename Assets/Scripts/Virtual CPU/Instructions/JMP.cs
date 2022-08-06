@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Utilities;
 
 namespace NineEightOhThree.VirtualCPU.Instructions
 {
@@ -14,7 +15,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
-            ushort address = (ushort)(args[0] + args[1] << 8);
+            ushort address = BitUtils.FromLittleEndian(args[0], args[1]);
             if (addressingMode == AddressingMode.Indirect)
                 address = (ushort)(cpu.Memory.Read(address) + cpu.Memory.Read((ushort)(address + 1)) << 8);
             cpu.ProgramCounter = address;

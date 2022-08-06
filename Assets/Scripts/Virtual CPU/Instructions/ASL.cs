@@ -12,6 +12,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
             { AddressingMode.Accumulator, new(0x0A, 0) },
             { AddressingMode.ZeroPage, new(0x06, 1) },
             { AddressingMode.ZeroPageX, new(0x16, 1) },
+            { AddressingMode.Absolute, new(0x0E, 2) },
+            { AddressingMode.AbsoluteX, new(0x1E, 2) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
@@ -33,6 +35,14 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                 case AddressingMode.ZeroPageX:
                     result = (byte)(cpu.Memory.Read(args[0], cpu.RegisterX) << 1);
                     cpu.Memory.Write(args[0], result);
+                    break;
+                case AddressingMode.Absolute:
+                    result = (byte)(cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1])) << 1);
+                    cpu.Memory.Write(BitUtils.FromLittleEndian(args[0], args[1]), result);
+                    break;
+                case AddressingMode.AbsoluteX:
+                    result = (byte)(cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterX) << 1);
+                    cpu.Memory.Write(BitUtils.FromLittleEndian(args[0], args[1]), result);
                     break;
             }
 

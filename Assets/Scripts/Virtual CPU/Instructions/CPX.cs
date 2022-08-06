@@ -11,6 +11,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
         {
             { AddressingMode.Immediate, new(0xE0, 1) },
             { AddressingMode.ZeroPage, new(0xE4, 1) },
+            { AddressingMode.Absolute, new(0xEC, 2) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
@@ -25,6 +26,9 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                     break;
                 case AddressingMode.ZeroPage:
                     b = cpu.Memory.Read(args[0]);
+                    break;
+                case AddressingMode.Absolute:
+                    b = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]));
                     break;
             }
 
