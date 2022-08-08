@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
@@ -21,7 +21,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 Debug.Log(line);
 
-                string[] strings = line.Trim().Split(new char[] { ' ', ';' }, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] strings = line.Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 // Ignore comments and everything after a comment
                 int index;
@@ -58,8 +58,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     {
                         "A" => AddressingMode.Accumulator,
                         var str when instructionFamily.Count(i => i.Item2 == AddressingMode.Relative) > 0 && str.StartsWith(AddressPrefix) && ExtractHex(str).Length == 2 => AddressingMode.Relative,
-                        var str when str.StartsWith($"({AddressPrefix}") && ExtractHex(str).Length == 2 && str.ToUpper().EndsWith(",X)")  => AddressingMode.IndirectX,
-                        var str when str.StartsWith($"({AddressPrefix}") && ExtractHex(str).Length == 2 && str.ToUpper().EndsWith("),Y")  => AddressingMode.IndirectY,
+                        var str when str.StartsWith($"({AddressPrefix}") && ExtractHex(str).Length == 2 && str.ToUpper().EndsWith(",X)") => AddressingMode.IndirectX,
+                        var str when str.StartsWith($"({AddressPrefix}") && ExtractHex(str).Length == 2 && str.ToUpper().EndsWith("),Y") => AddressingMode.IndirectY,
                         var str when str.StartsWith($"({AddressPrefix}") && ExtractHex(str).Length == 2 && str.EndsWith(")") => AddressingMode.Indirect,
                         var str when str.StartsWith(AddressPrefix) && ExtractHex(str).Length == 4 && str.ToUpper().EndsWith(",X") => AddressingMode.AbsoluteX,
                         var str when str.StartsWith(AddressPrefix) && ExtractHex(str).Length == 4 && str.ToUpper().EndsWith(",Y") => AddressingMode.AbsoluteY,

@@ -15,7 +15,7 @@ namespace NineEightOhThree.VirtualCPU.Utilities
 
         public static ushort FromLittleEndian(byte b1, byte b2)
         {
-            return (ushort)(b1 + b2 << 8);
+            return (ushort)(b1 + (b2 << 8));
         }
     }
 }
