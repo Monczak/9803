@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,96 +13,61 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
     {
         private MemoryBindableBehavior behavior;
 
-        private List<SerializedProperty> serializedBindableProps;
-
         private void OnEnable()
         {
             behavior = target as MemoryBindableBehavior;
-            serializedBindableProps = new();
 
-            behavior.testFields = new();
-
-            foreach (var f in behavior.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Bindable)))
+            if (behavior.bindables == null)
             {
-                SerializedProperty bindableProp = serializedObject.FindProperty(f.Name);
-                serializedBindableProps.Add(bindableProp);
+                behavior.bindables = new();
 
-                Bindable bindable = f.GetValue(behavior) as Bindable;
-                if (bindable == null)
-                    bindable = CreateInstance<Bindable>();
+                foreach (var f in behavior.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Bindable)))
+                {
+                    Bindable bindable = CreateInstance<Bindable>();
+                    bindable.fieldName = f.Name;
 
-                bindableProp.objectReferenceValue = bindable;
+                    if (f.IsDefined(typeof(BindableTypeAttribute)))
+                    {
+                        bindable.type = (f.GetCustomAttribute(typeof(BindableTypeAttribute)) as BindableTypeAttribute).type;
+                    }
+                    else
+                    {
+                        bindable.type = BindableType.Byte;
+                    }
 
-                bindableProp.serializedObject.ApplyModifiedProperties();
-
-                behavior.testFields.Add(f);
+                    f.SetValue(behavior, bindable);
+                    behavior.bindables.Add(bindable);
+                }
             }
+
         }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            foreach (var prop in serializedBindableProps)
+            EditorGUILayout.Space(10);
+
+            EditorGUILayout.LabelField("Bindables", EditorStyles.boldLabel);
+
+            for (int i = 0; i < behavior.bindables.Count; i++)
             {
-                prop.serializedObject.Update();
-                Bindable bindable = prop.objectReferenceValue as Bindable;
-                bindable.SetValue((byte)EditorGUILayout.DelayedIntField(bindable.GetValue<byte>()));
-                prop.serializedObject.ApplyModifiedProperties();
+                Bindable bindable = behavior.bindables[i];
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel($"{Beautify(bindable.fieldName)} ({bindable.type})");
+
+                string valueInput = EditorGUILayout.DelayedTextField(bindable.value?.ToString());
+                bindable.SetValueFromString(valueInput);
+
+                string addressInput = EditorGUILayout.DelayedTextField(bindable.address.ToString("X4"));
+                if (ushort.TryParse(addressInput, System.Globalization.NumberStyles.HexNumber, null, out ushort address))
+                {
+                    bindable.address = address;
+                }
+
+                EditorGUILayout.EndHorizontal();
             }
-
-            // Debug.Log(((Bindable)serializedBindableProps[0].objectReferenceValue).GetValue<byte>());
-
-            //if (behavior == null)
-            //    return;
-
-            //if (behavior.bindableValues == null)
-            //    Debug.LogError("Bindable values are null!");
-
-            //behavior.bindableValues ??= new();
-            //behavior.addresses ??= new();
-
-            //EditorGUILayout.Separator();
-            //EditorGUILayout.BeginHorizontal();
-            //EditorGUILayout.LabelField("Bindables", EditorStyles.boldLabel);
-            //EditorGUILayout.EndHorizontal();
-
-            //serializedObject.Update();
-            //foreach (SerializedProperty prop in serializedBindables)
-            //{
-            //    EditorGUILayout.PropertyField(prop);
-            //}
-            //serializedObject.ApplyModifiedProperties();
-
-            //foreach (var f in behavior.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType.IsGenericType && f.FieldType.GetGenericTypeDefinition() == typeof(Bindable<>)))
-            //{
-            //    Bindable bindable = f.GetValue(behavior) as Bindable;
-            //    Type bindableType = f.FieldType.GetGenericArguments()[0];
-
-            //    bindable ??= (Bindable)Activator.CreateInstance(f.FieldType);
-            //    f.SetValue(behavior, bindable);
-
-            //    if (!behavior.bindableValues.ContainsKey(bindable))
-            //        behavior.bindableValues[bindable] = "";
-            //    if (!behavior.addresses.ContainsKey(f))
-            //        behavior.addresses[f] = 0;
-
-            //    EditorGUILayout.BeginHorizontal();
-            //    string value = EditorGUILayout.DelayedTextField(Beautify(f.Name), behavior.bindableValues[bindable]);
-            //    string addressStr = EditorGUILayout.TextField("Address", behavior.addresses[f].ToString("X4"));
-            //    EditorGUILayout.EndHorizontal();
-
-            //    if (value != behavior.bindableValues[bindable])
-            //    {
-            //        bindable.SetValueFromString(value, bindableType);
-            //    }
-
-            //    behavior.bindableValues[bindable] = value;
-            //    if (ushort.TryParse(addressStr, out ushort address))
-            //    {
-            //        behavior.addresses[f] = address;
-            //    }
-            //}
         }
 
         private string Beautify(string fieldName)

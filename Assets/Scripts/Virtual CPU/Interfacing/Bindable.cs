@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NineEightOhThree.VirtualCPU.Interfacing.TypeHandling;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +7,16 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 {
 
     [Serializable]
-    public class Bindable : ScriptableObject
+    public class Bindable : ScriptableObject, ISerializationCallbackReceiver
     {
-        [SerializeField] protected object value;
-        [SerializeField] protected ushort address;
+        public object value;
+        public ushort address;
 
-        [SerializeField] protected Type type;
+        public BindableType type = BindableType.Null;
+        public string fieldName;
+
+        [SerializeField]
+        private string serializedValue;
 
         public T GetValue<T>()
         {
@@ -21,26 +26,32 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         }
         public void SetValue<T>(T value)
         {
-            type = typeof(T);
             this.value = value;
+        }
+        public void SetValueFromBytes(byte[] bytes)
+        {
+            value = Handlers[type].FromBytes(bytes);
+        }
+        public byte[] GetBytes()
+        {
+            return Handlers[type].ToBytes(value);
         }
 
         private T ParseValue<T>(string str)
         {
-            return (T)ParseValue(str, typeof(T));
+            return (T)ParseValue(str, type);
         }
 
-        private object ParseValue(string str, Type type)
+        private object ParseValue(string str, BindableType type)
         {
             try
             {
-                if (!Parsers.ContainsKey(type))
-                    throw new InvalidOperationException($"No parser exists for type {type.Name}");
+                if (!Handlers.ContainsKey(type))
+                    throw new InvalidOperationException($"No handler exists for type {type}");
 
                 this.type = type;
 
-                (ParseFunction parser, _) = Parsers[type];
-                return parser(str);
+                return Handlers[type].Parse(str);
             }
             catch (Exception e)
             {
@@ -48,7 +59,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             }
         }
 
-        public bool SetValueFromString(string str, Type type)
+        public bool SetValueFromString(string str)
         {
             try
             {
@@ -61,14 +72,37 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             }
         }
 
-        public delegate object ParseFunction(string str);
-        public static readonly Dictionary<Type, (ParseFunction, int)> Parsers = new()   // (ParseFunction, int) -> (parser, number of bytes in result)
+        public int Bytes => Handlers[type].Bytes;
+
+        public void OnBeforeSerialize()
         {
-            { typeof(byte), (str => str.StartsWith("0x") ? byte.Parse(str[2..], System.Globalization.NumberStyles.HexNumber) : byte.Parse(str), 1) },
-            { typeof(int), (str => int.Parse(str), 2) },
-            { typeof(long), (str => long.Parse(str), 4) },
-            { typeof(bool), (str => str != "0" && str.Trim() != "" && str.Trim().ToLower() != "false", 1) },
-            { typeof(Vector2), (str => new Vector2(int.Parse(str.Split(" ")[0]), int.Parse(str.Split(" ")[1])), 2) },
+            if (value == null)
+            {
+                serializedValue = "n";
+                return;
+            }
+
+            serializedValue = Handlers[type].Serialize(value);
+        }
+
+        public void OnAfterDeserialize()
+        {
+            if (type == BindableType.Null)
+            {
+                value = null;
+                return;
+            }
+
+            value = Handlers[type].Deserialize(serializedValue);
+        }
+
+        public static readonly Dictionary<BindableType, IBindableTypeHandler> Handlers = new()
+        {
+            { BindableType.Byte, new ByteHandler() },
+            { BindableType.Int, new IntHandler() },
+            { BindableType.Long, new LongHandler() },
+            { BindableType.Bool, new BoolHandler() },
+            { BindableType.Vector2, new Vector2Handler() },
         };
     }
 }

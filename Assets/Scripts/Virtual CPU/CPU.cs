@@ -1,12 +1,15 @@
 using NineEightOhThree.VirtualCPU.Assembly.Assembler;
+using NineEightOhThree.VirtualCPU.Interfacing;
 using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU
 {
-    [RequireComponent(typeof(Memory))]
+    [RequireComponent(typeof(Memory)), RequireComponent(typeof(BindableManager))]
     public class CPU : MonoBehaviour
     {
+        public static CPU Instance;
+
         [HideInInspector]
         public Memory Memory { get; private set; }
 
@@ -56,6 +59,8 @@ namespace NineEightOhThree.VirtualCPU
         private CPUInstruction currentInstruction;
         private AddressingMode addressingMode;
 
+        public BindableManager BindableManager { get; private set; }
+
         private void SetStatusRegisterBit(byte bit, bool set)
         {
             BitUtils.SetBit(ref statusRegister, bit, set);
@@ -64,6 +69,9 @@ namespace NineEightOhThree.VirtualCPU
         private void Awake()
         {
             Memory = GetComponent<Memory>();
+            BindableManager = GetComponent<BindableManager>();
+
+            Instance = this;
 
             InitProcessor();
         }
@@ -86,6 +94,8 @@ namespace NineEightOhThree.VirtualCPU
         private void FixedUpdate()
         {
             Cycle();
+
+            BindableManager.Synchronize();
         }
 
         public void InitProcessor()

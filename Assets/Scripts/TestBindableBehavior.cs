@@ -1,17 +1,17 @@
 ﻿using NineEightOhThree.VirtualCPU.Interfacing;
+using UnityEngine;
 
 namespace NineEightOhThree
 {
     public class TestBindableBehavior : MemoryBindableBehavior
     {
-        public Bindable testValue1;
-        public Bindable testValue2;
-        public Bindable testValue3;
-        public byte testByte;
+        [BindableType(BindableType.Byte)]
+        [HideInInspector]
+        public Bindable testBindable;
 
-        private void Awake()
+        private new void Awake()
         {
-
+            base.Awake();
         }
 
         private new void Update()

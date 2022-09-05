@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using NineEightOhThree.VirtualCPU.Interfacing;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU
 {
+    [RequireComponent(typeof(BindableManager))]
     public class Memory : MonoBehaviour
     {
         private byte[] data;
@@ -12,10 +14,14 @@ namespace NineEightOhThree.VirtualCPU
 
         public HashSet<ushort> writeProtectedAddresses;
 
+        private BindableManager bindableManager;
+
         private void Awake()
         {
             Clear();
             writeProtectedAddresses = new HashSet<ushort>();
+
+            bindableManager = GetComponent<BindableManager>();
         }
 
         public void Clear()
@@ -33,11 +39,12 @@ namespace NineEightOhThree.VirtualCPU
             return Read((ushort)(address + offset));
         }
 
-        public bool Write(ushort address, byte value)
+        public bool Write(ushort address, byte value, bool setDirty = true)
         {
             if (writeProtectedAddresses.Contains(address))
                 return false;
             data[address] = value;
+            if (setDirty) bindableManager.SetDirty(address);
             return true;
         }
 
@@ -49,6 +56,14 @@ namespace NineEightOhThree.VirtualCPU
         public byte[] ReadBlock(ushort address, int count)
         {
             return data[address..(address + count)];
+        }
+
+        public bool WriteBlock(ushort address, params byte[] bytes)
+        {
+            bool success = true;
+            for (ushort addr = address; addr < address + bytes.Length; addr++)
+                success &= Write(addr, bytes[addr - address]);
+            return success;
         }
 
         public void ProtectWrites(params ushort[] addresses)

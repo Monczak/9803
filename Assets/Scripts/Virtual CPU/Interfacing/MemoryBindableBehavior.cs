@@ -1,29 +1,34 @@
-using NineEightOhThree.VirtualCPU;
-using NineEightOhThree.VirtualCPU.Interfacing;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
-[System.Serializable]
-public class MemoryBindableBehavior : MonoBehaviour
+namespace NineEightOhThree.VirtualCPU.Interfacing
 {
-    public Memory memory;
-
-    public Dictionary<Bindable, string> bindableValues;
-    public Dictionary<FieldInfo, ushort> addresses;
-
-    public List<FieldInfo> testFields;
-
-    // Start is called before the first frame update
-    void Start()
+    [System.Serializable]
+    public class MemoryBindableBehavior : MonoBehaviour
     {
+        [HideInInspector]
+        public List<Bindable> bindables;
 
-    }
+        protected void Awake()
+        {
+            foreach (Bindable bindable in bindables)
+            {
+                CPU.Instance.BindableManager.RegisterBindable(bindable);
+            }
+        }
 
-    // Update is called once per frame
-    protected void Update()
-    {
-        foreach (FieldInfo i in testFields)
-            Debug.Log($"Test {i.Name}");
+        protected void OnDestroy()
+        {
+            foreach (Bindable bindable in bindables)
+            {
+                CPU.Instance.BindableManager.UnregisterBindable(bindable);
+            }
+        }
+
+        // Update is called once per frame
+        protected void Update()
+        {
+
+        }
     }
 }

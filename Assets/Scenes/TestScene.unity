@@ -377,6 +377,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &225141363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  address: 640
+  type: 1
+  fieldName: testBindable
+  serializedValue: 0
 --- !u!1 &286701493
 GameObject:
   m_ObjectHideFlags: 0
@@ -474,11 +490,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac5212a07810ab34ab104efd9fc5da81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  memory: {fileID: 0}
-  testValue1: {fileID: 525730580}
-  testValue2: {fileID: 1262083692}
-  testValue3: {fileID: 1417924879}
-  testByte: 0
+  bindables:
+  - {fileID: 225141363}
+  testBindable: {fileID: 225141363}
 --- !u!1 &293724231
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,6 +690,7 @@ GameObject:
   - component: {fileID: 454578874}
   - component: {fileID: 454578873}
   - component: {fileID: 454578872}
+  - component: {fileID: 454578875}
   m_Layer: 0
   m_Name: Virtual CPU
   m_TagString: Untagged
@@ -724,6 +739,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &454578875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454578871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b540c11420b52ef499d7fc554796bd64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -884,19 +911,6 @@ MonoBehaviour:
   m_CropFrameX: 0
   m_CropFrameY: 0
   m_StretchFill: 0
---- !u!114 &525730580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 0
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1042,7 +1056,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1499,7 +1513,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &912178566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1695,7 +1709,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 16}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1040175245
 MonoBehaviour:
@@ -1952,19 +1966,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1260805667}
   m_CullTransparentMesh: 1
---- !u!114 &1262083692
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 0
 --- !u!1 &1293011799
 GameObject:
   m_ObjectHideFlags: 0
@@ -2042,19 +2043,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1293011799}
   m_CullTransparentMesh: 1
---- !u!114 &1417924879
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 0
 --- !u!1 &1686316335
 GameObject:
   m_ObjectHideFlags: 0
