@@ -4,7 +4,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing.TypeHandling
 {
     public class IntHandler : IBindableTypeHandler
     {
-        public int Bytes => 2;
+        public int Bytes => 4;
 
         public object Deserialize(string serializedValue) => int.Parse(serializedValue);
 

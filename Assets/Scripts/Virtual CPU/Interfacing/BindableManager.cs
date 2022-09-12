@@ -30,6 +30,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             foreach (Bindable bindable in bindables.Values)
             {
+                if (!bindable.enabled) continue;
                 for (ushort address = bindable.address; address < bindable.address + bindable.Bytes; address++)
                 {
                     if (dirtyAddresses.Contains(address))
@@ -42,7 +43,8 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
             foreach (Bindable bindable in bindables.Values)
             {
-                memory.WriteBlock(bindable.address, bindable.GetBytes());
+                if (!bindable.enabled) continue;
+                memory.WriteBlock(bindable.address, bindable.GetBytes(), false);
             }
 
             dirtyAddresses.Clear();

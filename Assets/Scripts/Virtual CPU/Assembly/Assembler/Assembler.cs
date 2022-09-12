@@ -107,7 +107,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static byte[] SplitHex(string hexStr, bool littleEndian = true)
         {
             byte[] bytes = new byte[(hexStr.Length + 1) / 2];
-            int strPointer = Math.Max(0, hexStr.Length - 2);
+            int strPointer = System.Math.Max(0, hexStr.Length - 2);
             int i = 0;
 
             while (strPointer >= 0)

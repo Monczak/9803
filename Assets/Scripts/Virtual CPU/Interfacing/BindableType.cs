@@ -7,9 +7,12 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
     {
         Null,
         Byte,
+        Ushort,
         Int,
         Long,
         Bool,
-        Vector2
+        Vector2,
+        Vector2Int,
+        Vector2Byte
     }
 }

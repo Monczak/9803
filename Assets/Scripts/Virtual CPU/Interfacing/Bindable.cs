@@ -18,6 +18,8 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         [SerializeField]
         private string serializedValue;
 
+        public bool enabled;
+
         public T GetValue<T>()
         {
             if (value == null)
@@ -66,8 +68,9 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 value = ParseValue(str, type);
                 return true;
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
+                Debug.LogError($"{e.Message}\n{e.StackTrace}");
                 return false;
             }
         }
@@ -99,10 +102,13 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         public static readonly Dictionary<BindableType, IBindableTypeHandler> Handlers = new()
         {
             { BindableType.Byte, new ByteHandler() },
+            { BindableType.Ushort, new UshortHandler() },
             { BindableType.Int, new IntHandler() },
             { BindableType.Long, new LongHandler() },
             { BindableType.Bool, new BoolHandler() },
             { BindableType.Vector2, new Vector2Handler() },
+            { BindableType.Vector2Int, new Vector2IntHandler() },
+            { BindableType.Vector2Byte, new Vector2ByteHandler() },
         };
     }
 }

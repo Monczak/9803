@@ -58,11 +58,11 @@ namespace NineEightOhThree.VirtualCPU
             return data[address..(address + count)];
         }
 
-        public bool WriteBlock(ushort address, params byte[] bytes)
+        public bool WriteBlock(ushort address, byte[] bytes, bool setDirty = true)
         {
             bool success = true;
             for (ushort addr = address; addr < address + bytes.Length; addr++)
-                success &= Write(addr, bytes[addr - address]);
+                success &= Write(addr, bytes[addr - address], setDirty);
             return success;
         }
 

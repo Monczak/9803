@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Interfacing
 {
@@ -19,25 +20,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
             if (behavior.bindables == null)
             {
-                behavior.bindables = new();
-
-                foreach (var f in behavior.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Bindable)))
-                {
-                    Bindable bindable = CreateInstance<Bindable>();
-                    bindable.fieldName = f.Name;
-
-                    if (f.IsDefined(typeof(BindableTypeAttribute)))
-                    {
-                        bindable.type = (f.GetCustomAttribute(typeof(BindableTypeAttribute)) as BindableTypeAttribute).type;
-                    }
-                    else
-                    {
-                        bindable.type = BindableType.Byte;
-                    }
-
-                    f.SetValue(behavior, bindable);
-                    behavior.bindables.Add(bindable);
-                }
+                RefreshBindables();
             }
 
         }
@@ -66,7 +49,14 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                     bindable.address = address;
                 }
 
+                bindable.enabled = EditorGUILayout.Toggle(bindable.enabled);
+
                 EditorGUILayout.EndHorizontal();
+            }
+
+            if (GUILayout.Button("Refresh Bindables"))
+            {
+                RefreshBindables();
             }
         }
 
@@ -78,6 +68,29 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 builder.Append(str[0].ToString().ToUpper()).Append(str.AsSpan(1)).Append(" ");
             builder.Remove(builder.Length - 1, 1);
             return builder.ToString();
+        }
+
+        private void RefreshBindables()
+        {
+            behavior.bindables = new();
+
+            foreach (var f in behavior.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Bindable)))
+            {
+                Bindable bindable = CreateInstance<Bindable>();
+                bindable.fieldName = f.Name;
+
+                if (f.IsDefined(typeof(BindableTypeAttribute)))
+                {
+                    bindable.type = (f.GetCustomAttribute(typeof(BindableTypeAttribute)) as BindableTypeAttribute).type;
+                }
+                else
+                {
+                    bindable.type = BindableType.Byte;
+                }
+
+                f.SetValue(behavior, bindable);
+                behavior.bindables.Add(bindable);
+            }
         }
     }
 }

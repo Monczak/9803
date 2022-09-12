@@ -23,9 +23,9 @@ namespace NineEightOhThree.VirtualCPU.Utilities
             return typeof(T) switch
             {
                 var t when t == typeof(byte) => bytes[0],
-                var t when t == typeof(ushort) => (ushort)(bytes[0] + bytes[1] << 8),
-                var t when t == typeof(int) => bytes[0] + bytes[1] << 8 + bytes[2] << 16 + bytes[3] << 24,
-                var t when t == typeof(long) => bytes[0] + bytes[1] << 8 + bytes[2] << 16 + bytes[3] << 24 + bytes[4] << 32 + bytes[5] << 40 + bytes[6] << 48 + bytes[7] << 56, // TODO: May use ints, not longs?
+                var t when t == typeof(ushort) => (ushort)(bytes[0] + (bytes[1] << 8)),
+                var t when t == typeof(int) => bytes[0] + (bytes[1] << 8) + (bytes[2] << 16) + (bytes[3] << 24),
+                var t when t == typeof(long) => bytes[0] + (bytes[1] << 8) + (bytes[2] << 16) + (bytes[3] << 24) + (bytes[4] << 32) + (bytes[5] << 40) + (bytes[6] << 48) + (bytes[7] << 56), // TODO: May use ints, not longs?
                 _ => null,
             };
         }
