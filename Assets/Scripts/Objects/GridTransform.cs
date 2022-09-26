@@ -9,6 +9,30 @@ namespace NineEightOhThree.Objects
         [BindableType(BindableType.Vector2Byte), HideInInspector]
         public Bindable pixelPos;
 
+        private Vector2 truePosition;
+        private bool truePositionDirty;
+
+        public Vector2 TruePosition
+        {
+            get => truePosition;
+            set
+            {
+                truePosition = value;
+                truePositionDirty = true;
+            }
+        }
+
+        public Vector2 UnitPosition
+        {
+            get => TruePosition / pixelsPerUnit;
+            set
+            {
+                TruePosition = value * pixelsPerUnit;
+                truePositionDirty = true;
+            }
+        }
+        private Vector2 PosDelta => (Vector2)pixelPos.GetValue<Vector2Byte>() - truePosition;
+
         public int pixelsPerUnit;
         public float zPosition;
 
@@ -19,7 +43,7 @@ namespace NineEightOhThree.Objects
         }
 
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
 
         }
@@ -29,8 +53,53 @@ namespace NineEightOhThree.Objects
         {
             base.Update();
 
-            Vector2Byte currentPos = pixelPos.GetValue<Vector2Byte>();
-            transform.position = new Vector3((float)currentPos.x / pixelsPerUnit, (float)currentPos.y / pixelsPerUnit, zPosition);
+            SyncPositions();
+        }
+
+        private void SyncPositions()
+        {
+            if (PosDelta.sqrMagnitude > 1)
+            {
+                if (pixelPos.dirty) truePosition = (Vector2)pixelPos.GetValue<Vector2Byte>();
+                if (truePositionDirty) pixelPos.SetValue((Vector2Byte)truePosition);
+            }
+
+            if (pixelPos.dirty || truePositionDirty)
+            {
+                SyncTransformWithPixelPos();
+            }
+            else
+            {
+                SyncWithTransform();
+            }
+
+            pixelPos.SetValue((Vector2Byte)truePosition);
+            if (((Vector2)pixelPos.GetValue<Vector2Byte>() - truePosition).magnitude > 1)
+            {
+                SyncTransformWithPixelPos();
+            }
+
+            truePositionDirty = false;
+        }
+
+        private void SyncTransformWithPixelPos()
+        {
+            Vector2Byte pos = pixelPos.GetValue<Vector2Byte>();
+            transform.position = new Vector3((float)pos.x / pixelsPerUnit, (float)pos.y / pixelsPerUnit, zPosition);
+        }
+
+        private new void LateUpdate()
+        {
+            base.LateUpdate();
+
+            /*// Sync with transform.position in case it gets modified (by Rigidbody2D for example)
+            if (((Vector2)transform.position - TruePosition).magnitude > 1.0f / pixelsPerUnit / 2)
+                TruePosition = transform.position * pixelsPerUnit;*/
+        }
+
+        public void SyncWithTransform()
+        {
+            truePosition = transform.position * pixelsPerUnit;
         }
     }
 }

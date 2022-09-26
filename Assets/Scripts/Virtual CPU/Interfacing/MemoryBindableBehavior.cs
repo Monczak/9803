@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Interfacing
 {
-    [System.Serializable]
+    [Serializable]
     public class MemoryBindableBehavior : MonoBehaviour
     {
         [HideInInspector]
@@ -29,6 +30,14 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         protected void Update()
         {
 
+        }
+
+        protected void LateUpdate()
+        {
+            foreach (Bindable bindable in bindables)
+            {
+                bindable.dirty = false;
+            }
         }
     }
 }

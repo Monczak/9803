@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace NineEightOhThree.Math
 {
@@ -20,5 +21,8 @@ namespace NineEightOhThree.Math
         }
 
         public override string ToString() => $"{x} {y}";
+
+        public static explicit operator Vector2(Vector2Byte v) => new(v.x, v.y);
+        public static explicit operator Vector2Byte(Vector2 v) => new((byte)Mathf.RoundToInt(v.x), (byte)Mathf.RoundToInt(v.y));
     }
 }

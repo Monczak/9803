@@ -19,6 +19,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         private string serializedValue;
 
         public bool enabled;
+        public bool dirty;
 
         public T GetValue<T>()
         {
@@ -33,6 +34,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         public void SetValueFromBytes(byte[] bytes)
         {
             value = Handlers[type].FromBytes(bytes);
+            dirty = true;
         }
         public byte[] GetBytes()
         {
@@ -60,7 +62,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 throw new InvalidOperationException(e.Message);
             }
         }
-
+        
         public bool SetValueFromString(string str)
         {
             try
@@ -68,9 +70,9 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 value = ParseValue(str, type);
                 return true;
             }
-            catch (InvalidOperationException e)
+            catch (InvalidOperationException)
             {
-                Debug.LogError($"{e.Message}\n{e.StackTrace}");
+                // Debug.LogError($"{e.Message}\n{e.StackTrace}");
                 return false;
             }
         }
