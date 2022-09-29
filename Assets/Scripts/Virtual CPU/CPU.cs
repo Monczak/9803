@@ -9,8 +9,7 @@ namespace NineEightOhThree.VirtualCPU
     public class CPU : MonoBehaviour
     {
         public static CPU Instance;
-
-        [HideInInspector]
+        
         public Memory Memory { get; private set; }
 
         public byte RegisterA { get; protected internal set; }
@@ -55,6 +54,7 @@ namespace NineEightOhThree.VirtualCPU
         public int stackSize = 256;
         public ushort StackPointer { get; protected internal set; }
 
+        public bool showDebugInfo;
 
         private CPUInstruction currentInstruction;
         private AddressingMode addressingMode;
@@ -124,7 +124,7 @@ namespace NineEightOhThree.VirtualCPU
 
             Fetch();
             Execute();
-            PrintStatus();
+            if (showDebugInfo) PrintStatus();
         }
 
         private void Fetch()

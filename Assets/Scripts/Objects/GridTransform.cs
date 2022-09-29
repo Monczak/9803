@@ -36,6 +36,8 @@ namespace NineEightOhThree.Objects
         public int pixelsPerUnit;
         public float zPosition;
 
+        public float UnitsPerPixel => 1.0f / pixelsPerUnit;
+
         private new void Awake()
         {
             base.Awake();

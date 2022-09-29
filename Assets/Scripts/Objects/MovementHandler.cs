@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NineEightOhThree.Math;
 using UnityEngine;
 
 namespace NineEightOhThree.Objects
 {
-    [RequireComponent(typeof(GridTransform))]
+    [RequireComponent(typeof(GridTransform)), RequireComponent(typeof(BoxCollider2D))]
     public class MovementHandler : MonoBehaviour
     {
         private GridTransform gridTransform;
@@ -14,12 +15,21 @@ namespace NineEightOhThree.Objects
         public ContactFilter2D wallFilter;
 
         private List<RaycastHit2D> horizontalCastHits = new(), verticalCastHits = new();
-        
+        private HashSet<CollisionInfo> allHits = new(), previousAllHits = new();
+
+        public delegate void CollisionEventHandler(CollisionInfo info);
+
+        public event CollisionEventHandler CollisionEnter;
+        public event CollisionEventHandler CollisionStay;
+        public event CollisionEventHandler CollisionExit;
         
         private void Awake()
         {
             collider = GetComponent<BoxCollider2D>();
             gridTransform = GetComponent<GridTransform>();
+            
+            ColliderCache.Instance.Register(collider, this);
+            ColliderCache.Instance.Register(collider, gridTransform);
         }
 
         private void Update()
@@ -27,6 +37,46 @@ namespace NineEightOhThree.Objects
             var collisionData = PredictCollisions(velocity);
             Move(collisionData.filteredDirection);
             gridTransform.TruePosition += collisionData.hDelta + collisionData.vDelta;
+            
+            UpdateListeners();
+        }
+
+        private void UpdateListeners()
+        {
+            allHits.Clear();
+
+            float maxHitDistance = gridTransform.UnitsPerPixel / 2;
+            
+            foreach (var hit in horizontalCastHits)
+                if (hit.distance < maxHitDistance)
+                    allHits.Add(new CollisionInfo(hit));
+            foreach (var hit in verticalCastHits)
+                if (hit.distance < maxHitDistance)
+                    allHits.Add(new CollisionInfo(hit));
+            
+            foreach (var info in allHits)
+            {
+                if (!previousAllHits.Contains(info))
+                {
+                    CollisionEnter?.Invoke(info);
+                    ColliderCache.Instance.Get<MovementHandler>(info.Collider)?.CollisionEnter?.Invoke(info.WithOrigin(gameObject));
+                }
+                else
+                {
+                    CollisionStay?.Invoke(info);
+                    ColliderCache.Instance.Get<MovementHandler>(info.Collider)?.CollisionStay?.Invoke(info.WithOrigin(gameObject));
+                }
+            }
+
+            foreach (var info in previousAllHits)
+            {
+                if (allHits.Contains(info)) continue;
+                
+                CollisionExit?.Invoke(info);
+                ColliderCache.Instance.Get<MovementHandler>(info.Collider)?.CollisionExit?.Invoke(info.WithOrigin(gameObject));
+            }
+
+            previousAllHits = new HashSet<CollisionInfo>(allHits);
         }
 
         private void Move(Vector2 filteredDirection)
@@ -40,12 +90,12 @@ namespace NineEightOhThree.Objects
             {
                 return Physics2D.BoxCast(
                     transform.position,
-                    collider.size - Vector2.one * (1.0f / gridTransform.pixelsPerUnit / 2),
+                    collider.size - Vector2.one * (gridTransform.UnitsPerPixel / 2),
                     0,
                     dir,
                     wallFilter,
                     results,
-                    Mathf.Max(dir.magnitude * Time.deltaTime, 1.0f / gridTransform.pixelsPerUnit));
+                    Mathf.Max(dir.magnitude * Time.deltaTime, gridTransform.UnitsPerPixel));
             }
 
             Vector2 HandleHit(RaycastHit2D hit, ref Vector2 filter, Vector2 dir)
@@ -82,6 +132,11 @@ namespace NineEightOhThree.Objects
             }
 
             return (filter, minHDelta, minVDelta);
+        }
+
+        private void OnDestroy()
+        {
+            ColliderCache.Instance.Unregister(collider);
         }
     }
 }
