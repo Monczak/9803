@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NineEightOhThree.Math;
+using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
 
 namespace NineEightOhThree.Objects
@@ -48,11 +49,15 @@ namespace NineEightOhThree.Objects
             float maxHitDistance = gridTransform.UnitsPerPixel / 2;
             
             foreach (var hit in horizontalCastHits)
+            {
                 if (hit.distance < maxHitDistance)
                     allHits.Add(new CollisionInfo(hit));
+            }
             foreach (var hit in verticalCastHits)
+            {
                 if (hit.distance < maxHitDistance)
                     allHits.Add(new CollisionInfo(hit));
+            }
             
             foreach (var info in allHits)
             {
@@ -88,7 +93,7 @@ namespace NineEightOhThree.Objects
         {
             int BoxCast(Vector2 dir, List<RaycastHit2D> results)
             {
-                return Physics2D.BoxCast(
+                int hitCount = Physics2D.BoxCast(
                     transform.position,
                     collider.size - Vector2.one * (gridTransform.UnitsPerPixel / 2),
                     0,
@@ -96,6 +101,7 @@ namespace NineEightOhThree.Objects
                     wallFilter,
                     results,
                     Mathf.Max(dir.magnitude * Time.deltaTime, gridTransform.UnitsPerPixel));
+                return hitCount;
             }
 
             Vector2 HandleHit(RaycastHit2D hit, ref Vector2 filter, Vector2 dir)

@@ -15,6 +15,12 @@ namespace NineEightOhThree.Objects
             movementHandler = GetComponent<MovementHandler>();
             
             movementHandler.CollisionEnter += MovementHandlerOnCollisionEnter;
+            movementHandler.CollisionExit += MovementHandlerOnCollisionExit;
+        }
+
+        private void MovementHandlerOnCollisionExit(CollisionInfo info)
+        {
+            Debug.Log($"{info.Origin.name} left me alone!");
         }
 
         private void MovementHandlerOnCollisionEnter(CollisionInfo info)

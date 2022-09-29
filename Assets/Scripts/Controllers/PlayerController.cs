@@ -95,7 +95,7 @@ namespace NineEightOhThree.Controllers
             Vector2 rightCornerPos = input.normalized + MathExtensions.RotateDegrees(input.normalized, -90);
 
             Vector2 leftOrigin = (Vector2)transform.position + GetBoxCenter(leftCornerPos);
-            Vector2 centralOrigin = (Vector2)transform.position + GetBoxCenter(centralPos);
+            Vector2 centralOrigin = (Vector2)transform.position + GetBoxCenter(centralPos) - input.normalized * gridTransform.UnitsPerPixel;
             Vector2 rightOrigin = (Vector2)transform.position + GetBoxCenter(rightCornerPos);
 
             int leftHitCount = Physics2D.BoxCast(
@@ -109,7 +109,7 @@ namespace NineEightOhThree.Controllers
             );
             int centralHitCount = Physics2D.BoxCast(
                 centralOrigin,
-                input.x == 0 ? verticalDetectionBoxSize : horizontalDetectionBoxSize,
+                (input.x == 0 ? horizontalDetectionBoxSize : verticalDetectionBoxSize),
                 0,
                 input,
                 movementHandler.wallFilter,
@@ -125,6 +125,8 @@ namespace NineEightOhThree.Controllers
                 hits,
                 gridTransform.UnitsPerPixel
             );
+            
+            Debug.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
 
             if (leftHitCount != 0 && centralHitCount == 0 && rightHitCount == 0)
                 relativeAngle = -90;
