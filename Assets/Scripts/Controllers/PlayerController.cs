@@ -86,9 +86,12 @@ namespace NineEightOhThree.Controllers
         
             Vector2 horizontalDetectionBoxSize = new(collider.size.x - 2 * SidePushZoneSize, SidePushZoneSize);
             Vector2 verticalDetectionBoxSize = new(SidePushZoneSize, collider.size.y - 2 * SidePushZoneSize);
-            
-            if (input.x * input.y != 0 || input == Vector2.zero) // If going in more than one direction (diagonal)
+
+            if (input.x * input.y != 0 || input == Vector2.zero)    // If going in more than one direction (diagonal)
+            {
+                relativeAngle = 0;
                 return;
+            } 
 
             Vector2 leftCornerPos = input.normalized + MathExtensions.RotateDegrees(input.normalized, 90);
             Vector2 centralPos = input.normalized;
@@ -126,7 +129,7 @@ namespace NineEightOhThree.Controllers
                 gridTransform.UnitsPerPixel
             );
             
-            Debug.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
+            // Debug.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
 
             if (leftHitCount != 0 && centralHitCount == 0 && rightHitCount == 0)
                 relativeAngle = -90;

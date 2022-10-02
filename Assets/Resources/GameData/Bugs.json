@@ -1,0 +1,7 @@
+﻿[
+  {
+    "id": "clipThroughCorners",
+    "name": "Clip through corners",
+    "description": "Allows clipping through outer wall corners"
+  }
+]
