@@ -16,6 +16,8 @@ namespace NineEightOhThree.Objects
             
             movementHandler.CollisionEnter += MovementHandlerOnCollisionEnter;
             movementHandler.CollisionExit += MovementHandlerOnCollisionExit;
+            
+            ColliderCache.Instance.Register(movementHandler.Collider, this);
         }
 
         private void MovementHandlerOnCollisionExit(CollisionInfo info)
@@ -26,6 +28,11 @@ namespace NineEightOhThree.Objects
         private void MovementHandlerOnCollisionEnter(CollisionInfo info)
         {
             Debug.Log($"{info.Origin.name} hit me!");
+        }
+
+        private void OnDestroy()
+        {
+            ColliderCache.Instance.Unregister(movementHandler.Collider,this);
         }
     }
 }

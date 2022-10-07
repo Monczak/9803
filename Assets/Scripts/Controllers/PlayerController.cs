@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NineEightOhThree.Math;
 using NineEightOhThree.Objects;
 using UnityEngine;
@@ -14,6 +15,9 @@ namespace NineEightOhThree.Controllers
         private MovementHandler movementHandler;
 
         private new BoxCollider2D collider;
+
+        private Pushable pushedObject;
+        private List<Pushable> touchingPushables;
 
         private PlayerControls controls;
 
@@ -33,6 +37,8 @@ namespace NineEightOhThree.Controllers
             movementHandler = GetComponent<MovementHandler>();
             collider = GetComponent<BoxCollider2D>();
 
+            touchingPushables = new List<Pushable>();
+
             controls.Movement.Move.performed += OnMove;
             controls.Movement.Move.canceled += OnMove;
             
@@ -45,17 +51,23 @@ namespace NineEightOhThree.Controllers
 
         private void MovementHandlerOnCollisionEnter(CollisionInfo info)
         {
-            // Debug.Log($"Enter {info.GameObject.name} {info.Point}");
+            if (ColliderCache.Instance.TryGet(info.Collider, out Pushable pushable))
+            {
+                touchingPushables.Add(pushable);
+            }
         }
         
         private void MovementHandlerOnCollisionStay(CollisionInfo info)
         {
-            // Debug.Log($"Stay {info.GameObject.name} {gridTransform.UnitPosition - info.Point}");
+            SortPushables();
         }
         
         private void MovementHandlerOnCollisionExit(CollisionInfo info)
         {
-            // Debug.Log($"Exit {info.GameObject.name} {info.Point}");
+            if (ColliderCache.Instance.TryGet(info.Collider, out Pushable pushable))
+            {
+                touchingPushables.Remove(pushable);
+            }
         }
 
         private void OnMove(InputAction.CallbackContext obj)
@@ -74,6 +86,14 @@ namespace NineEightOhThree.Controllers
         {
             CheckCorners();
             movementHandler.velocity = MathExtensions.RotateDegrees(input, relativeAngle) * speed;
+
+            /*string s = touchingPushables.Aggregate("", (current, pushable) => current + pushable.gameObject.name + " ");
+            Debug.Log(s);*/
+        }
+
+        private void SortPushables()
+        {
+            touchingPushables.Sort((p1, p2) => Vector2.Distance(transform.position, p1.transform.position) > Vector2.Distance(transform.position, p2.transform.position) ? 1 : -1);
         }
 
         private void CheckCorners()

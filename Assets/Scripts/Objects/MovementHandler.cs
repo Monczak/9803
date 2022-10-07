@@ -12,13 +12,16 @@ namespace NineEightOhThree.Objects
     public class MovementHandler : MonoBehaviour
     {
         private GridTransform gridTransform;
-        private new BoxCollider2D collider;
-        
+
+        public BoxCollider2D Collider { get; private set; }
+
         public Vector2 velocity;
         public ContactFilter2D wallFilter;
 
         private List<RaycastHit2D> horizontalCastHits = new(), verticalCastHits = new(), cornerHCastHits = new(), cornerVCastHits = new();
         private HashSet<CollisionInfo> allHits = new(), previousAllHits = new();
+
+        private const float DeltaEpsilon = 0.001f;
 
         public delegate void CollisionEventHandler(CollisionInfo info);
 
@@ -28,19 +31,19 @@ namespace NineEightOhThree.Objects
         
         private void Awake()
         {
-            collider = GetComponent<BoxCollider2D>();
+            Collider = GetComponent<BoxCollider2D>();
             gridTransform = GetComponent<GridTransform>();
             
-            ColliderCache.Instance.Register(collider, this);
-            ColliderCache.Instance.Register(collider, gridTransform);
+            ColliderCache.Instance.Register(Collider, this);
+            ColliderCache.Instance.Register(Collider, gridTransform);
         }
 
         private void Update()
         {
             var collisionData = PredictCollisions(velocity);
             Move(collisionData.filteredDirection);
-            gridTransform.TruePosition += collisionData.hDelta + collisionData.vDelta;
-            
+            gridTransform.TruePosition += (collisionData.hDelta + collisionData.vDelta) * gridTransform.pixelsPerUnit;
+
             UpdateListeners();
         }
 
@@ -52,11 +55,17 @@ namespace NineEightOhThree.Objects
             
             foreach (var hit in horizontalCastHits)
             {
+                if (hit.collider == Collider)
+                    continue;
+                
                 if (hit.distance < maxHitDistance)
                     allHits.Add(new CollisionInfo(hit));
             }
             foreach (var hit in verticalCastHits)
             {
+                if (hit.collider == Collider)
+                    continue;
+                
                 if (hit.distance < maxHitDistance)
                     allHits.Add(new CollisionInfo(hit));
             }
@@ -77,7 +86,8 @@ namespace NineEightOhThree.Objects
 
             foreach (var info in previousAllHits)
             {
-                if (allHits.Contains(info)) continue;
+                if (allHits.Contains(info)) 
+                    continue;
                 
                 CollisionExit?.Invoke(info);
                 ColliderCache.Instance.Get<MovementHandler>(info.Collider)?.CollisionExit?.Invoke(info.WithOrigin(gameObject));
@@ -95,14 +105,14 @@ namespace NineEightOhThree.Objects
         {
             float CastDistance(Vector2 dir)
             {
-                return Mathf.Max(dir.magnitude * Time.deltaTime, gridTransform.UnitsPerPixel);
+                return Mathf.Max(dir.magnitude / gridTransform.pixelsPerUnit * Time.deltaTime, gridTransform.UnitsPerPixel);
             }
 
             int BoxCast(Vector2 dir, List<RaycastHit2D> results, Vector2 origin)
             {
                 return Physics2D.BoxCast(
                     origin,
-                    collider.size - Vector2.one * (gridTransform.UnitsPerPixel / 2),
+                    Collider.size - Vector2.one * (gridTransform.UnitsPerPixel / 2),
                     0,
                     dir,
                     wallFilter,
@@ -112,7 +122,7 @@ namespace NineEightOhThree.Objects
 
             Vector2 HandleHit(RaycastHit2D hit, ref Vector2 filter, Vector2 dir)
             {
-                Vector2 delta = (hit.point - (Vector2)transform.position - collider.size / 2 * dir) *
+                Vector2 delta = (hit.point - (Vector2)transform.position - Collider.size / 2 * dir) *
                                 MathExtensions.Abs(dir);
                 delta = MathExtensions.Quantize(delta, gridTransform.pixelsPerUnit);
                 // Debug.Log($"Point: {hit.point} Distance: {hit.distance} Normal: {hit.normal} Direction: {direction} Delta: {delta}");
@@ -174,7 +184,8 @@ namespace NineEightOhThree.Objects
 
         private void OnDestroy()
         {
-            ColliderCache.Instance.Unregister(collider);
+            ColliderCache.Instance.Unregister(Collider, this);
+            ColliderCache.Instance.Unregister(Collider, gridTransform);
         }
     }
 }

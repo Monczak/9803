@@ -42,6 +42,8 @@ namespace NineEightOhThree.Objects
         {
             base.Awake();
 
+            truePosition = transform.position;
+            pixelPos.SetValue((Vector2Byte)truePosition);
         }
 
         // Start is called before the first frame update

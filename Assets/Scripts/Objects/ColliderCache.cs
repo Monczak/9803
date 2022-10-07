@@ -33,7 +33,18 @@ namespace NineEightOhThree.Objects
                 return null;
             return (T)cache[col][typeof(T)];
         }
-        
+
+        public bool TryGet<T>(Collider2D col, out T component) where T : Component
+        {
+            component = null;
+            if (!cache.ContainsKey(col))
+                return false;
+            if (!cache[col].ContainsKey(typeof(T)))
+                return false;
+            component = (T)cache[col][typeof(T)];
+            return true;
+        }
+
         public void Unregister(Collider2D origin, Component component)
         {
             cache[origin].Remove(typeof(Component));
