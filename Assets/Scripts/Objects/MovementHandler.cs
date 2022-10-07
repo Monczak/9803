@@ -20,9 +20,7 @@ namespace NineEightOhThree.Objects
 
         private List<RaycastHit2D> horizontalCastHits = new(), verticalCastHits = new(), cornerHCastHits = new(), cornerVCastHits = new();
         private HashSet<CollisionInfo> allHits = new(), previousAllHits = new();
-
-        private const float DeltaEpsilon = 0.001f;
-
+        
         public delegate void CollisionEventHandler(CollisionInfo info);
 
         public event CollisionEventHandler CollisionEnter;
@@ -42,7 +40,8 @@ namespace NineEightOhThree.Objects
         {
             var collisionData = PredictCollisions(velocity);
             Move(collisionData.filteredDirection);
-            gridTransform.TruePosition += (collisionData.hDelta + collisionData.vDelta) * gridTransform.pixelsPerUnit;
+
+            gridTransform.TruePosition += collisionData.hDelta + collisionData.vDelta;
 
             UpdateListeners();
         }
@@ -55,17 +54,11 @@ namespace NineEightOhThree.Objects
             
             foreach (var hit in horizontalCastHits)
             {
-                if (hit.collider == Collider)
-                    continue;
-                
                 if (hit.distance < maxHitDistance)
                     allHits.Add(new CollisionInfo(hit));
             }
             foreach (var hit in verticalCastHits)
             {
-                if (hit.collider == Collider)
-                    continue;
-                
                 if (hit.distance < maxHitDistance)
                     allHits.Add(new CollisionInfo(hit));
             }
@@ -86,7 +79,7 @@ namespace NineEightOhThree.Objects
 
             foreach (var info in previousAllHits)
             {
-                if (allHits.Contains(info)) 
+                if (allHits.Contains(info))
                     continue;
                 
                 CollisionExit?.Invoke(info);
@@ -110,7 +103,10 @@ namespace NineEightOhThree.Objects
 
             int BoxCast(Vector2 dir, List<RaycastHit2D> results, Vector2 origin)
             {
-                return Physics2D.BoxCast(
+                int layer = gameObject.layer;
+                gameObject.layer = 0;   // Temporarily move this object to the default layer (or at least one not hit by the wall filter)
+                
+                int hits = Physics2D.BoxCast(
                     origin,
                     Collider.size - Vector2.one * (gridTransform.UnitsPerPixel / 2),
                     0,
@@ -118,19 +114,24 @@ namespace NineEightOhThree.Objects
                     wallFilter,
                     results,
                     CastDistance(dir));
+
+                gameObject.layer = layer;
+                return hits;
             }
 
             Vector2 HandleHit(RaycastHit2D hit, ref Vector2 filter, Vector2 dir)
             {
-                Vector2 delta = (hit.point - (Vector2)transform.position - Collider.size / 2 * dir) *
-                                MathExtensions.Abs(dir);
-                delta = MathExtensions.Quantize(delta, gridTransform.pixelsPerUnit);
-                // Debug.Log($"Point: {hit.point} Distance: {hit.distance} Normal: {hit.normal} Direction: {direction} Delta: {delta}");
-
-                if (Vector2.Dot(direction, hit.normal) < 0)
+                if (Vector2.Dot(direction.normalized, hit.normal) < -0.001f)
+                {
+                    Vector2 delta = (hit.point - (Vector2)transform.position - Collider.size / 2 * dir) *
+                                    MathExtensions.Abs(dir);
+                    delta = MathExtensions.Quantize(delta, gridTransform.pixelsPerUnit);
+                    // Debug.Log($"Point: {hit.point} Distance: {hit.distance} Normal: {hit.normal} Direction: {direction} Delta: {delta}");
+                    
                     filter *= new Vector2((int)Mathf.Abs(hit.normal.y), (int)Mathf.Abs(hit.normal.x));
-
-                return delta;
+                    return delta;
+                }
+                return Vector2.zero;
             }
 
             int hHitCount = BoxCast(direction * Vector2.right, horizontalCastHits, transform.position);

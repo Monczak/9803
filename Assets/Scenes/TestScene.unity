@@ -5410,7 +5410,7 @@ MonoBehaviour:
   cellCount: 256
   cellPrefab: {fileID: 4506798925541212260, guid: 360d695b0beb47e419912b3bc2d0b707, type: 3}
   memoryCellParent: {fileID: 1040175244}
-  currentPage: 3
+  currentPage: 2
   decimal: 0
 --- !u!1 &1902842090
 GameObject:

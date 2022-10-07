@@ -98,6 +98,25 @@ namespace NineEightOhThree.Controllers
 
         private void CheckCorners()
         {
+            int BoxCast(Vector2 origin, Vector2 boxSize)
+            {
+                int layer = gameObject.layer;
+                gameObject.layer = 0;   // Temporarily move this object to the default layer (or at least one not hit by the wall filter)
+                
+                int hitCount = Physics2D.BoxCast(
+                    origin,
+                    boxSize,
+                    0,
+                    input,
+                    movementHandler.wallFilter,
+                    hits,
+                    gridTransform.UnitsPerPixel
+                );
+                
+                gameObject.layer = layer;
+                return hitCount;
+            }
+            
             Vector2 GetBoxCenter(Vector2 pos) =>
                 new(pos.x * (collider.size.x - SidePushZoneSize) / 2,
                     pos.y * (collider.size.y - SidePushZoneSize) / 2);
@@ -121,33 +140,12 @@ namespace NineEightOhThree.Controllers
             Vector2 centralOrigin = (Vector2)transform.position + GetBoxCenter(centralPos) - input.normalized * gridTransform.UnitsPerPixel;
             Vector2 rightOrigin = (Vector2)transform.position + GetBoxCenter(rightCornerPos);
 
-            int leftHitCount = Physics2D.BoxCast(
-                leftOrigin,
-                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2),
-                0,
-                input,
-                movementHandler.wallFilter,
-                hits,
-                gridTransform.UnitsPerPixel
-            );
-            int centralHitCount = Physics2D.BoxCast(
-                centralOrigin,
-                (input.x == 0 ? horizontalDetectionBoxSize : verticalDetectionBoxSize),
-                0,
-                input,
-                movementHandler.wallFilter,
-                hits,
-                gridTransform.UnitsPerPixel
-            );
-            int rightHitCount = Physics2D.BoxCast(
-                rightOrigin,
-                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2),
-                0,
-                input,
-                movementHandler.wallFilter,
-                hits,
-                gridTransform.UnitsPerPixel
-            );
+            int leftHitCount = BoxCast(leftOrigin,
+                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2));
+            int centralHitCount = BoxCast(centralOrigin,
+                (input.x == 0 ? horizontalDetectionBoxSize : verticalDetectionBoxSize));
+            int rightHitCount = BoxCast(rightOrigin,
+                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2));
             
             // Debug.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
 
