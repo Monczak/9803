@@ -19,6 +19,8 @@ namespace NineEightOhThree.Objects
             {
                 truePosition = value;
                 truePositionDirty = true;
+                
+                SyncTransform();
             }
         }
 
@@ -31,6 +33,16 @@ namespace NineEightOhThree.Objects
                 truePositionDirty = true;
             }
         }
+
+        public Vector2 QuantizedPosition
+        {
+            get => MathExtensions.Quantize(UnitPosition, pixelsPerUnit);
+            set
+            {
+                UnitPosition = MathExtensions.Quantize(value, pixelsPerUnit);
+            }
+        }
+        
         private Vector2 PosDelta => (Vector2)pixelPos.GetValue<Vector2Byte>() - truePosition;
 
         public int pixelsPerUnit;
@@ -60,7 +72,7 @@ namespace NineEightOhThree.Objects
             SyncPositions();
         }
 
-        private void SyncPositions()
+        public void SyncPositions()
         {
             if (PosDelta.sqrMagnitude > 1)
             {
@@ -77,8 +89,8 @@ namespace NineEightOhThree.Objects
                 SyncWithTransform();
             }
 
-            pixelPos.SetValue((Vector2Byte)truePosition);
-            if (((Vector2)pixelPos.GetValue<Vector2Byte>() - truePosition).magnitude > 1)
+            pixelPos.SetValue((Vector2Byte)TruePosition);
+            if (PosDelta.sqrMagnitude > 1)
             {
                 SyncTransformWithPixelPos();
             }
@@ -90,12 +102,15 @@ namespace NineEightOhThree.Objects
         {
             Vector2Byte pos = pixelPos.GetValue<Vector2Byte>();
             transform.position = new Vector3((float)pos.x / pixelsPerUnit, (float)pos.y / pixelsPerUnit, zPosition);
+            Physics2D.SyncTransforms();
         }
 
         private new void LateUpdate()
         {
             base.LateUpdate();
 
+            // SyncPositions();
+            
             /*// Sync with transform.position in case it gets modified (by Rigidbody2D for example)
             if (((Vector2)transform.position - TruePosition).magnitude > 1.0f / pixelsPerUnit / 2)
                 TruePosition = transform.position * pixelsPerUnit;*/
@@ -104,6 +119,13 @@ namespace NineEightOhThree.Objects
         public void SyncWithTransform()
         {
             truePosition = transform.position * pixelsPerUnit;
+        }
+
+        public void SyncTransform()
+        {
+            pixelPos.SetValue((Vector2Byte)TruePosition);
+            SyncTransformWithPixelPos();
+            Physics2D.SyncTransforms();
         }
     }
 }

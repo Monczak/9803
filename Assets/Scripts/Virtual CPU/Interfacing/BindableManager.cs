@@ -18,7 +18,8 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         public void UnregisterBindable(Bindable bindable)
         {
-            bindables.Remove(bindable.address);
+            if (bindables.ContainsKey(bindable.address))
+                bindables.Remove(bindable.address);
         }
 
         public void SetDirty(ushort address)

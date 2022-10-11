@@ -6,8 +6,10 @@ namespace NineEightOhThree.Objects
     [RequireComponent(typeof(GridTransform)), RequireComponent(typeof(MovementHandler))]
     public class Pushable : MonoBehaviour
     {
-        private GridTransform gridTransform;
-        private MovementHandler movementHandler;
+        [HideInInspector] public GridTransform gridTransform;
+        [HideInInspector] public MovementHandler movementHandler;
+
+        public float pushDelay = 1f / 20;
 
         private void Awake()
         {
@@ -22,12 +24,12 @@ namespace NineEightOhThree.Objects
 
         private void MovementHandlerOnCollisionExit(CollisionInfo info)
         {
-            Debug.Log($"{info.Origin.name} left me alone!");
+            // Debug.Log($"{info.Origin.name} left me alone!");
         }
 
         private void MovementHandlerOnCollisionEnter(CollisionInfo info)
         {
-            Debug.Log($"{info.Origin.name} hit me!");
+            // Debug.Log($"{info.Origin.name} hit me!");
         }
 
         private void OnDestroy()

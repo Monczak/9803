@@ -11,22 +11,28 @@ namespace NineEightOhThree.Controllers
     [RequireComponent(typeof(GridTransform)), RequireComponent(typeof(MovementHandler))]
     public class PlayerController : MonoBehaviour
     {
+        public float speed;             // Pixels per second
+        public float sidePushZoneSize;  // Pixels
+        public float pushAmount;        // Pixels per push
+        
         private GridTransform gridTransform;
         private MovementHandler movementHandler;
 
         private new BoxCollider2D collider;
 
         private Pushable pushedObject;
-        private List<Pushable> touchingPushables;
+        private List<Pushable> touchedPushables;
+        private Pushable nearestTouchedPushable;
+        private float lastPushTime;
 
         private PlayerControls controls;
 
-        public float speed; // Pixels per second
-        public float sidePushZoneSize;
         private float SidePushZoneSize => sidePushZoneSize / gridTransform.pixelsPerUnit;
 
         private Vector2 input;
         private float relativeAngle;
+
+        private Vector2 desiredVelocity;
 
         private List<RaycastHit2D> hits = new();    // Used in CheckCorners() as a discard
         
@@ -37,7 +43,7 @@ namespace NineEightOhThree.Controllers
             movementHandler = GetComponent<MovementHandler>();
             collider = GetComponent<BoxCollider2D>();
 
-            touchingPushables = new List<Pushable>();
+            touchedPushables = new List<Pushable>();
 
             controls.Movement.Move.performed += OnMove;
             controls.Movement.Move.canceled += OnMove;
@@ -53,20 +59,22 @@ namespace NineEightOhThree.Controllers
         {
             if (ColliderCache.Instance.TryGet(info.Collider, out Pushable pushable))
             {
-                touchingPushables.Add(pushable);
+                touchedPushables.Add(pushable);
             }
         }
         
         private void MovementHandlerOnCollisionStay(CollisionInfo info)
         {
-            SortPushables();
+            nearestTouchedPushable = GetNearestPushable();
         }
         
         private void MovementHandlerOnCollisionExit(CollisionInfo info)
         {
             if (ColliderCache.Instance.TryGet(info.Collider, out Pushable pushable))
             {
-                touchingPushables.Remove(pushable);
+                touchedPushables.Remove(pushable);
+                if (nearestTouchedPushable == pushable)
+                    nearestTouchedPushable = null;
             }
         }
 
@@ -85,15 +93,55 @@ namespace NineEightOhThree.Controllers
         private void Update()
         {
             CheckCorners();
-            movementHandler.velocity = MathExtensions.RotateDegrees(input, relativeAngle) * speed;
+            desiredVelocity = MathExtensions.RotateDegrees(input, relativeAngle) * speed;
 
-            /*string s = touchingPushables.Aggregate("", (current, pushable) => current + pushable.gameObject.name + " ");
-            Debug.Log(s);*/
+            movementHandler.velocity = desiredVelocity;
+
+            // Debug.Log($"Pushed object: {(pushedObject is not null ? pushedObject.gameObject.name : "(none)") }");
+            
+            HandlePushables();
         }
 
-        private void SortPushables()
+        private void HandlePushables()
         {
-            touchingPushables.Sort((p1, p2) => Vector2.Distance(transform.position, p1.transform.position) > Vector2.Distance(transform.position, p2.transform.position) ? 1 : -1);
+            if (nearestTouchedPushable is null || touchedPushables.Count == 0)
+            {
+                pushedObject = null;
+                return;
+            }
+            pushedObject = nearestTouchedPushable;
+            
+            if (!MathExtensions.IsDiagonal(desiredVelocity))
+            {
+                PushPushable();
+            }
+        }
+
+        private void PushPushable()
+        {
+            if (Time.time > lastPushTime + pushedObject.pushDelay)
+            {
+                Vector2 delta = desiredVelocity.normalized * pushAmount;
+                
+                pushedObject.movementHandler.Translate(delta);
+                movementHandler.Translate(delta);
+
+                lastPushTime = Time.time;
+            }
+        }
+
+        private Pushable GetNearestPushable()
+        {
+            if (touchedPushables.Count == 0)
+                return null;
+            
+            Pushable nearestPushable = touchedPushables[0];
+            foreach (var pushable in touchedPushables)
+                if (Vector2.Distance(transform.position, pushable.transform.position) <
+                    Vector2.Distance(transform.position, nearestPushable.transform.position))
+                    nearestPushable = pushable;
+
+            return nearestPushable;
         }
 
         private void CheckCorners()
@@ -126,7 +174,7 @@ namespace NineEightOhThree.Controllers
             Vector2 horizontalDetectionBoxSize = new(collider.size.x - 2 * SidePushZoneSize, SidePushZoneSize);
             Vector2 verticalDetectionBoxSize = new(SidePushZoneSize, collider.size.y - 2 * SidePushZoneSize);
 
-            if (input.x * input.y != 0 || input == Vector2.zero)    // If going in more than one direction (diagonal)
+            if (MathExtensions.IsDiagonal(input) || input == Vector2.zero)
             {
                 relativeAngle = 0;
                 return;

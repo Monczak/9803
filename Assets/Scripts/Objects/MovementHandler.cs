@@ -38,8 +38,13 @@ namespace NineEightOhThree.Objects
 
         private void Update()
         {
-            var collisionData = PredictCollisions(velocity);
-            Move(collisionData.filteredDirection);
+            Translate(velocity * Time.deltaTime);
+        }
+
+        public void Translate(Vector2 delta)
+        {
+            var collisionData = PredictCollisions(delta);
+            Move(delta * collisionData.filteredDirection);
 
             gridTransform.TruePosition += collisionData.hDelta + collisionData.vDelta;
 
@@ -89,16 +94,16 @@ namespace NineEightOhThree.Objects
             previousAllHits = new HashSet<CollisionInfo>(allHits);
         }
 
-        private void Move(Vector2 filteredDirection)
+        private void Move(Vector2 delta)
         {
-            gridTransform.TruePosition += velocity * filteredDirection * Time.deltaTime;
+            gridTransform.TruePosition += delta;
         }
 
         private (Vector2 filteredDirection, Vector2 hDelta, Vector2 vDelta) PredictCollisions(Vector2 direction)
         {
             float CastDistance(Vector2 dir)
             {
-                return Mathf.Max(dir.magnitude / gridTransform.pixelsPerUnit * Time.deltaTime, gridTransform.UnitsPerPixel);
+                return Mathf.Max(dir.magnitude / gridTransform.pixelsPerUnit, gridTransform.UnitsPerPixel);
             }
 
             int BoxCast(Vector2 dir, List<RaycastHit2D> results, Vector2 origin)
@@ -123,7 +128,7 @@ namespace NineEightOhThree.Objects
             {
                 if (Vector2.Dot(direction.normalized, hit.normal) < -0.001f)
                 {
-                    Vector2 delta = (hit.point - (Vector2)transform.position - Collider.size / 2 * dir) *
+                    Vector2 delta = (hit.point - gridTransform.QuantizedPosition - Collider.size / 2 * dir) *
                                     MathExtensions.Abs(dir);
                     delta = MathExtensions.Quantize(delta, gridTransform.pixelsPerUnit);
                     // Debug.Log($"Point: {hit.point} Distance: {hit.distance} Normal: {hit.normal} Direction: {direction} Delta: {delta}");
@@ -134,18 +139,18 @@ namespace NineEightOhThree.Objects
                 return Vector2.zero;
             }
 
-            int hHitCount = BoxCast(direction * Vector2.right, horizontalCastHits, transform.position);
-            int vHitCount = BoxCast(direction * Vector2.up, verticalCastHits, transform.position);
+            int hHitCount = BoxCast(direction * Vector2.right, horizontalCastHits, gridTransform.QuantizedPosition);
+            int vHitCount = BoxCast(direction * Vector2.up, verticalCastHits, gridTransform.QuantizedPosition);
 
             int cornerHitCount = 0;
             if (!BugManager.Instance.IsActive("clipThroughCorners"))
             {
-                if (direction.x * direction.y != 0)
+                if (MathExtensions.IsDiagonal(direction))
                 {
                     int hHits = BoxCast(direction * Vector2.right, cornerHCastHits,
-                        (Vector2)transform.position + Vector2.up * CastDistance(direction * Vector2.up) * direction.normalized);
+                        gridTransform.QuantizedPosition + Vector2.up * CastDistance(direction * Vector2.up) * direction.normalized);
                     int vHits = BoxCast(direction * Vector2.up, cornerVCastHits,
-                        (Vector2)transform.position + Vector2.right * CastDistance(direction * Vector2.right) * direction.normalized);
+                        gridTransform.QuantizedPosition + Vector2.right * CastDistance(direction * Vector2.right) * direction.normalized);
                     cornerHitCount = Mathf.Max(hHits, vHits);
                 }
             }

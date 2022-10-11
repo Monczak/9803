@@ -89,5 +89,10 @@ namespace NineEightOhThree.Math
 
             return guess;
         }
+
+        public static bool IsDiagonal(Vector2 v)
+        {
+            return v.x * v.y != 0;
+        }
     }
 }
