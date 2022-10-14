@@ -94,5 +94,10 @@ namespace NineEightOhThree.Math
         {
             return v.x * v.y != 0;
         }
+
+        public static bool ArePerpendicular(Vector2 v1, Vector2 v2)
+        {
+            return Mathf.Approximately(Vector2.Dot(v1.normalized, v2.normalized), 0);
+        }
     }
 }

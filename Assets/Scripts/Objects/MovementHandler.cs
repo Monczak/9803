@@ -11,7 +11,9 @@ namespace NineEightOhThree.Objects
     [RequireComponent(typeof(GridTransform)), RequireComponent(typeof(BoxCollider2D))]
     public class MovementHandler : MonoBehaviour
     {
-        private GridTransform gridTransform;
+        [HideInInspector] public GridTransform gridTransform;
+
+        public bool autoMove = true;
 
         public BoxCollider2D Collider { get; private set; }
 
@@ -38,7 +40,8 @@ namespace NineEightOhThree.Objects
 
         private void Update()
         {
-            Translate(velocity * Time.deltaTime);
+            if (autoMove)
+                Translate(velocity * Time.deltaTime);
         }
 
         public void Translate(Vector2 delta)

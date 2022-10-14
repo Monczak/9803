@@ -95,7 +95,7 @@ namespace NineEightOhThree.Controllers
             CheckCorners();
             desiredVelocity = MathExtensions.RotateDegrees(input, relativeAngle) * speed;
 
-            movementHandler.velocity = desiredVelocity;
+            movementHandler.Translate(desiredVelocity * Time.deltaTime);
 
             // Debug.Log($"Pushed object: {(pushedObject is not null ? pushedObject.gameObject.name : "(none)") }");
             
