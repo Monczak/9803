@@ -15,18 +15,18 @@ namespace NineEightOhThree.VirtualCPU
 
         public static void RegisterInstructions()
         {
-            cpuInstructionsByOpcode = new();
-            cpuInstructionsByMnemonic = new();
+            cpuInstructionsByOpcode = new Dictionary<byte, (CPUInstruction, AddressingMode, CPUInstructionMetadata)>();
+            cpuInstructionsByMnemonic = new Dictionary<string, List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>>();
             int instructionCount = 0;
             foreach (Type type in ReflectionAssembly.GetAssembly(typeof(CPUInstruction)).GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(CPUInstruction))))
             {
                 CPUInstruction instruction = (CPUInstruction)Activator.CreateInstance(type);
 
                 if (!cpuInstructionsByMnemonic.ContainsKey(instruction.Mnemonic))
-                    cpuInstructionsByMnemonic.Add(instruction.Mnemonic, new());
+                    cpuInstructionsByMnemonic.Add(instruction.Mnemonic, new List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>());
                 foreach (string alias in instruction.Aliases)
                     if (!cpuInstructionsByMnemonic.ContainsKey(alias))
-                        cpuInstructionsByMnemonic.Add(alias, new());
+                        cpuInstructionsByMnemonic.Add(alias, new List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>());
 
                 foreach (KeyValuePair<AddressingMode, CPUInstructionMetadata> metadata in instruction.Metadata)
                 {
