@@ -8,7 +8,7 @@ namespace NineEightOhThree.VirtualCPU
     [RequireComponent(typeof(Memory)), RequireComponent(typeof(BindableManager))]
     public class CPU : MonoBehaviour
     {
-        public static CPU Instance;
+        public static CPU Instance { get; private set; }
         
         public Memory Memory { get; private set; }
 
@@ -20,30 +20,27 @@ namespace NineEightOhThree.VirtualCPU
         public byte StatusRegister
         {
             get => statusRegister;
-            protected internal set
-            {
-                statusRegister = value;
-            }
+            protected internal set => statusRegister = value;
         }
         public bool NegativeFlag
         {
             get => (StatusRegister & 0b10000000) != 0;
-            set { SetStatusRegisterBit(7, value); }
+            set => SetStatusRegisterBit(7, value);
         }
         public bool OverflowFlag
         {
             get => (StatusRegister & 0b01000000) != 0;
-            set { SetStatusRegisterBit(6, value); }
+            set => SetStatusRegisterBit(6, value);
         }
         public bool ZeroFlag
         {
             get => (StatusRegister & 0b00000010) != 0;
-            set { SetStatusRegisterBit(1, value); }
+            set => SetStatusRegisterBit(1, value);
         }
         public bool CarryFlag
         {
             get => (StatusRegister & 0b00000001) != 0;
-            set { SetStatusRegisterBit(0, value); }
+            set => SetStatusRegisterBit(0, value);
         }
 
         public ushort ProgramCounter { get; protected internal set; }
