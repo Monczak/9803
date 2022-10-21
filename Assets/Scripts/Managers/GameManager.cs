@@ -33,11 +33,7 @@ namespace NineEightOhThree.Managers
 
         private void LoadEverything()
         {
-            LoadInstructions();
-        }
-
-        private void LoadInstructions()
-        {
+            Inventory.ItemRegistry.RegisterItems();
             VirtualCPU.CPUInstructionRegistry.RegisterInstructions();
         }
     }

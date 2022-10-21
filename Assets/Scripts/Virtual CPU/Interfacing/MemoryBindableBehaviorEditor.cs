@@ -49,8 +49,11 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 for (int i = 0; i < bindable.Bytes; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
+
+                    var addressNames = Bindable.Handlers[bindable.type].AddressNames;
+                    
                     string addressInput =
-                        EditorGUILayout.DelayedTextField($"Byte {i}", bindable.addresses[i].ToString("X4"));
+                        EditorGUILayout.DelayedTextField(addressNames is not null ? addressNames[i] : (bindable.Bytes == 1 ? "Address" : $"Byte {i}"), bindable.addresses[i].ToString("X4"));
                     if (ushort.TryParse(addressInput, System.Globalization.NumberStyles.HexNumber, null,
                             out ushort address))
                     {

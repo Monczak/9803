@@ -11,5 +11,6 @@
         public object FromBytes(byte[] bytes);
 
         public int Bytes { get; }
+        public virtual string[] AddressNames => null;
     }
 }

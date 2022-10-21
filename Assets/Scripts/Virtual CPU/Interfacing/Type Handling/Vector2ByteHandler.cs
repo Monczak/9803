@@ -6,6 +6,8 @@ namespace NineEightOhThree.VirtualCPU.Interfacing.TypeHandling
     {
         public int Bytes => 2;
 
+        public string[] AddressNames => new[] { "X", "Y" };
+
         public object Deserialize(string serializedValue) => new Vector2Byte(byte.Parse(serializedValue.Split("|")[0]), byte.Parse(serializedValue.Split("|")[1]));
 
         public object Parse(string str) => new Vector2Byte(byte.Parse(str.Split(" ")[0]), byte.Parse(str.Split(" ")[1]));

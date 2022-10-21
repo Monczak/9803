@@ -8,7 +8,7 @@ using ReflectionAssembly = System.Reflection.Assembly;
 
 namespace NineEightOhThree.VirtualCPU
 {
-    internal class CPUInstructionRegistry
+    internal static class CPUInstructionRegistry
     {
         private static Dictionary<byte, (CPUInstruction, AddressingMode, CPUInstructionMetadata)> cpuInstructionsByOpcode;
         private static Dictionary<string, List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>> cpuInstructionsByMnemonic;
