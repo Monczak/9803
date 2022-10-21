@@ -18,7 +18,6 @@ namespace NineEightOhThree.Objects
         public BoxCollider2D Collider { get; private set; }
 
         public Vector2 velocity;
-        public ContactFilter2D wallFilter;
 
         private List<RaycastHit2D> horizontalCastHits = new(), verticalCastHits = new(), cornerHCastHits = new(), cornerVCastHits = new();
         private HashSet<CollisionInfo> allHits = new(), previousAllHits = new();
@@ -119,7 +118,7 @@ namespace NineEightOhThree.Objects
                     Collider.size - Vector2.one * (gridTransform.UnitsPerPixel / 2),
                     0,
                     dir,
-                    wallFilter,
+                    ContactFilters.WallFilter,
                     results,
                     CastDistance(dir));
 

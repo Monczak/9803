@@ -525,6 +525,7 @@ Transform:
   m_Children:
   - {fileID: 663957686}
   - {fileID: 2028172263}
+  - {fileID: 1806944520}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4638,7 +4639,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridTransform: {fileID: 0}
   movementHandler: {fileID: 0}
-  pushDelay: 0.05
+  pushInterval: 0.05
+  pushDelay: 0
 --- !u!114 &976748256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4654,20 +4656,6 @@ MonoBehaviour:
   gridTransform: {fileID: 0}
   autoMove: 1
   velocity: {x: 0, y: 0}
-  wallFilter:
-    useTriggers: 0
-    useLayerMask: 1
-    useDepth: 0
-    useOutsideDepth: 0
-    useNormalAngle: 0
-    useOutsideNormalAngle: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 384
-    minDepth: 0
-    maxDepth: 0
-    minNormalAngle: 0
-    maxNormalAngle: 0
 --- !u!114 &976748257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4972,7 +4960,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1239597125}
   - component: {fileID: 1239597126}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5390,7 +5378,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridTransform: {fileID: 0}
   movementHandler: {fileID: 0}
-  pushDelay: 0.05
+  pushInterval: 0.05
+  pushDelay: 0
 --- !u!114 &1532496459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5406,20 +5395,6 @@ MonoBehaviour:
   gridTransform: {fileID: 0}
   autoMove: 1
   velocity: {x: 0, y: 0}
-  wallFilter:
-    useTriggers: 0
-    useLayerMask: 1
-    useDepth: 0
-    useOutsideDepth: 0
-    useNormalAngle: 0
-    useOutsideNormalAngle: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 384
-    minDepth: 0
-    maxDepth: 0
-    minNormalAngle: 0
-    maxNormalAngle: 0
 --- !u!114 &1532496460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5611,6 +5586,64 @@ MonoBehaviour:
   memoryCellParent: {fileID: 1040175244}
   currentPage: 2
   decimal: 0
+--- !u!1 &1806944519
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1806944520}
+  - component: {fileID: 1806944521}
+  m_Layer: 0
+  m_Name: Contact Filters
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1806944520
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806944519}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 293724232}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1806944521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806944519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e95b586582af4bcb86a76b4c80699609, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallFilter:
+    useTriggers: 0
+    useLayerMask: 1
+    useDepth: 0
+    useOutsideDepth: 0
+    useNormalAngle: 0
+    useOutsideNormalAngle: 0
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 448
+    minDepth: 0
+    maxDepth: 0
+    minNormalAngle: 0
+    maxNormalAngle: 0
 --- !u!1 &1902842090
 GameObject:
   m_ObjectHideFlags: 0
@@ -5868,7 +5901,7 @@ GameObject:
   - component: {fileID: 2006586253}
   - component: {fileID: 2006586252}
   - component: {fileID: 2006586251}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5949,20 +5982,6 @@ MonoBehaviour:
   gridTransform: {fileID: 0}
   autoMove: 0
   velocity: {x: 0, y: 0}
-  wallFilter:
-    useTriggers: 0
-    useLayerMask: 1
-    useDepth: 0
-    useOutsideDepth: 0
-    useNormalAngle: 0
-    useOutsideNormalAngle: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 384
-    minDepth: 0
-    maxDepth: 0
-    minNormalAngle: 0
-    maxNormalAngle: 0
 --- !u!114 &2006586253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5978,6 +5997,7 @@ MonoBehaviour:
   speed: 80
   sidePushZoneSize: 5
   pushAmount: 1
+  pullDistance: 4
 --- !u!1 &2028172262
 GameObject:
   m_ObjectHideFlags: 0

@@ -99,5 +99,11 @@ namespace NineEightOhThree.Math
         {
             return Mathf.Approximately(Vector2.Dot(v1.normalized, v2.normalized), 0);
         }
+
+        public static Vector2 QuantizeAngle(Vector2 v, int steps)
+        {
+            float angle = Quantize(Vector2.Angle(Vector2.right, v) / (Mathf.PI * 2), steps) * Mathf.PI * 2;
+            return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * v.magnitude;
+        }
     }
 }

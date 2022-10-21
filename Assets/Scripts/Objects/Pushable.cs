@@ -9,8 +9,9 @@ namespace NineEightOhThree.Objects
         [HideInInspector] public GridTransform gridTransform;
         [HideInInspector] public MovementHandler movementHandler;
 
-        public float pushDelay = 1f / 20;
-
+        public float pushInterval = 1f / 20;
+        public float pushDelay;
+        
         private void Awake()
         {
             gridTransform = GetComponent<GridTransform>();
