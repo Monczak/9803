@@ -10,7 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
     public class Bindable : ScriptableObject, ISerializationCallbackReceiver
     {
         public object value;
-        public ushort address;
+        public ushort[] addresses;
 
         public BindableType type = BindableType.Null;
         public string fieldName;

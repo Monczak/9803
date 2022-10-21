@@ -13,13 +13,17 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         public void RegisterBindable(Bindable bindable)
         {
-            bindables.Add(bindable.address, bindable);
+            foreach (ushort address in bindable.addresses)
+                bindables.Add(address, bindable);
         }
 
         public void UnregisterBindable(Bindable bindable)
         {
-            if (bindables.ContainsKey(bindable.address))
-                bindables.Remove(bindable.address);
+            foreach (ushort address in bindable.addresses)
+            {
+                if (bindables.ContainsKey(address))
+                    bindables.Remove(address);
+            }
         }
 
         public void SetDirty(ushort address)
@@ -32,20 +36,38 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             foreach (Bindable bindable in bindables.Values)
             {
                 if (!bindable.enabled) continue;
-                for (ushort address = bindable.address; address < bindable.address + bindable.Bytes; address++)
+
+                byte[] bytes = new byte[bindable.Bytes];
+                bool shouldUpdate = false;
+
+                for (int i = 0; i < bindable.Bytes; i++)
                 {
+                    ushort address = bindable.addresses[i];
+                    bytes[i] = memory.Read(address);
                     if (dirtyAddresses.Contains(address))
                     {
-                        bindable.SetValueFromBytes(memory.ReadBlock(bindable.address, bindable.Bytes));
-                        break;
+                        shouldUpdate = true;
                     }
                 }
+
+                if (shouldUpdate)
+                {
+                    bindable.SetValueFromBytes(bytes);
+                }
+                
             }
 
             foreach (Bindable bindable in bindables.Values)
             {
                 if (!bindable.enabled) continue;
-                memory.WriteBlock(bindable.address, bindable.GetBytes(), false);
+
+                byte[] bytes = bindable.GetBytes();
+
+                for (var i = 0; i < bindable.Bytes; i++)
+                {
+                    var address = bindable.addresses[i];
+                    memory.Write(address, bytes[i], false);
+                }
             }
 
             dirtyAddresses.Clear();

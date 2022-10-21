@@ -268,24 +268,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9447416}
   m_CullTransparentMesh: 1
---- !u!114 &97517414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 770
-  type: 8
-  fieldName: pixelPos
-  serializedValue: 0|0
-  enabled: 0
-  dirty: 0
 --- !u!1 &124701859
 GameObject:
   m_ObjectHideFlags: 0
@@ -487,14 +469,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 286701493}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac5212a07810ab34ab104efd9fc5da81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 839176563}
-  testBindable: {fileID: 839176563}
+  - {fileID: 1817060474}
+  testBindable: {fileID: 1817060474}
 --- !u!1 &293724231
 GameObject:
   m_ObjectHideFlags: 0
@@ -4281,42 +4263,6 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
---- !u!114 &839176563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 640
-  type: 1
-  fieldName: testBindable
-  serializedValue: 0
-  enabled: 0
-  dirty: 0
---- !u!114 &885401800
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 640
-  type: 8
-  fieldName: pixelPos
-  serializedValue: 0|0
-  enabled: 0
-  dirty: 0
 --- !u!1 &912178565
 GameObject:
   m_ObjectHideFlags: 0
@@ -4545,24 +4491,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &954277009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  address: 768
-  type: 8
-  fieldName: pixelPos
-  serializedValue: 0|0
-  enabled: 0
-  dirty: 0
 --- !u!1 &976748252
 GameObject:
   m_ObjectHideFlags: 0
@@ -4669,8 +4597,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 97517414}
-  pixelPos: {fileID: 97517414}
+  - {fileID: 1594550712}
+  pixelPos: {fileID: 1594550712}
   pixelsPerUnit: 16
   zPosition: 0
 --- !u!212 &976748258
@@ -4801,6 +4729,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1007778944}
   m_CullTransparentMesh: 1
+--- !u!114 &1033359227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 01030203
+  type: 8
+  fieldName: pixelPos
+  serializedValue: 0|0
+  enabled: 1
+  dirty: 0
 --- !u!1 &1040175243
 GameObject:
   m_ObjectHideFlags: 0
@@ -4877,6 +4823,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &1069039458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 00030403
+  type: 8
+  fieldName: pixelPos
+  serializedValue: 0|0
+  enabled: 1
+  dirty: 0
 --- !u!1 &1139591176
 GameObject:
   m_ObjectHideFlags: 0
@@ -5408,8 +5372,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 954277009}
-  pixelPos: {fileID: 954277009}
+  - {fileID: 1033359227}
+  pixelPos: {fileID: 1033359227}
   pixelsPerUnit: 16
   zPosition: 0
 --- !u!212 &1532496461
@@ -5490,6 +5454,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1594550712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 03030503
+  type: 8
+  fieldName: pixelPos
+  serializedValue: 0|0
+  enabled: 1
+  dirty: 0
 --- !u!1 &1686316335
 GameObject:
   m_ObjectHideFlags: 0
@@ -5584,7 +5566,7 @@ MonoBehaviour:
   cellCount: 256
   cellPrefab: {fileID: 4506798925541212260, guid: 360d695b0beb47e419912b3bc2d0b707, type: 3}
   memoryCellParent: {fileID: 1040175244}
-  currentPage: 2
+  currentPage: 3
   decimal: 0
 --- !u!1 &1806944519
 GameObject:
@@ -5644,6 +5626,24 @@ MonoBehaviour:
     maxDepth: 0
     minNormalAngle: 0
     maxNormalAngle: 0
+--- !u!114 &1817060474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 0000
+  type: 1
+  fieldName: testBindable
+  serializedValue: n
+  enabled: 0
+  dirty: 0
 --- !u!1 &1902842090
 GameObject:
   m_ObjectHideFlags: 0
@@ -5937,8 +5937,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 885401800}
-  pixelPos: {fileID: 885401800}
+  - {fileID: 1069039458}
+  pixelPos: {fileID: 1069039458}
   pixelsPerUnit: 16
   zPosition: 0
 --- !u!61 &2006586251

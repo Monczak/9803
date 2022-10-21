@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -18,7 +19,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             behavior = target as MemoryBindableBehavior;
 
-            if (behavior.bindables == null)
+            if (behavior != null && behavior.bindables == null)
             {
                 RefreshBindables();
             }
@@ -33,25 +34,33 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
             EditorGUILayout.LabelField("Bindables", EditorStyles.boldLabel);
 
-            for (int i = 0; i < behavior.bindables.Count; i++)
+            foreach (var bindable in behavior.bindables)
             {
-                Bindable bindable = behavior.bindables[i];
-
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel($"{Beautify(bindable.fieldName)} ({bindable.type})");
 
                 string valueInput = EditorGUILayout.DelayedTextField(bindable.value?.ToString());
                 bindable.SetValueFromString(valueInput);
 
-                string addressInput = EditorGUILayout.DelayedTextField(bindable.address.ToString("X4"));
-                if (ushort.TryParse(addressInput, System.Globalization.NumberStyles.HexNumber, null, out ushort address))
-                {
-                    bindable.address = address;
-                }
-
                 bindable.enabled = EditorGUILayout.Toggle(bindable.enabled);
 
                 EditorGUILayout.EndHorizontal();
+
+                for (int i = 0; i < bindable.Bytes; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    string addressInput =
+                        EditorGUILayout.DelayedTextField($"Byte {i}", bindable.addresses[i].ToString("X4"));
+                    if (ushort.TryParse(addressInput, System.Globalization.NumberStyles.HexNumber, null,
+                            out ushort address))
+                    {
+                        bindable.addresses[i] = address;
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                EditorGUILayout.Separator();
             }
 
             if (GUILayout.Button("Refresh Bindables"))
@@ -72,7 +81,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         private void RefreshBindables()
         {
-            behavior.bindables = new();
+            behavior.bindables = new List<Bindable>();
 
             foreach (var f in behavior.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.FieldType == typeof(Bindable)))
             {
@@ -81,13 +90,14 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
                 if (f.IsDefined(typeof(BindableTypeAttribute)))
                 {
-                    bindable.type = (f.GetCustomAttribute(typeof(BindableTypeAttribute)) as BindableTypeAttribute).type;
+                    bindable.type = ((BindableTypeAttribute)f.GetCustomAttribute(typeof(BindableTypeAttribute))).type;
                 }
                 else
                 {
                     bindable.type = BindableType.Byte;
                 }
 
+                bindable.addresses = new ushort[bindable.Bytes];
                 f.SetValue(behavior, bindable);
                 behavior.bindables.Add(bindable);
             }

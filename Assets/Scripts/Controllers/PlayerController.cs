@@ -194,13 +194,13 @@ namespace NineEightOhThree.Controllers
             if (!MathExtensions.IsDiagonal(desiredVelocity) && Time.time > lastPushableTouchTime + pushedObject.pushDelay)
             {
                 if (!isGrabbing || (isGrabbing && !Mathf.Approximately(Vector2.Dot(desiredVelocity, grabDirection),0)))
-                    PushPushable(desiredVelocity);
+                    MovePushable(desiredVelocity);
             }
 
             wasTouchingPushable = true;
         }
 
-        private void PushPushable(Vector2 velocity)
+        private void MovePushable(Vector2 velocity)
         {
             if (Time.time > lastPushTime + pushedObject.pushInterval)
             {
