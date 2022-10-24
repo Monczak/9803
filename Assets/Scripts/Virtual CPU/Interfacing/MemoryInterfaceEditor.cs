@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Interfacing
 {
+    #if UNITY_EDITOR
     [CustomEditor(typeof(MemoryInterface))]
     public class MemoryInterfaceEditor : Editor
     {
@@ -75,4 +76,5 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             return builder.ToString();
         }
     }
+    #endif
 }

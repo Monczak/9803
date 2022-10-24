@@ -5,18 +5,17 @@ using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Interfacing
 {
-
     [Serializable]
     public class Bindable : ScriptableObject, ISerializationCallbackReceiver
     {
-        public object value;
+        [SerializeReference] public object value;
         public ushort[] addresses;
 
         public BindableType type = BindableType.Null;
+        public string objectTypeName;
         public string fieldName;
 
-        [SerializeField]
-        private string serializedValue;
+        [SerializeField] protected string serializedValue;
 
         public bool enabled;
         public bool dirty;
@@ -33,12 +32,15 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         }
         public void SetValueFromBytes(byte[] bytes)
         {
-            value = Handlers[type].FromBytes(bytes);
+            if (type == BindableType.Object)
+                value = ((ISerializableBindableObject)value).FromBytes(bytes);
+            else
+                value = Handlers[type].FromBytes(bytes);
             dirty = true;
         }
         public byte[] GetBytes()
         {
-            return Handlers[type].ToBytes(value);
+            return type == BindableType.Object ? ((ISerializableBindableObject)value).ToBytes() : Handlers[type].ToBytes(value);
         }
 
         private T ParseValue<T>(string str)
@@ -67,7 +69,10 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             try
             {
-                value = ParseValue(str, type);
+                if (type == BindableType.Object)
+                    value = ((ISerializableBindableObject)value)?.Deserialize(str);
+                else
+                    value = ParseValue(str, type);
                 return true;
             }
             catch (InvalidOperationException)
@@ -77,7 +82,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             }
         }
 
-        public int Bytes => Handlers[type].Bytes;
+        public int Bytes => type == BindableType.Object ? ((ISerializableBindableObject)value).Bytes : Handlers[type].Bytes;
 
         public void OnBeforeSerialize()
         {
@@ -87,7 +92,10 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 return;
             }
 
-            serializedValue = Handlers[type].Serialize(value);
+            if (type == BindableType.Object)
+                serializedValue = ((ISerializableBindableObject)value).Serialize();
+            else
+                serializedValue = Handlers[type].Serialize(value);
         }
 
         public void OnAfterDeserialize()
@@ -98,7 +106,16 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 return;
             }
 
-            value = Handlers[type].Deserialize(serializedValue);
+            if (type == BindableType.Object)
+                value = ((ISerializableBindableObject)value).Deserialize(serializedValue);
+            else
+                value = Handlers[type].Deserialize(serializedValue);
+        }
+
+        public void DeserializeIfHasData()
+        {
+            if (serializedValue is not null)
+                SetValueFromString(serializedValue);
         }
 
         public static readonly Dictionary<BindableType, IBindableTypeHandler> Handlers = new()
@@ -110,7 +127,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             { BindableType.Bool, new BoolHandler() },
             { BindableType.Vector2, new Vector2Handler() },
             { BindableType.Vector2Int, new Vector2IntHandler() },
-            { BindableType.Vector2Byte, new Vector2ByteHandler() },
+            { BindableType.Vector2Byte, new Vector2ByteHandler() }
         };
     }
 }

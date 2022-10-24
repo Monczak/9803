@@ -10,15 +10,17 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         [HideInInspector]
         public List<Bindable> bindables;
 
-        protected void Awake()
+        protected virtual void Awake()
         {
             foreach (Bindable bindable in bindables)
             {
                 CPU.Instance.BindableManager.RegisterBindable(bindable);
+                
+                bindable.DeserializeIfHasData();
             }
         }
 
-        protected void OnDestroy()
+        protected virtual void OnDestroy()
         {
             foreach (Bindable bindable in bindables)
             {
@@ -27,12 +29,12 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         }
 
         // Update is called once per frame
-        protected void Update()
+        protected virtual void Update()
         {
 
         }
 
-        protected void LateUpdate()
+        protected virtual void LateUpdate()
         {
             foreach (Bindable bindable in bindables)
             {

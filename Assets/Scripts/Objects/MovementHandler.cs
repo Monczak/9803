@@ -43,7 +43,12 @@ namespace NineEightOhThree.Objects
                 Translate(velocity * Time.deltaTime);
         }
 
-        public void Translate(Vector2 delta)
+        public bool CanMove(Vector2 delta)
+        {
+            return PredictCollisions(delta).filteredDirection * delta != Vector2.zero;
+        }
+
+        public bool Translate(Vector2 delta)
         {
             var collisionData = PredictCollisions(delta);
             Move(delta * collisionData.filteredDirection);
@@ -51,6 +56,8 @@ namespace NineEightOhThree.Objects
             gridTransform.TruePosition += collisionData.hDelta + collisionData.vDelta;
 
             UpdateListeners();
+
+            return collisionData.filteredDirection * delta != Vector2.zero;
         }
 
         private void UpdateListeners()
@@ -105,7 +112,7 @@ namespace NineEightOhThree.Objects
         {
             float CastDistance(Vector2 dir)
             {
-                return Mathf.Max(dir.magnitude / gridTransform.pixelsPerUnit, gridTransform.UnitsPerPixel);
+                return MathExtensions.Quantize(Mathf.Max(dir.magnitude / gridTransform.pixelsPerUnit, gridTransform.UnitsPerPixel), gridTransform.pixelsPerUnit);
             }
 
             int BoxCast(Vector2 dir, List<RaycastHit2D> results, Vector2 origin)

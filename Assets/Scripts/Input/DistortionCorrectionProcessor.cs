@@ -27,7 +27,7 @@ namespace NineEightOhThree.Input
         }
         #endif
         
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         private static void Initialize()
         {
             InputSystem.RegisterProcessor<DistortionCorrectionProcessor>();

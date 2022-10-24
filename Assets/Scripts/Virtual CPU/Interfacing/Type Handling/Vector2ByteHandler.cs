@@ -14,7 +14,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing.TypeHandling
 
         public string Serialize(object value) => $"{((Vector2Byte)value).x}|{((Vector2Byte)value).y}";
 
-        public byte[] ToBytes(object value) => new byte[] { ((Vector2Byte)value).x, ((Vector2Byte)value).y };
+        public byte[] ToBytes(object value) => new[] { ((Vector2Byte)value).x, ((Vector2Byte)value).y };
         public object FromBytes(byte[] bytes) => new Vector2Byte(bytes[0], bytes[1]);
     }
 }

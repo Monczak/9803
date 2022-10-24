@@ -13,6 +13,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         Bool,
         Vector2,
         Vector2Int,
-        Vector2Byte
+        Vector2Byte,
+        Object
     }
 }

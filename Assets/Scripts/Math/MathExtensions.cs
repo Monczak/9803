@@ -1,10 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace NineEightOhThree.Math
 {
-    public class MathExtensions
+    public static class MathExtensions
     {
         public static float Quantize(float x, int steps)
         {

@@ -6,6 +6,8 @@ namespace NineEightOhThree.Managers
     {
         public static GameManager Instance { get; private set; }
 
+        public bool debug;
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -13,6 +15,11 @@ namespace NineEightOhThree.Managers
 
             // Disable Unity URP Debug Canvas
             UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false;
+
+            if (!Application.isEditor)
+                Debug.developerConsoleVisible = debug;
+
+            Application.targetFrameRate = -1;
 
             // DontDestroyOnLoad(gameObject);
 
