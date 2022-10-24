@@ -36,10 +36,15 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
             foreach (var bindable in behavior.bindables)
             {
+                if (bindable.type == BindableType.Object)
+                {
+                    bindable.value ??= Activator.CreateInstance(Type.GetType(bindable.objectTypeName));
+                }
+                
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel($"{Beautify(bindable.fieldName)} ({bindable.type})");
 
-                string valueInput = EditorGUILayout.DelayedTextField(bindable.value?.ToString());
+                string valueInput = EditorGUILayout.DelayedTextField(bindable.type == BindableType.Object ? ((ISerializableBindableObject)bindable.value)?.Serialize() : bindable.value?.ToString());
                 bindable.SetValueFromString(valueInput);
 
                 bindable.enabled = EditorGUILayout.Toggle(bindable.enabled);
@@ -50,7 +55,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 {
                     EditorGUILayout.BeginHorizontal();
 
-                    var addressNames = Bindable.Handlers[bindable.type].AddressNames;
+                    var addressNames = bindable.type == BindableType.Object ? null : Bindable.Handlers[bindable.type].AddressNames;
                     
                     string addressInput =
                         EditorGUILayout.DelayedTextField(addressNames is not null ? addressNames[i] : (bindable.Bytes == 1 ? "Address" : $"Byte {i}"), bindable.addresses[i].ToString("X4"));
@@ -65,7 +70,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
                 EditorGUILayout.Separator();
             }
-
+                        
             if (GUILayout.Button("Refresh Bindables"))
             {
                 RefreshBindables();
@@ -93,11 +98,23 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
                 if (f.IsDefined(typeof(BindableTypeAttribute)))
                 {
-                    bindable.type = ((BindableTypeAttribute)f.GetCustomAttribute(typeof(BindableTypeAttribute))).type;
+                    BindableTypeAttribute attrib =
+                        (BindableTypeAttribute)f.GetCustomAttribute(typeof(BindableTypeAttribute));
+                    bindable.type = attrib.type;
+                    
+                    if (attrib.type == BindableType.Object)
+                    {
+                        bindable.objectTypeName = attrib.objectType.FullName;
+                    }
                 }
                 else
                 {
                     bindable.type = BindableType.Byte;
+                }
+
+                if (bindable.type == BindableType.Object)
+                {
+                    bindable.value = Activator.CreateInstance(Type.GetType(bindable.objectTypeName));
                 }
 
                 bindable.addresses = new ushort[bindable.Bytes];

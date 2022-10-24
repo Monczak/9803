@@ -43,7 +43,12 @@ namespace NineEightOhThree.Objects
                 Translate(velocity * Time.deltaTime);
         }
 
-        public void Translate(Vector2 delta)
+        public bool CanMove(Vector2 delta)
+        {
+            return PredictCollisions(delta).filteredDirection * delta != Vector2.zero;
+        }
+
+        public bool Translate(Vector2 delta)
         {
             var collisionData = PredictCollisions(delta);
             Move(delta * collisionData.filteredDirection);
@@ -51,6 +56,8 @@ namespace NineEightOhThree.Objects
             gridTransform.TruePosition += collisionData.hDelta + collisionData.vDelta;
 
             UpdateListeners();
+
+            return collisionData.filteredDirection * delta != Vector2.zero;
         }
 
         private void UpdateListeners()

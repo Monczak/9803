@@ -50,7 +50,7 @@ namespace NineEightOhThree.Objects
 
         public float UnitsPerPixel => 1.0f / pixelsPerUnit;
 
-        private new void Awake()
+        protected override void Awake()
         {
             base.Awake();
 
@@ -65,7 +65,7 @@ namespace NineEightOhThree.Objects
         }
 
         // Update is called once per frame
-        private new void Update()
+        protected override void Update()
         {
             base.Update();
 
@@ -103,17 +103,6 @@ namespace NineEightOhThree.Objects
             Vector2Byte pos = pixelPos.GetValue<Vector2Byte>();
             transform.position = new Vector3((float)pos.x / pixelsPerUnit, (float)pos.y / pixelsPerUnit, zPosition);
             Physics2D.SyncTransforms();
-        }
-
-        private new void LateUpdate()
-        {
-            base.LateUpdate();
-
-            // SyncPositions();
-            
-            /*// Sync with transform.position in case it gets modified (by Rigidbody2D for example)
-            if (((Vector2)transform.position - TruePosition).magnitude > 1.0f / pixelsPerUnit / 2)
-                TruePosition = transform.position * pixelsPerUnit;*/
         }
 
         public void SyncWithTransform()

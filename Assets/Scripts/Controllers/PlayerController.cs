@@ -136,22 +136,15 @@ namespace NineEightOhThree.Controllers
             }
             else if (!grabInput && lastGrabInput)
             {
-                grabbedObject = null;
-                grabbedObjectCollider = null;
-                isGrabbing = false;
+                Ungrab();
             }
+        }
 
-            if (isGrabbing)
-            {
-                if (grabbedObject is null)
-                {
-                    Debug.Log($"{grabbedObjectCollider.gameObject.name} (immovable)");
-                }
-                else
-                {
-                    Debug.Log($"{grabbedObjectCollider.gameObject.name} (movable)");
-                }
-            }
+        private void Ungrab()
+        {
+            grabbedObject = null;
+            grabbedObjectCollider = null;
+            isGrabbing = false;
         }
 
         private void Grab()
@@ -202,19 +195,25 @@ namespace NineEightOhThree.Controllers
 
         private void MovePushable(Vector2 velocity)
         {
+            void Move(MovementHandler first, MovementHandler second, Vector2 delta)
+            {
+                Vector2 pos = first.gridTransform.QuantizedPosition;
+                first.Translate(delta);
+                bool couldMove = second.Translate(delta);
+                if (!couldMove) first.gridTransform.QuantizedPosition = pos;
+            }
+            
             if (Time.time > lastPushTime + pushedObject.pushInterval)
             {
                 Vector2 delta = velocity.normalized * pushAmount;
 
                 if (isGrabbing && Vector2.Dot(velocity, grabDirection) < 0)
                 {
-                    movementHandler.Translate(delta);
-                    pushedObject.movementHandler.Translate(delta);
+                    Move(movementHandler, pushedObject.movementHandler, delta);
                 }
                 else
                 {
-                    pushedObject.movementHandler.Translate(delta);
-                    movementHandler.Translate(delta);
+                    Move(pushedObject.movementHandler, movementHandler, delta);
                 }
 
                 lastPushTime = Time.time;

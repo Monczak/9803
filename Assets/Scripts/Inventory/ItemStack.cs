@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NineEightOhThree.Inventory
 {
-    public class ItemStack : ScriptableObject, IBindableObject<ItemStack>
+    public class ItemStack : ScriptableObject, ISerializableBindableObject
     {
         public Item itemType;
         public byte size;
@@ -17,15 +17,27 @@ namespace NineEightOhThree.Inventory
             return this;
         } 
         
-        public byte[] Serialize()
+        public byte[] ToBytes()
         {
             return new[] { itemType.id, size };
         }
 
-        public ItemStack Deserialize(byte[] bytes)
+        public object FromBytes(byte[] bytes)
         {
             return CreateInstance<ItemStack>().Of(ItemRegistry.GetItem(bytes[0]), bytes[1]);
         }
+
+        public string Serialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Deserialize(string str)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Bytes => 2;
 
         public override string ToString()
         {
