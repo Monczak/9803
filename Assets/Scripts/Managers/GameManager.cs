@@ -20,6 +20,7 @@ namespace NineEightOhThree.Managers
                 Debug.developerConsoleVisible = debug;
 
             Application.targetFrameRate = -1;
+            QualitySettings.vSyncCount = 0;
 
             // DontDestroyOnLoad(gameObject);
 

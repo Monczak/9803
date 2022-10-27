@@ -155,12 +155,17 @@ namespace NineEightOhThree.Controllers
             {
                 isGrabbing = true;
                 
-                // TODO: Maybe find nearest instead of first?
-                RaycastHit2D hit = hits[0];
-                grabbedObjectCollider = hit.collider;
+                RaycastHit2D nearestHit = hits[0];
+                foreach (RaycastHit2D hit in hits)
+                {
+                    if ((gridTransform.QuantizedPosition - hit.point).sqrMagnitude <
+                        (gridTransform.QuantizedPosition - nearestHit.point).sqrMagnitude)
+                        nearestHit = hit;
+                }
+                grabbedObjectCollider = nearestHit.collider;
                 ColliderCache.Instance.TryGet(grabbedObjectCollider, out grabbedObject);
 
-                grabDirection = -hit.normal;
+                grabDirection = -nearestHit.normal;
             }
         }
 
