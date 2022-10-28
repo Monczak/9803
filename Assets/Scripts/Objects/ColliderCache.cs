@@ -15,7 +15,7 @@ namespace NineEightOhThree.Objects
             Instance = this;
         }
 
-        public void Register(Collider2D origin, Component component)
+        public void Register<T>(Collider2D origin, T component) where T : Component
         {
             if (!cache.ContainsKey(origin))
                 cache.Add(origin, new Dictionary<Type, Component>());
@@ -45,9 +45,9 @@ namespace NineEightOhThree.Objects
             return true;
         }
 
-        public void Unregister(Collider2D origin, Component component)
+        public void Unregister<T>(Collider2D origin, T component) where T : Component
         {
-            cache[origin].Remove(typeof(Component));
+            cache[origin].Remove(typeof(T));
         }
 
         public void Unregister(Collider2D origin)

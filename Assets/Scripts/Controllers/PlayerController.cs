@@ -4,6 +4,7 @@ using System.Linq;
 using NineEightOhThree.Managers;
 using NineEightOhThree.Math;
 using NineEightOhThree.Objects;
+using NineEightOhThree.Objects.Interactables;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,8 +16,8 @@ namespace NineEightOhThree.Controllers
         public float speed;             // Pixels per second
         public float sidePushZoneSize;  // Pixels
         public float pushAmount;        // Pixels per push
-
         public float pullDistance;
+        public float interactionDistance;
 
         private GridTransform gridTransform;
         private MovementHandler movementHandler;
@@ -34,6 +35,8 @@ namespace NineEightOhThree.Controllers
         private bool isGrabbing;
         private Vector2 grabDirection;
 
+        private Interactable currentInteractable;
+        
         private PlayerControls controls;
 
         private float SidePushZoneSize => sidePushZoneSize / gridTransform.pixelsPerUnit;
@@ -61,12 +64,42 @@ namespace NineEightOhThree.Controllers
             controls.Movement.Move.canceled += OnMove;
             controls.Movement.Grab.performed += OnGrab;
             controls.Movement.Grab.canceled += OnGrab;
+            controls.Movement.Interact.performed += OnInteracted;
+            controls.Movement.Interact.canceled += OnStoppedInteracting;
             
             controls.Enable();
             
             movementHandler.CollisionEnter += MovementHandlerOnCollisionEnter;
             movementHandler.CollisionStay += MovementHandlerOnCollisionStay;
             movementHandler.CollisionExit += MovementHandlerOnCollisionExit;
+        }
+
+        private void OnStoppedInteracting(InputAction.CallbackContext obj)
+        {
+            if (currentInteractable is not null)
+            {
+                currentInteractable.StopInteracting(collider);
+                currentInteractable = null;
+            }
+        }
+
+        private void OnInteracted(InputAction.CallbackContext obj)
+        {
+            int hitCount = BoxCast(gridTransform.QuantizedPosition,
+                movementHandler.Collider.size - Vector2.one * gridTransform.UnitsPerPixel, direction,
+                interactionDistance, hits, ContactFilters.InteractableFilter);
+
+            if (hitCount > 0)
+            {
+                // TODO: Nearest instead of first
+                RaycastHit2D hit = hits[0];
+
+                if (ColliderCache.Instance.TryGet(hit.collider, out Interactable interactable))
+                {
+                    currentInteractable = interactable;
+                    interactable.Interact(collider);
+                }
+            }
         }
 
         private void OnGrab(InputAction.CallbackContext obj)
@@ -150,7 +183,8 @@ namespace NineEightOhThree.Controllers
         private void Grab()
         {
             int hitCount = BoxCast(gridTransform.QuantizedPosition,
-                movementHandler.Collider.size - Vector2.one * gridTransform.UnitsPerPixel, direction, pullDistance, hits);
+                movementHandler.Collider.size - Vector2.one * gridTransform.UnitsPerPixel, direction, pullDistance,
+                hits, ContactFilters.WallFilter);
             if (hitCount > 0)
             {
                 isGrabbing = true;
@@ -234,7 +268,7 @@ namespace NineEightOhThree.Controllers
             return nearestPushable;
         }
 
-        private int BoxCast(Vector2 origin, Vector2 boxSize, Vector2 direction, float distancePixels, List<RaycastHit2D> hits)
+        private int BoxCast(Vector2 origin, Vector2 boxSize, Vector2 direction, float distancePixels, List<RaycastHit2D> hits, ContactFilter2D filter)
         {
             int layer = gameObject.layer;
             gameObject.layer = 0;   // Temporarily move this object to the default layer (or at least one not hit by the wall filter)
@@ -244,7 +278,7 @@ namespace NineEightOhThree.Controllers
                 boxSize,
                 0,
                 direction,
-                ContactFilters.Instance.wallFilter,
+                filter,
                 hits,
                 gridTransform.UnitsPerPixel * distancePixels
             );
@@ -279,11 +313,14 @@ namespace NineEightOhThree.Controllers
             Vector2 rightOrigin = gridTransform.QuantizedPosition + GetBoxCenter(rightCornerPos);
 
             int leftHitCount = BoxCast(leftOrigin,
-                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2), input, 1, hits);
+                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2), input, 1, hits,
+                ContactFilters.WallFilter);
             int centralHitCount = BoxCast(centralOrigin,
-                (input.x == 0 ? horizontalDetectionBoxSize : verticalDetectionBoxSize), input, 1, hits);
+                input.x == 0 ? horizontalDetectionBoxSize : verticalDetectionBoxSize, input, 1, hits,
+                ContactFilters.WallFilter);
             int rightHitCount = BoxCast(rightOrigin,
-                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2), input, 1, hits);
+                cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2), input, 1, hits,
+                ContactFilters.WallFilter);
             
             // Debug.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
 
