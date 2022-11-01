@@ -10,6 +10,8 @@ namespace NineEightOhThree.Inventory
         public Item itemType;
         public byte size;
 
+        public bool Empty => size == 0;
+
         public ItemStack Of(Item itemType, byte size)
         {
             this.itemType = itemType;
@@ -20,7 +22,7 @@ namespace NineEightOhThree.Inventory
         
         public byte[] ToBytes()
         {
-            return new[] { itemType.id, size };
+            return new[] { itemType.Id, size };
         }
 
         public object FromBytes(byte[] bytes)
@@ -30,7 +32,7 @@ namespace NineEightOhThree.Inventory
 
         public string Serialize()
         {
-            return $"{itemType.id} {size}";
+            return $"{itemType.Id} {size}";
         }
 
         public object Deserialize(string str)
@@ -44,7 +46,17 @@ namespace NineEightOhThree.Inventory
 
         public override string ToString()
         {
-            return $"{itemType.itemName} x{size}";
+            return $"{itemType.ItemName} x{size}";
+        }
+
+        public bool MergeWith(ItemStack other)
+        {
+            if (itemType != other.itemType)
+                return false;
+
+            size = (byte)Mathf.Min(size + other.size, itemType.StackSize);
+            other.size = (byte)Mathf.Max(size + other.size - itemType.StackSize, 0);
+            return true;
         }
     }
 }

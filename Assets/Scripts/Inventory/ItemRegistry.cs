@@ -16,7 +16,7 @@ namespace NineEightOhThree.Inventory
             Item[] items = Resources.LoadAll<Item>("Items");
             foreach (Item item in items)
             {
-                itemsById[item.id] = item;
+                itemsById[item.Id] = item;
             }
             
             Debug.Log($"Registered {items.Length} items");
