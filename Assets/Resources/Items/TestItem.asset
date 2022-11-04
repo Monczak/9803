@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d8f412fb77d4785a0b2a653268a81b7, type: 3}
   m_Name: TestItem
   m_EditorClassIdentifier: 
-  id: 0
-  stackSize: 255
-  itemName: Test Item
-  sprite: {fileID: 0}
+  <Id>k__BackingField: 1
+  <StackSize>k__BackingField: 255
+  <ItemName>k__BackingField: Test Item
+  <Sprite>k__BackingField: {fileID: 0}

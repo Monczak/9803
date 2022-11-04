@@ -39,9 +39,17 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             {
                 if (bindable.type == BindableType.Object)
                 {
+                    bindable.SetValueNullIfSerializedNull();
+                    
                     Type type = Type.GetType(bindable.objectTypeName);
                     if (type is not null)
-                        bindable.value ??= Activator.CreateInstance(type);
+                    {
+                        if (type.IsSubclassOf(typeof(ScriptableObject)))
+                            bindable.value ??= CreateInstance(type);
+                        else
+                            bindable.value ??= Activator.CreateInstance(type);
+                    } 
+                    bindable.DeserializeIfHasData();
                 }
                 
                 EditorGUILayout.BeginHorizontal();
@@ -50,29 +58,40 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 string valueInput = EditorGUILayout.DelayedTextField(bindable.type == BindableType.Object
                     ? ((ISerializableBindableObject)bindable.value)?.Serialize()
                     : bindable.value?.ToString());
-                bindable.SetValueFromString(valueInput);
+                if (valueInput != "")
+                {
+                    bindable.SetValueFromString(valueInput);
+                    if (bindable.type == BindableType.Object) bindable.ForceSerialize();
+                }
 
                 bindable.enabled = EditorGUILayout.Toggle(bindable.enabled);
 
                 EditorGUILayout.EndHorizontal();
 
-                for (int i = 0; i < bindable.Bytes; i++)
+                if (bindable.Bytes == 0)
                 {
-                    EditorGUILayout.BeginHorizontal();
-
-                    var addressNames = bindable.type == BindableType.Object ? null : Bindable.Handlers[bindable.type].AddressNames;
-                    
-                    string addressInput =
-                        EditorGUILayout.DelayedTextField(addressNames is not null ? addressNames[i] : (bindable.Bytes == 1 ? "Address" : $"Byte {i}"), bindable.addresses[i].ToString("X4"));
-                    if (ushort.TryParse(addressInput, System.Globalization.NumberStyles.HexNumber, null,
-                            out ushort address))
-                    {
-                        bindable.addresses[i] = address;
-                    }
-
-                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.LabelField("No addresses (0 bytes)");
                 }
+                else
+                {
+                    for (int i = 0; i < bindable.AddressCount; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
 
+                        var addressNames = bindable.type == BindableType.Object ? null : Bindable.Handlers[bindable.type].AddressNames;
+                    
+                        string addressInput =
+                            EditorGUILayout.DelayedTextField(addressNames is not null ? addressNames[i] : (bindable.AddressCount == 1 ? "Address" : $"Byte {i}"), bindable.addresses[i].ToString("X4"));
+                        if (ushort.TryParse(addressInput, System.Globalization.NumberStyles.HexNumber, null,
+                                out ushort address))
+                        {
+                            bindable.addresses[i] = address;
+                        }
+
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+                
                 EditorGUILayout.Separator();
             }
                         
@@ -119,10 +138,25 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
                 if (bindable.type == BindableType.Object)
                 {
-                    bindable.value = Activator.CreateInstance(Type.GetType(bindable.objectTypeName));
+                    if (bindable.objectTypeName is null)
+                    {
+                        throw new Exception("Bindable object type name is null");
+                    }
+                    
+                    Type type = Type.GetType(bindable.objectTypeName);
+                    if (type is null)
+                    {
+                        throw new Exception("Bindable type does not exist");
+                    }
+
+                    if (type.IsSubclassOf(typeof(ScriptableObject)))
+                        bindable.value = CreateInstance(type);
+                    else
+                        bindable.value = Activator.CreateInstance(type);
                 }
 
-                bindable.addresses = new ushort[bindable.Bytes];
+                bindable.addresses = new ushort[bindable.AddressCount];
+                
                 f.SetValue(behavior, bindable);
                 behavior.bindables.Add(bindable);
             }

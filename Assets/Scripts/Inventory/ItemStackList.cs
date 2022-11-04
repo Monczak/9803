@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEngine;
@@ -7,20 +8,31 @@ using UnityEngine;
 namespace NineEightOhThree.Inventory
 {
     [Serializable]
+    [CreateAssetMenu]
     public class ItemStackList : ScriptableObject, ISerializableBindableObject
     {
-        public List<ItemStack> itemStacks;
+        public byte stackCount;
+        
+        [SerializeField] private List<ItemStack> itemStacks;
+        public List<ItemStack> ItemStacks
+        {
+            get => itemStacks ??= new List<ItemStack>();
+            set => itemStacks = value;
+        }
+        
 
-        public int Bytes => itemStacks.Count * CreateInstance<ItemStack>().Bytes;
+        public int Bytes => 1 + stackCount * new ItemStack().Bytes;
+        public bool IsPointer => true;
 
         public byte[] ToBytes()
         {
             byte[] bytes = new byte[Bytes];
-            for (int i = 0; i < itemStacks.Count; i++)
+            bytes[0] = stackCount;
+            for (int i = 0; i < ItemStacks.Count; i++)
             {
-                byte[] itemStackBytes = itemStacks[i].ToBytes();
-                bytes[i * 2] = itemStackBytes[0];
-                bytes[i * 2 + 1] = itemStackBytes[1];
+                byte[] itemStackBytes = ItemStacks[i].ToBytes();
+                bytes[1 + i * 2] = itemStackBytes[0];
+                bytes[1 + i * 2 + 1] = itemStackBytes[1];
             }
 
             return bytes;
@@ -29,11 +41,12 @@ namespace NineEightOhThree.Inventory
         public object FromBytes(byte[] bytes)
         {
             ItemStackList list = CreateInstance<ItemStackList>();
-            list.itemStacks = new List<ItemStack>();
+            list.ItemStacks = new List<ItemStack>();
+            list.stackCount = bytes[0];
 
-            for (int i = 0; i < bytes.Length; i += 2)
+            for (int i = 1; i < bytes.Length; i += 2)
             {
-                list.itemStacks.Add((ItemStack)CreateInstance<ItemStack>().FromBytes(bytes[i..(i + 1)]));
+                list.ItemStacks.Add((ItemStack)new ItemStack().FromBytes(bytes[i..(i + 2)]));
             }
 
             return list;
@@ -42,23 +55,22 @@ namespace NineEightOhThree.Inventory
         public string Serialize()
         {
             StringBuilder builder = new StringBuilder();
-            foreach (ItemStack stack in itemStacks)
-            {
-                builder.Append(stack.Serialize()).Append("|");
-            }
+            builder.Append(stackCount).Append("|");
+            builder.AppendJoin("|", ItemStacks.Select(stack => stack.Serialize()));
 
             return builder.ToString();
         }
 
         public object Deserialize(string str)
         {
-            string[] serializedItems = str.Split("|");
-            byte[] bytes = new byte[serializedItems.Length * 2];
-            for (int i = 0; i < serializedItems.Length; i++)
+            string[] serializedItems = str.Split("|", StringSplitOptions.RemoveEmptyEntries);
+            byte[] bytes = new byte[1 + (serializedItems.Length - 1) * 2];
+            bytes[0] = byte.Parse(serializedItems[0]);
+            for (int i = 1; i < serializedItems.Length; i++)
             {
                 string[] itemData = serializedItems[i].Split(" ");
-                bytes[i * 2] = byte.Parse(itemData[0]);
-                bytes[i * 2 + 1] = byte.Parse(itemData[1]);
+                bytes[1 + (i - 1) * 2] = byte.Parse(itemData[0]);
+                bytes[1 + (i - 1) * 2 + 1] = byte.Parse(itemData[1]);
             }
 
             return FromBytes(bytes);

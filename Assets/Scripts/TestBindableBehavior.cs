@@ -38,5 +38,6 @@ namespace NineEightOhThree
         }
 
         public int Bytes => 1;
+        public bool IsPointer => false;
     }
 }

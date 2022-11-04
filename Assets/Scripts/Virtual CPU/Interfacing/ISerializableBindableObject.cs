@@ -9,6 +9,7 @@
         public virtual object Deserialize(string str) => null;
         
         public int Bytes { get; }
+        public bool IsPointer { get; }
     }
     
     public interface ISerializableBindableObject<out T> : ISerializableBindableObject where T : ISerializableBindableObject

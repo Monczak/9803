@@ -8,7 +8,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
     [Serializable]
     public class Bindable : ScriptableObject, ISerializationCallbackReceiver
     {
-        [SerializeReference] public object value;
+        public object value;
         public ushort[] addresses;
 
         public BindableType type = BindableType.Null;
@@ -20,6 +20,11 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         public bool enabled;
         public bool dirty;
 
+        private bool initializeLazily;
+        public bool IsPointer { get; private set; }
+
+        public string SerializedValue => serializedValue;
+        
         public T GetValue<T>()
         {
             if (value == null)
@@ -70,7 +75,10 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             try
             {
                 if (type == BindableType.Object)
-                    value = ((ISerializableBindableObject)value)?.Deserialize(str);
+                {
+                    value = ((ISerializableBindableObject)value).Deserialize(str);
+                    IsPointer = ((ISerializableBindableObject)value).IsPointer;
+                }
                 else
                     value = ParseValue(str, type);
                 return true;
@@ -83,8 +91,14 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         }
 
         public int Bytes => type == BindableType.Object ? ((ISerializableBindableObject)value).Bytes : Handlers[type].Bytes;
+        public int AddressCount => IsPointer ? 1 : Bytes;
 
         public void OnBeforeSerialize()
+        {
+            ForceSerialize();
+        }
+
+        public void ForceSerialize()
         {
             if (value == null)
             {
@@ -107,7 +121,9 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             }
 
             if (type == BindableType.Object)
-                value = ((ISerializableBindableObject)value).Deserialize(serializedValue);
+            {
+                initializeLazily = true;
+            }
             else
                 value = Handlers[type].Deserialize(serializedValue);
         }
@@ -116,6 +132,30 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             if (serializedValue is not null)
                 SetValueFromString(serializedValue);
+        }
+
+        public void SetValueNullIfSerializedNull()
+        {
+            if (serializedValue == "n")
+                value = null;
+        }
+
+        private void Awake()
+        {
+            if (value is null && serializedValue is not null && initializeLazily)
+            {
+                Type type = Type.GetType(objectTypeName);
+                ISerializableBindableObject obj;
+                if (type.IsSubclassOf(typeof(ScriptableObject)))
+                {
+                    obj = (ISerializableBindableObject)CreateInstance(type);
+                }
+                else
+                {
+                    obj = (ISerializableBindableObject)Activator.CreateInstance(type);
+                }
+                value = obj.Deserialize(serializedValue);
+            }
         }
 
         public static readonly Dictionary<BindableType, IBindableTypeHandler> Handlers = new()

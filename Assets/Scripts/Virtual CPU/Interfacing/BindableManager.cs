@@ -42,7 +42,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
                 for (int i = 0; i < bindable.Bytes; i++)
                 {
-                    ushort address = bindable.addresses[i];
+                    ushort address = bindable.IsPointer ? (ushort)(bindable.addresses[0] + i) : bindable.addresses[i];
                     bytes[i] = memory.Read(address);
                     if (dirtyAddresses.Contains(address))
                     {
@@ -65,7 +65,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
                 for (var i = 0; i < bindable.Bytes; i++)
                 {
-                    var address = bindable.addresses[i];
+                    ushort address = bindable.IsPointer ? (ushort)(bindable.addresses[0] + i) : bindable.addresses[i];
                     memory.Write(address, bytes[i], false);
                 }
             }

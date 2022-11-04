@@ -3647,8 +3647,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value:
-    rid: 8247908447104532561
   addresses: 02030303
   type: 8
   objectTypeName: 
@@ -3656,14 +3654,6 @@ MonoBehaviour:
   serializedValue: 0|0
   enabled: 1
   dirty: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 8247908447104532561
-      type: {class: Vector2Byte, ns: NineEightOhThree.Math, asm: Assembly-CSharp}
-      data:
-        x: 0
-        y: 0
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -4044,6 +4034,7 @@ GameObject:
   - component: {fileID: 695409942}
   - component: {fileID: 695409941}
   - component: {fileID: 695409940}
+  - component: {fileID: 695409944}
   m_Layer: 9
   m_Name: Interactable
   m_TagString: Untagged
@@ -4168,6 +4159,21 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &695409944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695409938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf5125613b844ada3b4d59b6f972070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bindables:
+  - {fileID: 900894757}
+  itemStackList: {fileID: 900894757}
 --- !u!1 &709808215
 GameObject:
   m_ObjectHideFlags: 0
@@ -4307,8 +4313,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value:
-    rid: 8247908447104532562
   addresses: 00030103
   type: 8
   objectTypeName: 
@@ -4316,14 +4320,6 @@ MonoBehaviour:
   serializedValue: 0|0
   enabled: 1
   dirty: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 8247908447104532562
-      type: {class: Vector2Byte, ns: NineEightOhThree.Math, asm: Assembly-CSharp}
-      data:
-        x: 0
-        y: 0
 --- !u!1 &813433355
 GameObject:
   m_ObjectHideFlags: 0
@@ -4461,6 +4457,25 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &900894757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 1003
+  type: 9
+  objectTypeName: NineEightOhThree.Inventory.ItemStackList
+  fieldName: itemStackList
+  serializedValue: 2|1 5|1 2
+  enabled: 1
+  dirty: 0
 --- !u!1 &912178565
 GameObject:
   m_ObjectHideFlags: 0
@@ -5017,8 +5032,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value:
-    rid: 8247908447104532560
   addresses: 04030503
   type: 8
   objectTypeName: 
@@ -5026,14 +5039,6 @@ MonoBehaviour:
   serializedValue: 0|0
   enabled: 1
   dirty: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 8247908447104532560
-      type: {class: Vector2Byte, ns: NineEightOhThree.Math, asm: Assembly-CSharp}
-      data:
-        x: 0
-        y: 0
 --- !u!1 &1139591176
 GameObject:
   m_ObjectHideFlags: 0
@@ -5492,27 +5497,18 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value:
-    rid: 8247908447104532563
   addresses: 0803
   type: 9
   objectTypeName: NineEightOhThree.ByteWrapper
   fieldName: testObjectBindable
-  serializedValue: 255
+  serializedValue: 5
   enabled: 1
   dirty: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 8247908447104532563
-      type: {class: ByteWrapper, ns: NineEightOhThree, asm: Assembly-CSharp}
-      data:
-        b: 255
 --- !u!1 &1532496456
 GameObject:
   m_ObjectHideFlags: 0
@@ -5687,8 +5683,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value:
-    rid: 8247908447104532564
   addresses: ff03
   type: 1
   objectTypeName: 
@@ -5696,11 +5690,6 @@ MonoBehaviour:
   serializedValue: 255
   enabled: 1
   dirty: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 8247908447104532564
-      type: {class: Byte, ns: System, asm: mscorlib}
 --- !u!1 &1686316335
 GameObject:
   m_ObjectHideFlags: 0
