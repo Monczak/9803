@@ -23,8 +23,6 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         private bool initializeLazily;
         public bool IsPointer { get; private set; }
 
-        public string SerializedValue => serializedValue;
-        
         public T GetValue<T>()
         {
             if (value == null)
@@ -35,6 +33,13 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             this.value = value;
         }
+
+        public void ForceUpdate()
+        {
+            ForceSerialize();
+            dirty = true;
+        }
+        
         public void SetValueFromBytes(byte[] bytes)
         {
             if (type == BindableType.Object)
@@ -130,7 +135,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         public void DeserializeIfHasData()
         {
-            if (serializedValue is not null)
+            if (serializedValue is not null && serializedValue != "n")
                 SetValueFromString(serializedValue);
         }
 

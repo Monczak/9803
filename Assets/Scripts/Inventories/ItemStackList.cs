@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEngine;
 
-namespace NineEightOhThree.Inventory
+namespace NineEightOhThree.Inventories
 {
     [Serializable]
     [CreateAssetMenu]
-    public class ItemStackList : ScriptableObject, ISerializableBindableObject
+    public class ItemStackList : ScriptableObject, ISerializableBindableObject, IEnumerable<ItemStack>
     {
         public byte stackCount;
         
@@ -74,6 +75,18 @@ namespace NineEightOhThree.Inventory
             }
 
             return FromBytes(bytes);
+        }
+
+        private IEnumerator<ItemStack> enumerator;
+        
+        public IEnumerator<ItemStack> GetEnumerator()
+        {
+            return enumerator ??= itemStacks.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

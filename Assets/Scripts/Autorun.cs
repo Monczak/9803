@@ -1,4 +1,4 @@
-﻿using NineEightOhThree.Inventory;
+﻿using NineEightOhThree.Inventories;
 using UnityEditor;
 
 namespace NineEightOhThree
@@ -8,7 +8,8 @@ namespace NineEightOhThree
     {
         static Autorun()
         {
-            ItemRegistry.RegisterItems();
+            if (ItemRegistry.IsNull())
+                ItemRegistry.RegisterItems();
         }
     }
 }

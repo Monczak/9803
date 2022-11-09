@@ -2,7 +2,7 @@
 using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEngine;
 
-namespace NineEightOhThree.Inventory
+namespace NineEightOhThree.Inventories
 {
     [Serializable]
     public class ItemStack : ISerializableBindableObject
@@ -10,15 +10,17 @@ namespace NineEightOhThree.Inventory
         public Item itemType;
         public byte size;
 
-        public bool Empty => size == 0;
+        public bool Empty => itemType == Item.Nothing || size == 0;
 
-        public ItemStack Of(Item itemType, byte size)
+        public ItemStack Make(Item itemType, byte size)
         {
             this.itemType = itemType;
             this.size = size;
 
             return this;
-        } 
+        }
+
+        public static ItemStack Of(Item itemType, byte size) => new ItemStack().Make(itemType, size);
         
         public byte[] ToBytes()
         {
@@ -27,7 +29,7 @@ namespace NineEightOhThree.Inventory
 
         public object FromBytes(byte[] bytes)
         {
-            return new ItemStack().Of(ItemRegistry.GetItem(bytes[0]), bytes[1]);
+            return new ItemStack().Make(ItemRegistry.GetItem(bytes[0]), bytes[1]);
         }
 
         public string Serialize()
@@ -52,11 +54,18 @@ namespace NineEightOhThree.Inventory
 
         public bool MergeWith(ItemStack other)
         {
-            if (itemType != other.itemType)
+            if (Empty)
+                itemType = other.itemType;
+            
+            if (itemType != other.itemType && !(itemType == Item.Nothing || other.itemType == Item.Nothing))
+                return false;
+            
+            if (other.itemType == Item.Nothing)
                 return false;
 
+            int oldSize = size;
             size = (byte)Mathf.Min(size + other.size, itemType.StackSize);
-            other.size = (byte)Mathf.Max(size + other.size - itemType.StackSize, 0);
+            other.size = (byte)Mathf.Max(oldSize + other.size - itemType.StackSize, 0);
             return true;
         }
     }

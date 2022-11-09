@@ -41,7 +41,7 @@ namespace NineEightOhThree.Managers
 
         private void LoadEverything()
         {
-            Inventory.ItemRegistry.RegisterItems();
+            Inventories.ItemRegistry.RegisterItems();
             VirtualCPU.CPUInstructionRegistry.RegisterInstructions();
         }
     }

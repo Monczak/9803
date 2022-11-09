@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace NineEightOhThree.Inventory
+namespace NineEightOhThree.Inventories
 {
     [Serializable]
     public class InvalidItemException : Exception

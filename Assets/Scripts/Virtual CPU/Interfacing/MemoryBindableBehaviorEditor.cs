@@ -53,9 +53,15 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 }
                 
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel($"{Beautify(bindable.fieldName)} ({bindable.type})");
+                bindable.enabled = EditorGUILayout.Toggle(Beautify(bindable.fieldName), bindable.enabled);
+                EditorGUILayout.EndHorizontal();
 
-                string valueInput = EditorGUILayout.DelayedTextField(bindable.type == BindableType.Object
+                EditorGUILayout.BeginHorizontal();
+                string label = @$"({(bindable.type == BindableType.Object 
+                    ? Beautify(bindable.objectTypeName[(bindable.objectTypeName.LastIndexOf(".", StringComparison.InvariantCulture)+1)..]) 
+                    : bindable.type.ToString())})";
+
+                string valueInput = EditorGUILayout.DelayedTextField(label, bindable.type == BindableType.Object
                     ? ((ISerializableBindableObject)bindable.value)?.Serialize()
                     : bindable.value?.ToString());
                 if (valueInput != "")
@@ -63,8 +69,6 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                     bindable.SetValueFromString(valueInput);
                     if (bindable.type == BindableType.Object) bindable.ForceSerialize();
                 }
-
-                bindable.enabled = EditorGUILayout.Toggle(bindable.enabled);
 
                 EditorGUILayout.EndHorizontal();
 

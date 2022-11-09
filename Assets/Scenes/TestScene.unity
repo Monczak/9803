@@ -268,6 +268,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9447416}
   m_CullTransparentMesh: 1
+--- !u!114 &58682353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 1003
+  type: 9
+  objectTypeName: NineEightOhThree.Inventories.ItemStackList
+  fieldName: itemStackList
+  serializedValue: 3|2 0|1 5|1 2
+  enabled: 1
+  dirty: 0
 --- !u!1 &124701859
 GameObject:
   m_ObjectHideFlags: 0
@@ -475,10 +494,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 1536790101}
-  - {fileID: 1361968160}
-  testBindable: {fileID: 1536790101}
-  testObjectBindable: {fileID: 1361968160}
+  - {fileID: 414075308}
+  - {fileID: 1566390963}
+  testBindable: {fileID: 414075308}
+  testObjectBindable: {fileID: 1566390963}
 --- !u!1 &293724231
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,6 +529,7 @@ Transform:
   - {fileID: 663957686}
   - {fileID: 2028172263}
   - {fileID: 1806944520}
+  - {fileID: 1216220527}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -565,6 +585,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!114 &414075308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: ff03
+  type: 1
+  objectTypeName: 
+  fieldName: testBindable
+  serializedValue: 255
+  enabled: 1
+  dirty: 0
 --- !u!1 &428793516
 GameObject:
   m_ObjectHideFlags: 0
@@ -4172,8 +4211,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 900894757}
-  itemStackList: {fileID: 900894757}
+  - {fileID: 58682353}
+  itemStackList: {fileID: 58682353}
 --- !u!1 &709808215
 GameObject:
   m_ObjectHideFlags: 0
@@ -4457,25 +4496,6 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
---- !u!114 &900894757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  addresses: 1003
-  type: 9
-  objectTypeName: NineEightOhThree.Inventory.ItemStackList
-  fieldName: itemStackList
-  serializedValue: 2|1 5|1 2
-  enabled: 1
-  dirty: 0
 --- !u!1 &912178565
 GameObject:
   m_ObjectHideFlags: 0
@@ -5112,6 +5132,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1139591176}
   m_CullTransparentMesh: 1
+--- !u!1 &1216220526
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1216220527}
+  - component: {fileID: 1216220528}
+  m_Layer: 0
+  m_Name: Editor Helper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1216220527
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216220526}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 293724232}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1216220528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216220526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5eb24a384c3f4d91af7b4ebb9678bd91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1239597124
 GameObject:
   m_ObjectHideFlags: 0
@@ -5490,25 +5554,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1293011799}
   m_CullTransparentMesh: 1
---- !u!114 &1361968160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  addresses: 0803
-  type: 9
-  objectTypeName: NineEightOhThree.ByteWrapper
-  fieldName: testObjectBindable
-  serializedValue: 5
-  enabled: 1
-  dirty: 0
 --- !u!1 &1532496456
 GameObject:
   m_ObjectHideFlags: 0
@@ -5671,23 +5716,23 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1536790101
+--- !u!114 &1566390963
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  addresses: ff03
-  type: 1
-  objectTypeName: 
-  fieldName: testBindable
-  serializedValue: 255
+  addresses: 0803
+  type: 9
+  objectTypeName: NineEightOhThree.ByteWrapper
+  fieldName: testObjectBindable
+  serializedValue: 5
   enabled: 1
   dirty: 0
 --- !u!1 &1686316335
