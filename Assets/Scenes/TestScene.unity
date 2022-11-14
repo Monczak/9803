@@ -268,25 +268,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9447416}
   m_CullTransparentMesh: 1
---- !u!114 &58682353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  addresses: 1003
-  type: 9
-  objectTypeName: NineEightOhThree.Inventories.ItemStackList
-  fieldName: itemStackList
-  serializedValue: 3|2 0|1 5|1 2
-  enabled: 1
-  dirty: 0
 --- !u!1 &124701859
 GameObject:
   m_ObjectHideFlags: 0
@@ -4211,8 +4192,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bindables:
-  - {fileID: 58682353}
-  itemStackList: {fileID: 58682353}
+  - {fileID: 1714617600}
+  itemStackList: {fileID: 1714617600}
 --- !u!1 &709808215
 GameObject:
   m_ObjectHideFlags: 0
@@ -5831,6 +5812,25 @@ MonoBehaviour:
   memoryCellParent: {fileID: 1040175244}
   currentPage: 3
   decimal: 0
+--- !u!114 &1714617600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d0102f27dfea194ebf33e5db3acb015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addresses: 1003
+  type: 9
+  objectTypeName: NineEightOhThree.Inventories.ItemStackList
+  fieldName: itemStackList
+  serializedValue: 3|2 0|1 5|1 2
+  enabled: 1
+  dirty: 0
 --- !u!1 &1806944519
 GameObject:
   m_ObjectHideFlags: 0

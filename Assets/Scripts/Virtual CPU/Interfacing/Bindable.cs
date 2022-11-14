@@ -128,6 +128,9 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             if (type == BindableType.Object)
             {
                 initializeLazily = true;
+                #if UNITY_EDITOR
+                DeserializeIfHasData();
+                #endif
             }
             else
                 value = Handlers[type].Deserialize(serializedValue);
