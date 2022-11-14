@@ -15,6 +15,11 @@ namespace NineEightOhThree.Managers
             {
                 ItemRegistry.RegisterItems();
             }
+
+            if (GUILayout.Button("Force Reserialize Assets"))
+            {
+                AssetDatabase.ForceReserializeAssets();
+            }
             EditorGUILayout.EndHorizontal();
         }
     }

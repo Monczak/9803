@@ -135,9 +135,11 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         public void DeserializeIfHasData()
         {
-            if (serializedValue is not null && serializedValue != "n")
+            if (HasData)
                 SetValueFromString(serializedValue);
         }
+
+        public bool HasData => serializedValue is not null && serializedValue != "n";
 
         public void SetValueNullIfSerializedNull()
         {
