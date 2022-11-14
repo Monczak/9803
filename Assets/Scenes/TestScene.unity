@@ -5713,7 +5713,7 @@ MonoBehaviour:
   type: 9
   objectTypeName: NineEightOhThree.ByteWrapper
   fieldName: testObjectBindable
-  serializedValue: 5
+  serializedValue: n
   enabled: 1
   dirty: 0
 --- !u!1 &1686316335

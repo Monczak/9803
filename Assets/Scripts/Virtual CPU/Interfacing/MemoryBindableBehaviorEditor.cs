@@ -40,14 +40,11 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                 if (bindable.type == BindableType.Object)
                 {
                     bindable.SetValueNullIfSerializedNull();
-                    
+
                     Type type = Type.GetType(bindable.objectTypeName);
                     if (type is not null)
                     {
-                        if (type.IsSubclassOf(typeof(ScriptableObject)))
-                            bindable.value ??= CreateInstance(type);
-                        else
-                            bindable.value ??= Activator.CreateInstance(type);
+                        bindable.CreateNewValue();
                     } 
                     bindable.DeserializeIfHasData();
                 }

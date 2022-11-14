@@ -107,6 +107,12 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             if (value == null)
             {
+                if (serializedValue != "" && serializedValue != "n")
+                {
+                    CreateNewValue();
+                    SetValueFromString(serializedValue);
+                    return;
+                }
                 serializedValue = "n";
                 return;
             }
@@ -128,9 +134,6 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             if (type == BindableType.Object)
             {
                 initializeLazily = true;
-                #if UNITY_EDITOR
-                DeserializeIfHasData();
-                #endif
             }
             else
                 value = Handlers[type].Deserialize(serializedValue);
@@ -148,6 +151,17 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         {
             if (serializedValue == "n")
                 value = null;
+        }
+
+        public void CreateNewValue()
+        {
+            Type csType = Type.GetType(objectTypeName);
+            if (csType is null) return;
+            
+            if (csType.IsSubclassOf(typeof(ScriptableObject)))
+                value ??= CreateInstance(csType);
+            else
+                value ??= Activator.CreateInstance(csType);
         }
 
         private void Awake()
