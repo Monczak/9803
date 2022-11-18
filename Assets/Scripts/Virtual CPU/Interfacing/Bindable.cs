@@ -1,6 +1,7 @@
 ﻿using NineEightOhThree.VirtualCPU.Interfacing.TypeHandling;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Interfacing
@@ -193,5 +194,10 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             { BindableType.Vector2Int, new Vector2IntHandler() },
             { BindableType.Vector2Byte, new Vector2ByteHandler() }
         };
+
+        public override string ToString()
+        {
+            return $"{fieldName} = {value ?? serializedValue} ({string.Join(", ", addresses.Select(a => a.ToString("X4")))})";
+        }
     }
 }

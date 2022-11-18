@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="BindableListItem" style="height: 50px; background-color: rgba(84, 84, 84, 255);">
+        <ui:Label text="Bindable Name" display-tooltip-when-elided="true" name="BindableName" />
+        <ui:Label text="Origin Behavior &amp; Object Name" display-tooltip-when-elided="true" name="BindableOrigin" style="height: 16px; font-size: 8px;" />
+        <ui:Label text="Addresses" display-tooltip-when-elided="true" name="BindableAddresses" />
+    </ui:VisualElement>
+</ui:UXML>

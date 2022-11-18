@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd">
+    <ui:GroupBox style="flex-direction: row; flex-wrap: nowrap; flex-grow: 1;">
+        <ui:VisualElement name="BindableListPane" style="width: 200px;">
+            <ui:ListView focusable="true" name="BindableList" style="flex-grow: 1;" />
+            <ui:VisualElement name="BindableListItem" style="height: 50px; background-color: rgba(84, 84, 84, 255);">
+                <ui:Label text="Bindable Name" display-tooltip-when-elided="true" name="BindableName" />
+                <ui:Label text="Origin Behavior &amp; Object Name" display-tooltip-when-elided="true" name="BindableOrigin" style="height: 16px; font-size: 8px;" />
+                <ui:Label text="Addresses" display-tooltip-when-elided="true" name="BindableAddresses" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="MemoryEditorPane" style="flex-direction: row; flex-grow: 1; flex-shrink: 0;" />
+    </ui:GroupBox>
+</ui:UXML>
