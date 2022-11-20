@@ -112,8 +112,9 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             {
                 if (serializedValue != "" && serializedValue != "n")
                 {
-                    CreateNewValue();
-                    SetValueFromString(serializedValue);
+                    /*CreateNewValue();
+                    SetValueFromString(serializedValue);*/
+                    
                     return;
                 }
                 serializedValue = "n";

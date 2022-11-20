@@ -60,6 +60,8 @@ namespace NineEightOhThree.Editor.MemoryLayout
 
         private void Update()
         {
+            memoryEditorController?.Update();
+            
             scheduler.ExecuteAll();
         }
 
