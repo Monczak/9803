@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using NineEightOhThree.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -48,14 +49,17 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
                     } 
                     bindable.DeserializeIfHasData();
                 }
+
+                bindable.parentObjectName = behavior.gameObject.name;
+                bindable.parentClassName = behavior.GetType().Name;
                 
                 EditorGUILayout.BeginHorizontal();
-                bindable.enabled = EditorGUILayout.Toggle(Beautify(bindable.fieldName), bindable.enabled);
+                bindable.enabled = EditorGUILayout.Toggle(StringUtils.Beautify(bindable.fieldName), bindable.enabled);
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
                 string label = @$"({(bindable.type == BindableType.Object 
-                    ? Beautify(bindable.objectTypeName[(bindable.objectTypeName.LastIndexOf(".", StringComparison.InvariantCulture)+1)..]) 
+                    ? StringUtils.Beautify(bindable.objectTypeName[(bindable.objectTypeName.LastIndexOf(".", StringComparison.InvariantCulture)+1)..]) 
                     : bindable.type.ToString())})";
 
                 string valueInput = EditorGUILayout.DelayedTextField(label, bindable.type == BindableType.Object
@@ -100,16 +104,6 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             {
                 RefreshBindables();
             }
-        }
-
-        private string Beautify(string fieldName)
-        {
-            string[] strings = Regex.Split(fieldName, @"(?<!^)(?=[A-Z])");
-            StringBuilder builder = new();
-            foreach (string str in strings)
-                builder.Append(str[0].ToString().ToUpper()).Append(str.AsSpan(1)).Append(" ");
-            builder.Remove(builder.Length - 1, 1);
-            return builder.ToString();
         }
 
         private void RefreshBindables()

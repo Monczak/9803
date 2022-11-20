@@ -1,0 +1,6 @@
+.overflow-ellipsis {
+    text-overflow: ellipsis;
+    -unity-text-overflow-position: end;
+    overflow: hidden;
+    white-space: nowrap;
+}

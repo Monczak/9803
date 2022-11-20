@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="MemoryCell" src="project://database/Assets/Editor/Memory%20Layout/Templates/MemoryCell.uxml?fileID=9197481963319205126&amp;guid=155bb74b3760662468f7b387612f7e6c&amp;type=3#MemoryCell" />
+    <ui:VisualElement style="flex-direction: row; flex-grow: 1; flex-shrink: 0;">
+        <ui:Label text="0000" display-tooltip-when-elided="true" name="Address" style="-unity-text-align: middle-left; -unity-font-definition: url(&apos;project://database/Assets/Fonts/Perfect%20DOS%20VGA%20437%20Win%20UI%20Toolkit.asset?fileID=11400000&amp;guid=c1bce6b3608b0c54d9c71d33ad0d518d&amp;type=2#Perfect DOS VGA 437 Win UI Toolkit&apos;); font-size: 20px; color: rgb(130, 130, 130); translate: 1px 1px; flex-direction: column; height: 30px;" />
+        <ui:VisualElement name="MemoryCells" style="flex-direction: row;">
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+            <ui:Instance template="MemoryCell" name="MemoryCell" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

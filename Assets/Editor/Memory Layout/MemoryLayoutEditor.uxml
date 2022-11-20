@@ -1,13 +1,38 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd">
-    <ui:GroupBox style="flex-direction: row; flex-wrap: nowrap; flex-grow: 1;">
-        <ui:VisualElement name="BindableListPane" style="width: 200px;">
-            <ui:ListView focusable="true" name="BindableList" style="flex-grow: 1;" />
-            <ui:VisualElement name="BindableListItem" style="height: 50px; background-color: rgba(84, 84, 84, 255);">
-                <ui:Label text="Bindable Name" display-tooltip-when-elided="true" name="BindableName" />
-                <ui:Label text="Origin Behavior &amp; Object Name" display-tooltip-when-elided="true" name="BindableOrigin" style="height: 16px; font-size: 8px;" />
-                <ui:Label text="Addresses" display-tooltip-when-elided="true" name="BindableAddresses" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="MemoryCellRow" src="project://database/Assets/Editor/Memory%20Layout/Templates/MemoryCellRow.uxml?fileID=9197481963319205126&amp;guid=fce5cbff0723b4a4fbd6575ddbdce392&amp;type=3#MemoryCellRow" />
+    <ui:VisualElement name="Container" style="flex-shrink: 0; flex-grow: 1; flex-direction: column;">
+        <ui:VisualElement name="TopPane" style="flex-direction: row; flex-grow: 1;">
+            <ui:VisualElement name="BindableListPane" style="width: auto; flex-grow: 1; flex-shrink: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; background-color: rgb(46, 46, 46); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; height: auto; min-width: 200px;">
+                <ui:Label text="Bindables" display-tooltip-when-elided="true" style="background-color: rgb(82, 82, 82); border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 7px; border-bottom-right-radius: 7px; padding-left: 0; -unity-font-style: normal; margin-bottom: 4px; -unity-text-align: middle-center; height: 19px; flex-grow: 0; flex-direction: row; padding-right: 0;" />
+                <ui:ListView focusable="true" name="BindableList" show-alternating-row-backgrounds="None" show-foldout-header="false" show-border="false" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="MemoryEditorPane" style="flex-direction: row; flex-grow: 0; flex-shrink: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; align-items: flex-start; justify-content: flex-start; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;">
+                <ui:VisualElement name="MemoryEditorContainer" style="flex-direction: column; flex-grow: 1;">
+                    <ui:Label text="Memory Editor" display-tooltip-when-elided="true" style="background-color: rgb(48, 48, 48); border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 7px; border-bottom-right-radius: 7px; padding-left: 0; -unity-font-style: normal; margin-bottom: 4px; -unity-text-align: middle-center; height: 19px; flex-direction: row; flex-grow: 1; padding-right: 0; padding-top: 0; padding-bottom: 0; flex-wrap: nowrap; align-items: stretch; max-height: 19px; width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                    <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="PropertiesPane" style="width: auto; flex-direction: row; flex-shrink: 0; flex-grow: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; background-color: rgb(46, 46, 46); min-width: 200px;">
+                <ui:Label text="Properties" display-tooltip-when-elided="true" style="background-color: rgb(82, 82, 82); border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 7px; border-bottom-right-radius: 7px; padding-left: 0; -unity-font-style: normal; margin-bottom: 4px; -unity-text-align: middle-center; height: 19px; flex-direction: row; flex-grow: 1; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="MemoryEditorPane" style="flex-direction: row; flex-grow: 1; flex-shrink: 0;" />
-    </ui:GroupBox>
+        <ui:VisualElement name="BottomPane" style="flex-grow: 1; min-width: auto; min-height: auto; flex-direction: row;">
+            <ui:Button text="Button" display-tooltip-when-elided="true" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

@@ -1,3 +1,6 @@
+using System;
+using NineEightOhThree.Editor.MemoryLayout.Controllers;
+using NineEightOhThree.Editor.Utils;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +12,13 @@ namespace NineEightOhThree.Editor.MemoryLayout
     public class MemoryLayoutEditor : EditorWindow
     {
         private MemoryLayoutEditorController controller;
+
+        private BindableListController bindableListController;
+        private MemoryEditorController memoryEditorController;
+        
+        private DelayedExecutor scheduler;
+
+        private VisualTreeAsset bindableListItemTemplate;
 
         [MenuItem("Tools/Memory Layout Editor")]
         public static void ShowWindow()
@@ -31,34 +41,39 @@ namespace NineEightOhThree.Editor.MemoryLayout
             // The style will be applied to the VisualElement and all of its children.
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Editor/Memory Layout/MemoryLayoutEditor.uss");
             root.styleSheets.Add(styleSheet);
+
+            bindableListItemTemplate =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    "Assets/Editor/Memory Layout/Templates/BindableListItem.uxml");
         }
             
         private void OnEnable()
         {
             controller = new MemoryLayoutEditorController();
+            scheduler = new DelayedExecutor();
             
             controller.GetAllBindablesInScene();
-            SetupBindableList();
+            
+            scheduler.Schedule(SetupBindableList);
+            scheduler.Schedule(SetupMemoryEditor);
+        }
+
+        private void Update()
+        {
+            scheduler.ExecuteAll();
         }
 
         private void SetupBindableList()
         {
-            VisualElement bindableListPane = rootVisualElement.Query<VisualElement>("BindableListPane").First();
-            bindableListPane.Add(new Label("hallo"));
-            int itemHeight = 55;
-
-            /*ListView listView = new ListView(controller.Bindables, itemHeight, BindableList_MakeItem,
-                BindableList_BindItem);*/
+            bindableListController = new BindableListController();
+            bindableListController.InitializeBindableList(rootVisualElement, bindableListItemTemplate, controller.Bindables);
         }
-
-        private void BindableList_BindItem(VisualElement arg1, int arg2)
+        
+        
+        private void SetupMemoryEditor()
         {
-            throw new System.NotImplementedException();
-        }
-
-        private VisualElement BindableList_MakeItem()
-        {
-            throw new System.NotImplementedException();
+            memoryEditorController = new MemoryEditorController();
+            memoryEditorController.Initialize(rootVisualElement);
         }
     }
 }

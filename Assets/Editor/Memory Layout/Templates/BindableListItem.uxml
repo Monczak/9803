@@ -1,7 +1,8 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="BindableListItem" style="height: 50px; background-color: rgba(84, 84, 84, 255);">
-        <ui:Label text="Bindable Name" display-tooltip-when-elided="true" name="BindableName" />
-        <ui:Label text="Origin Behavior &amp; Object Name" display-tooltip-when-elided="true" name="BindableOrigin" style="height: 16px; font-size: 8px;" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Editor/Memory%20Layout/Templates/BindableListItem.uss?fileID=7433441132597879392&amp;guid=6b3b2cdabcd99e847bfb7b9fa850f361&amp;type=3#BindableListItem" />
+    <ui:VisualElement name="BindableListItem" style="height: auto; background-color: rgb(84, 84, 84); padding-left: 4px; padding-right: 4px; padding-top: 4px; padding-bottom: 4px;">
+        <ui:Label text="Bindable Name" display-tooltip-when-elided="true" name="BindableName" class="overflow-ellipsis" style="white-space: nowrap;" />
+        <ui:Label text="Origin Behavior &amp; Object Name" display-tooltip-when-elided="true" name="BindableOrigin" style="height: 16px; font-size: 10px;" />
         <ui:Label text="Addresses" display-tooltip-when-elided="true" name="BindableAddresses" />
     </ui:VisualElement>
 </ui:UXML>

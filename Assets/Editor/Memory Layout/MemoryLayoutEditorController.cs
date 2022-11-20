@@ -15,9 +15,6 @@ namespace NineEightOhThree.Editor.MemoryLayout
             {
                 Bindables.AddRange(behavior.bindables);
             }
-            
-            foreach (Bindable bindable in Bindables)
-                Debug.Log(bindable);
         }
     }
 }

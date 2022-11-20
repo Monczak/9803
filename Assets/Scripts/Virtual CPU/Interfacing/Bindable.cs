@@ -15,6 +15,8 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
         public BindableType type = BindableType.Null;
         public string objectTypeName;
         public string fieldName;
+        public string parentObjectName;
+        public string parentClassName;
 
         [SerializeField] protected string serializedValue;
 
@@ -197,7 +199,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         public override string ToString()
         {
-            return $"{fieldName} = {value ?? serializedValue} ({string.Join(", ", addresses.Select(a => a.ToString("X4")))})";
+            return $"{parentObjectName} {parentClassName}.{fieldName} = {value ?? serializedValue} ({string.Join(", ", addresses.Select(a => a.ToString("X4")))})";
         }
     }
 }
