@@ -2,11 +2,11 @@
     <ui:Template name="MemoryCellRow" src="project://database/Assets/Editor/Memory%20Layout/Templates/MemoryCellRow.uxml?fileID=9197481963319205126&amp;guid=fce5cbff0723b4a4fbd6575ddbdce392&amp;type=3#MemoryCellRow" />
     <ui:VisualElement name="Container" style="flex-shrink: 0; flex-grow: 1; flex-direction: column;">
         <ui:VisualElement name="TopPane" style="flex-direction: row; flex-grow: 1;">
-            <ui:VisualElement name="BindableListPane" style="width: auto; flex-grow: 1; flex-shrink: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; background-color: rgb(46, 46, 46); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; height: auto; min-width: 200px;">
+            <ui:VisualElement name="BindableListPane" style="width: auto; flex-grow: 1; flex-shrink: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; background-color: rgb(46, 46, 46); padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; height: auto; min-width: auto;">
                 <ui:Label text="Bindables" display-tooltip-when-elided="true" style="background-color: rgb(82, 82, 82); border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 7px; border-bottom-right-radius: 7px; padding-left: 0; -unity-font-style: normal; margin-bottom: 4px; -unity-text-align: middle-center; height: 19px; flex-grow: 0; flex-direction: row; padding-right: 0;" />
                 <ui:ListView focusable="true" name="BindableList" show-alternating-row-backgrounds="None" show-foldout-header="false" show-border="false" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
             </ui:VisualElement>
-            <ui:VisualElement name="MemoryEditorPane" style="flex-direction: row; flex-grow: 0; flex-shrink: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; align-items: flex-start; justify-content: flex-start; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;">
+            <ui:VisualElement name="MemoryEditorPane" style="flex-direction: row; flex-grow: 0; flex-shrink: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; align-items: flex-start; justify-content: flex-start; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;">
                 <ui:VisualElement name="MemoryEditorContainer" style="flex-direction: column; flex-grow: 1;">
                     <ui:Label text="Memory Editor" display-tooltip-when-elided="true" style="background-color: rgb(48, 48, 48); border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 7px; border-bottom-right-radius: 7px; padding-left: 0; -unity-font-style: normal; margin-bottom: 4px; -unity-text-align: middle-center; height: 19px; flex-direction: row; flex-grow: 1; padding-right: 0; padding-top: 0; padding-bottom: 0; flex-wrap: nowrap; align-items: stretch; max-height: 19px; width: 100%;" />
                     <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
@@ -27,7 +27,7 @@
                     <ui:Instance template="MemoryCellRow" name="MemoryCellRow" style="width: 100%;" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="PropertiesPane" style="width: auto; flex-direction: row; flex-shrink: 0; flex-grow: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; background-color: rgb(46, 46, 46); min-width: 200px;">
+            <ui:VisualElement name="PropertiesPane" style="width: auto; flex-direction: row; flex-shrink: 1; flex-grow: 1; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; background-color: rgb(46, 46, 46); min-width: auto;">
                 <ui:Label text="Properties" display-tooltip-when-elided="true" style="background-color: rgb(82, 82, 82); border-top-left-radius: 7px; border-bottom-left-radius: 7px; border-top-right-radius: 7px; border-bottom-right-radius: 7px; padding-left: 0; -unity-font-style: normal; margin-bottom: 4px; -unity-text-align: middle-center; height: 19px; flex-direction: row; flex-grow: 1; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
             </ui:VisualElement>
         </ui:VisualElement>

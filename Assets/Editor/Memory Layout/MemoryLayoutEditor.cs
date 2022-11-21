@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using NineEightOhThree.Editor.MemoryLayout.Controllers;
 using NineEightOhThree.Editor.Utils;
+using NineEightOhThree.Editor.Utils.UI;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEditor;
 using UnityEngine;
@@ -68,10 +70,10 @@ namespace NineEightOhThree.Editor.MemoryLayout
         private void SetupBindableList()
         {
             bindableListController = new BindableListController();
-            bindableListController.InitializeBindableList(rootVisualElement, bindableListItemTemplate, controller.Bindables);
+            bindableListController.InitializeBindableList(rootVisualElement, bindableListItemTemplate,
+                controller.Bindables);
         }
-        
-        
+
         private void SetupMemoryEditor()
         {
             memoryEditorController = new MemoryEditorController();
