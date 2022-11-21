@@ -9,19 +9,21 @@ namespace NineEightOhThree.Editor.Utils.UI
     public class DragAndDropManipulator : PointerManipulator
     {
         private VisualElement root;
+        private VisualElement container;
 
         private Vector2 targetStartPos;
         private Vector3 pointerStartPos;
+        private Vector3 pointerPos;
 
         private bool dragging;
 
-        public event EventHandler<VisualElement> OnDropSuccess;
-        public event EventHandler<Vector2> OnDropFailure;
+        public event EventHandler<(bool success, VisualElement slot, Vector2 startPos)> OnDrop;
 
-        public DragAndDropManipulator(VisualElement target)
+        public DragAndDropManipulator(VisualElement root, VisualElement container, VisualElement target)
         {
+            this.root = root;
+            this.container = container;
             this.target = target;
-            root = target.parent;
         }
         
         protected override void RegisterCallbacksOnTarget()
@@ -52,11 +54,13 @@ namespace NineEightOhThree.Editor.Utils.UI
         {
             if (dragging && target.HasPointerCapture(evt.pointerId))
             {
+                pointerPos = evt.position;
                 Vector3 pointerDelta = evt.position - pointerStartPos;
 
-                target.transform.position = new Vector2(
+                /*target.transform.position = new Vector2(
                     Mathf.Clamp(targetStartPos.x + pointerDelta.x, 0, target.panel.visualTree.worldBound.width),
-                    Mathf.Clamp(targetStartPos.y + pointerDelta.y, 0, target.panel.visualTree.worldBound.height));
+                    Mathf.Clamp(targetStartPos.y + pointerDelta.y, 0, target.panel.visualTree.worldBound.height));*/
+                target.transform.position = (Vector3)targetStartPos + pointerDelta;
             }
         }
 
@@ -68,24 +72,24 @@ namespace NineEightOhThree.Editor.Utils.UI
         
         private void OnPointerCaptureOut(PointerCaptureOutEvent evt)
         {
-            Vector3 RootPos(VisualElement elem) => root.WorldToLocal(elem.parent.LocalToWorld(elem.layout.position));
+            Vector3 RootPos(VisualElement elem)
+            {
+                return root.WorldToLocal(root.LocalToWorld(elem.layout.position));
+            }
             
             if (dragging)
             {
                 List<VisualElement> overlappingSlots = root.Query<VisualElement>(className: "dragdrop-slot")
-                    .Where(slot => target.worldBound.Overlaps(slot.worldBound))
+                    .Where(slot => slot.worldBound.Overlaps(new Rect(pointerPos, Vector2.one)))
                     .ToList();
 
                 VisualElement closestOverlappingSlot = null;
                 if (overlappingSlots.Count != 0)
                 {
-                    closestOverlappingSlot = overlappingSlots.MinBy(slot => RootPos(slot) - target.transform.position);
+                    closestOverlappingSlot = overlappingSlots.MinBy(slot => (RootPos(slot) - target.transform.position).sqrMagnitude);
                 }
 
-                if (closestOverlappingSlot != null)
-                    OnDropSuccess?.Invoke(target, closestOverlappingSlot);
-                else
-                    OnDropFailure?.Invoke(target, targetStartPos);
+                OnDrop?.Invoke(target, (closestOverlappingSlot is not null, closestOverlappingSlot, targetStartPos));
 
                 dragging = false;
             }

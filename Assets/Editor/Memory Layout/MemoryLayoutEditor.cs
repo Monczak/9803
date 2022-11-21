@@ -69,8 +69,8 @@ namespace NineEightOhThree.Editor.MemoryLayout
 
         private void SetupBindableList()
         {
-            bindableListController = new BindableListController();
-            bindableListController.InitializeBindableList(rootVisualElement, bindableListItemTemplate,
+            bindableListController = new BindableListController(rootVisualElement);
+            bindableListController.InitializeBindableList(bindableListItemTemplate,
                 controller.Bindables);
         }
 

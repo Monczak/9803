@@ -36,7 +36,13 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 memoryCellLabels.AddRange(labels);
                 addressLabels.Add(addressLabel);
             }
-            
+
+            for (int i = 0; i < memoryCellLabels.Count; i++)
+            {
+                var label = memoryCellLabels[i];
+                label.parent.name = $"Label{i}";
+            }
+
             editorContainer.RegisterCallback<WheelEvent>(MemoryEditor_OnWheel, TrickleDown.TrickleDown);
 
             RegisterClickHandlers();

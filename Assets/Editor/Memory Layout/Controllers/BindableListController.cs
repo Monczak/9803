@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using NineEightOhThree.Editor.Utils.UI;
 using NineEightOhThree.VirtualCPU.Interfacing;
-using UnityEditor.U2D;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,27 +13,26 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
 
         private List<Bindable> bindables;
         private List<VisualElement> listItems;
-        
-        private Dictionary<VisualElement, DragAndDropManipulator> listItemManipulators;
 
-        public void InitializeBindableList(VisualElement root, VisualTreeAsset bindableListItemTemplate, List<Bindable> bindables)
+        private VisualElement root;
+
+        public BindableListController(VisualElement root)
+        {
+            this.root = root;
+        }
+
+        public void InitializeBindableList(VisualTreeAsset bindableListItemTemplate, List<Bindable> bindables)
         {
             listItemTemplate = bindableListItemTemplate;
             this.bindables = bindables;
             bindableList = root.Q<ListView>("BindableList");
             FillBindableList();
+        }
 
-            listItems = bindableList.Query<VisualElement>("BindableListItem").ToList();
-            
-            listItemManipulators = new Dictionary<VisualElement, DragAndDropManipulator>();
-            foreach (var item in listItems)
-            {
-                Debug.Log(item.name);
-                DragAndDropManipulator manipulator = new(item);
-                manipulator.OnDropSuccess += (sender, slot) => HandleDropSuccess((VisualElement)sender, slot);
-                manipulator.OnDropFailure += (sender, startPos) => HandleDropFailure((VisualElement)sender, startPos);
-                listItemManipulators.Add(item, manipulator);
-            }
+        private void InitializeDragAndDrop(VisualElement elem)
+        {
+            DragAndDropManipulator manipulator = new(root,root.Q<VisualElement>("MemoryEditorContainer"), elem);
+            manipulator.OnDrop += (sender, data) => HandleDrop((VisualElement)sender, data);
         }
 
 
@@ -46,6 +44,9 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 var logic = new BindableListItemController();
                 item.userData = logic;
                 logic.Setup(item);
+
+                InitializeDragAndDrop(item.contentContainer);
+                
                 return item;
             };
 
@@ -59,15 +60,18 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             bindableList.RefreshItems();
         }
 
-        private void HandleDropSuccess(VisualElement sender, VisualElement slot)
+        private void HandleDrop(VisualElement sender, (bool success, VisualElement slot, Vector2 startPos) data)
         {
-            Debug.Log($"Success, slot name = {slot.name}");
-        }
-
-        private void HandleDropFailure(VisualElement sender, Vector2 startPos)
-        {
-            Debug.Log($"Failure, startPos = {startPos}");
-            sender.transform.position = startPos;
+            if (data.success)
+            {
+                Debug.Log($"Success, slot name = {data.slot.name}");
+            }
+            else
+            {
+                Debug.Log($"Failure, startPos = {data.startPos}");
+            }
+            
+            sender.transform.position = data.startPos;
         }
     }
 }
