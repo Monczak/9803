@@ -60,7 +60,7 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             
             if (evt.delta.y > 0)
             {
-                if (FirstAddress < MaxAddress)
+                if (FirstAddress < MaxAddress - 256)
                     FirstAddress += step;
             }
             else
