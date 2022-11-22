@@ -29,10 +29,11 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             FillBindableList();
         }
 
-        private void InitializeDragAndDrop(VisualElement elem)
+        private VisualElement InitializeDragAndDrop(VisualTreeAsset elemTemplate, DragAndDropManipulator.VisualElementConstructor constructor, DragAndDropManipulator.VisualElementBinder binder)
         {
-            DragAndDropManipulator manipulator = new(root,root.Q<VisualElement>("MemoryEditorContainer"), elem);
+            DragAndDropManipulator manipulator = new(root, elemTemplate, constructor, binder);
             manipulator.OnDrop += (sender, data) => HandleDrop((VisualElement)sender, data);
+            return manipulator.target;
         }
 
 
@@ -40,19 +41,28 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
         {
             bindableList.makeItem = () =>
             {
-                var item = listItemTemplate.Instantiate();
-                var logic = new BindableListItemController();
-                item.userData = logic;
-                logic.Setup(item);
+                VisualElement Construct(VisualTreeAsset template)
+                {
+                    var item = template.Instantiate();
+                    var logic = new BindableListItemController();
+                    item.userData = logic;
+                    logic.Setup(item);
+                    return item;
+                }
 
-                InitializeDragAndDrop(item.contentContainer);
-                
-                return item;
+                void Bind(VisualElement item, object data)
+                {
+                    BindableListItemController controller = data as BindableListItemController;
+                    controller?.Setup(item);
+                    controller?.SetData(bindables[controller.Index], controller.Index);
+                }
+
+                return InitializeDragAndDrop(listItemTemplate, Construct, Bind);
             };
 
             bindableList.bindItem = (item, index) =>
             {
-                (item.userData as BindableListItemController)?.SetData(bindables[index]);
+                (item.userData as BindableListItemController)?.SetData(bindables[index], index);
             };
 
             bindableList.fixedItemHeight = 55;

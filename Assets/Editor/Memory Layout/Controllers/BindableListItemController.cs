@@ -11,6 +11,8 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
     public class BindableListItemController
     {
         private Label bindableNameLabel, bindableOriginLabel, bindableAddressesLabel;
+        
+        public int Index { get; private set; }
 
         public void Setup(VisualElement root)
         {
@@ -19,8 +21,10 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             bindableAddressesLabel = root.Q<Label>("BindableAddresses");
         }
 
-        public void SetData(Bindable bindable)
+        public void SetData(Bindable bindable, int index)
         {
+            Index = index;
+            
             bindableNameLabel.text = $"{bindable.parentClassName}.{bindable.fieldName}";
             bindableOriginLabel.text = bindable.parentObjectName;
             bindableAddressesLabel.text = BeautifyAddresses(bindable.addresses);

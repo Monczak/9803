@@ -43,7 +43,7 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 label.parent.name = $"Label{i}";
             }
 
-            editorContainer.RegisterCallback<WheelEvent>(MemoryEditor_OnWheel, TrickleDown.TrickleDown);
+            editorContainer.RegisterCallback<WheelEvent>(OnWheel, TrickleDown.TrickleDown);
 
             RegisterClickHandlers();
         }
@@ -60,7 +60,7 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             }
         }
 
-        private void MemoryEditor_OnWheel(WheelEvent evt)
+        private void OnWheel(WheelEvent evt)
         {
             ushort step = (ushort)(AddressStep * (shiftHeld ? 16 : 1) * (ctrlHeld ? 256 : 1));
             
