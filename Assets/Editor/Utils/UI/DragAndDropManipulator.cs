@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NineEightOhThree.Classes;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,11 +22,16 @@ namespace NineEightOhThree.Editor.Utils.UI
         private Vector3 pointerPos;
 
         private bool dragging;
+        
+        private const string DragdropSlotClass = "dragdrop-slot";
+
+        private HashSet<VisualElement> overlappingSlots, previousOverlappingSlots;
 
         public delegate VisualElement VisualElementConstructor(VisualTreeAsset template);
         public delegate void VisualElementBinder(VisualElement item, object data);
 
         public event EventHandler<(bool success, VisualElement slot, Vector2 startPos)> OnDrop;
+        public event EventHandler<VisualElement> OnEnterOverlap, OnExitOverlap;
 
         public DragAndDropManipulator(VisualElement root, VisualTreeAsset targetTemplate, VisualElementConstructor targetConstructor, VisualElementBinder targetBinder)
         {
@@ -34,6 +41,9 @@ namespace NineEightOhThree.Editor.Utils.UI
             this.targetBinder = targetBinder;
             
             target = ConstructElement().contentContainer;
+
+            overlappingSlots = new HashSet<VisualElement>();
+            previousOverlappingSlots = new HashSet<VisualElement>();
         }
 
         private VisualElement ConstructElement()
@@ -82,7 +92,9 @@ namespace NineEightOhThree.Editor.Utils.UI
             clone.style.height = target.layout.height;
             clone.style.position = new StyleEnum<Position>(Position.Absolute);
             clone.transform.position = RootPos(target);
-            
+
+            clone.style.opacity = new StyleFloat(0.85f);
+
             root.Add(clone);
             return clone;
         }
@@ -93,11 +105,23 @@ namespace NineEightOhThree.Editor.Utils.UI
             {
                 pointerPos = evt.position;
                 Vector3 pointerDelta = evt.position - pointerStartPos;
-
+                
                 /*target.transform.position = new Vector2(
                     Mathf.Clamp(targetStartPos.x + pointerDelta.x, 0, target.panel.visualTree.worldBound.width),
                     Mathf.Clamp(targetStartPos.y + pointerDelta.y, 0, target.panel.visualTree.worldBound.height));*/
                 targetClone.transform.position = (Vector3)targetCloneStartPos + pointerDelta;
+
+                overlappingSlots = new HashSet<VisualElement>(GetOverlappingSlots());
+                foreach (VisualElement slot in previousOverlappingSlots.Except(overlappingSlots))
+                {
+                    OnExitOverlap?.Invoke(target, slot);
+                }
+                foreach (VisualElement newSlot in overlappingSlots.Except(previousOverlappingSlots))
+                {
+                    OnEnterOverlap?.Invoke(target, newSlot);
+                }
+
+                previousOverlappingSlots = new HashSet<VisualElement>(overlappingSlots);
             }
         }
 
@@ -114,14 +138,12 @@ namespace NineEightOhThree.Editor.Utils.UI
         {
             if (dragging)
             {
-                List<VisualElement> overlappingSlots = root.Query<VisualElement>(className: "dragdrop-slot")
-                    .Where(slot => slot.worldBound.Overlaps(new Rect(pointerPos, Vector2.one)))
-                    .ToList();
+                var overlappingSlotList = GetOverlappingSlots();
 
                 VisualElement closestOverlappingSlot = null;
                 if (overlappingSlots.Count != 0)
                 {
-                    closestOverlappingSlot = overlappingSlots.MinBy(slot => (RootPos(slot) - target.transform.position).sqrMagnitude);
+                    closestOverlappingSlot = overlappingSlotList.MinBy(slot => (RootPos(slot) - target.transform.position).sqrMagnitude);
                 }
 
                 OnDrop?.Invoke(target, (closestOverlappingSlot is not null, closestOverlappingSlot, targetStartPos));
@@ -129,6 +151,14 @@ namespace NineEightOhThree.Editor.Utils.UI
                 dragging = false;
                 root.Remove(targetClone);
             }
+        }
+
+        private List<VisualElement> GetOverlappingSlots()
+        {
+            List<VisualElement> slots = root.Query<VisualElement>(className: DragdropSlotClass)
+                .Where(slot => slot.worldBound.Overlaps(new Rect(pointerPos, Vector2.one)))
+                .ToList();
+            return slots;
         }
 
         private Vector3 RootPos(VisualElement elem)

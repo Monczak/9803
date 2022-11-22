@@ -27,43 +27,59 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             
             bindableNameLabel.text = $"{bindable.parentClassName}.{bindable.fieldName}";
             bindableOriginLabel.text = bindable.parentObjectName;
-            bindableAddressesLabel.text = BeautifyAddresses(bindable.addresses);
+            bindableAddressesLabel.text = BeautifyAddresses(bindable);
         }
 
-        private string BeautifyAddresses(ushort[] addresses)
+        private string BeautifyAddresses(Bindable bindable)
         {
             StringBuilder builder = new StringBuilder();
 
-            ushort spanStart = addresses[0], spanEnd;
-            bool isInSpan = false;
-
-            List<(ushort, ushort)> addressSpans = new List<(ushort, ushort)>();
-
-            for (int i = 0; i < addresses.Length; i++)
+            if (bindable.IsPointer)
             {
-                if (i + 1 != addresses.Length && System.Math.Abs(addresses[i + 1] - addresses[i]) == 1)
+                builder.Append("Pointer ");
+                if (bindable.value is not null)
                 {
-                    if (!isInSpan)
-                        spanStart = addresses[i];
-                    isInSpan = true;
-                }
-                else if (isInSpan)
-                {
-                    isInSpan = false;
-                    spanEnd = addresses[i];
-                    addressSpans.Add((spanStart, spanEnd));
+                    builder.Append(bindable.addresses[0].ToString("X4")).Append("-")
+                        .Append((bindable.addresses[0] + bindable.Bytes).ToString("X4"));
                 }
                 else
                 {
-                    addressSpans.Add((addresses[i], addresses[i]));
+                    builder.Append(bindable.addresses[0].ToString("X4")).Append(" (unknown size)");
                 }
             }
+            else
+            {
+                ushort spanStart = bindable.addresses[0];
+                bool isInSpan = false;
 
-            builder.AppendJoin(", ", addressSpans.Select(span =>
-                span.Item1 == span.Item2
-                    ? $"{span.Item1:X4}"
-                    : $"{span.Item1:X4}-{span.Item2:X4}"));
+                List<(ushort, ushort)> addressSpans = new List<(ushort, ushort)>();
 
+                for (int i = 0; i < bindable.addresses.Length; i++)
+                {
+                    if (i + 1 != bindable.addresses.Length && System.Math.Abs(bindable.addresses[i + 1] - bindable.addresses[i]) == 1)
+                    {
+                        if (!isInSpan)
+                            spanStart = bindable.addresses[i];
+                        isInSpan = true;
+                    }
+                    else if (isInSpan)
+                    {
+                        isInSpan = false;
+                        ushort spanEnd = bindable.addresses[i];
+                        addressSpans.Add((spanStart, spanEnd));
+                    }
+                    else
+                    {
+                        addressSpans.Add((bindable.addresses[i], bindable.addresses[i]));
+                    }
+                }
+
+                builder.AppendJoin(", ", addressSpans.Select(span =>
+                    span.Item1 == span.Item2
+                        ? $"{span.Item1:X4}"
+                        : $"{span.Item1:X4}-{span.Item2:X4}"));
+            }
+            
             return builder.ToString();
         }
     }

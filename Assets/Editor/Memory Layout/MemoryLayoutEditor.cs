@@ -58,6 +58,18 @@ namespace NineEightOhThree.Editor.MemoryLayout
             
             scheduler.Schedule(SetupBindableList);
             scheduler.Schedule(SetupMemoryEditor);
+            
+            scheduler.Schedule(SetupCallbacks);
+        }
+
+        private void SetupCallbacks()
+        {
+            rootVisualElement.Q<Button>("BindableListRefreshButton").clicked += RefreshButton_Clicked;
+        }
+
+        private void RefreshButton_Clicked()
+        {
+            SetupBindableList();
         }
 
         private void Update()
