@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NineEightOhThree.Editor.Utils.UI;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
         private List<VisualElement> listItems;
 
         private VisualElement root;
+
+        public event EventHandler<VisualElement> OnDragEnterOverlap, OnDragExitOverlap;
 
         public BindableListController(VisualElement root)
         {
@@ -34,8 +37,8 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             DragAndDropManipulator manipulator = new(root, elemTemplate, constructor, binder);
             manipulator.OnDrop += (sender, data) => HandleDrop((VisualElement)sender, data);
 
-            manipulator.OnEnterOverlap += (sender, element) => Debug.Log($"Enter {element.name}");
-            manipulator.OnExitOverlap += (sender, element) => Debug.Log($"Exit {element.name}");
+            manipulator.OnEnterOverlap += (sender, element) => OnDragEnterOverlap?.Invoke(sender, element);
+            manipulator.OnExitOverlap += (sender, element) => OnDragExitOverlap?.Invoke(sender, element);
             
             return manipulator.target;
         }
@@ -68,23 +71,13 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
             {
                 (item.userData as BindableListItemController)?.SetData(bindables[index], index);
             };
-
-            bindableList.fixedItemHeight = 55;
+            
             bindableList.itemsSource = bindables;
             bindableList.RefreshItems();
         }
 
         private void HandleDrop(VisualElement sender, (bool success, VisualElement slot, Vector2 startPos) data)
         {
-            if (data.success)
-            {
-                Debug.Log($"Success, slot name = {data.slot.name}");
-            }
-            else
-            {
-                Debug.Log($"Failure, startPos = {data.startPos}");
-            }
-            
             sender.transform.position = data.startPos;
         }
     }

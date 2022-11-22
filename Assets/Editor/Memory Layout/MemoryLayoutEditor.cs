@@ -7,7 +7,6 @@ using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 
 namespace NineEightOhThree.Editor.MemoryLayout
 {
@@ -84,6 +83,28 @@ namespace NineEightOhThree.Editor.MemoryLayout
             bindableListController = new BindableListController(rootVisualElement);
             bindableListController.InitializeBindableList(bindableListItemTemplate,
                 controller.Bindables);
+            
+            bindableListController.OnDragEnterOverlap += OnDragEnterOverlap;
+            bindableListController.OnDragExitOverlap += OnDragExitOverlap;
+        }
+
+        private void OnDragExitOverlap(object sender, VisualElement e)
+        {
+            memoryEditorController.RemoveRegion(GetBindable((VisualElement)sender));
+        }
+
+        private void OnDragEnterOverlap(object sender, VisualElement e)
+        {
+            Bindable bindable = GetBindable((VisualElement)sender);
+            ushort address = (ushort)(((MemoryEditorController.CellData)e.userData).Index + memoryEditorController.FirstAddress);
+            ushort offset = (ushort)(address - bindable.addresses[0]);
+ 
+            memoryEditorController.AddRegion(bindable, offset);
+        }
+        
+        private Bindable GetBindable(VisualElement e)
+        {
+            return ((BindableListItemController)e.userData).Bindable;
         }
 
         private void SetupMemoryEditor()

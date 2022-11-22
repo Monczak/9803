@@ -93,7 +93,7 @@ namespace NineEightOhThree.Editor.Utils.UI
             clone.style.position = new StyleEnum<Position>(Position.Absolute);
             clone.transform.position = RootPos(target);
 
-            clone.style.opacity = new StyleFloat(0.85f);
+            clone.style.opacity = new StyleFloat(0.65f);
 
             root.Add(clone);
             return clone;
@@ -138,12 +138,10 @@ namespace NineEightOhThree.Editor.Utils.UI
         {
             if (dragging)
             {
-                var overlappingSlotList = GetOverlappingSlots();
-
                 VisualElement closestOverlappingSlot = null;
                 if (overlappingSlots.Count != 0)
                 {
-                    closestOverlappingSlot = overlappingSlotList.MinBy(slot => (RootPos(slot) - target.transform.position).sqrMagnitude);
+                    closestOverlappingSlot = overlappingSlots.MinBy(slot => (RootPos(slot) - target.transform.position).sqrMagnitude);
                 }
 
                 OnDrop?.Invoke(target, (closestOverlappingSlot is not null, closestOverlappingSlot, targetStartPos));

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NineEightOhThree.VirtualCPU;
+using NineEightOhThree.VirtualCPU.Interfacing;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,6 +11,7 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
         private List<Label> memoryCellLabels, addressLabels;
 
         private VisualElement editorContainer;
+        private RegionHighlighter highlighter;
         
         private Memory memory;
 
@@ -19,6 +21,11 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
         private const ushort MinAddress = 0x0000;
         private const ushort MaxAddress = 0xFFFF;
         private const ushort AddressStep = 16;
+
+        public struct CellData
+        {
+            public int Index { get; init; }
+        }
 
         public void Initialize(VisualElement root)
         {
@@ -37,11 +44,21 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 addressLabels.Add(addressLabel);
             }
 
+            List<VisualElement> memoryCells = new();
+            
             for (int i = 0; i < memoryCellLabels.Count; i++)
             {
                 var label = memoryCellLabels[i];
                 label.parent.name = $"Label{i}";
+                label.parent.userData = new CellData
+                {
+                    Index = i
+                };
+                
+                memoryCells.Add(label.parent);
             }
+
+            highlighter = new RegionHighlighter(memoryCells);
 
             editorContainer.RegisterCallback<WheelEvent>(OnWheel, TrickleDown.TrickleDown);
 
@@ -83,6 +100,18 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 ushort address = (ushort)(FirstAddress + i * 16);
                 addressLabels[i].text = address.ToString("X4");
             }
+            
+            highlighter.Update(FirstAddress);
+        }
+
+        public void AddRegion(Bindable bindable, ushort offset)
+        {
+            highlighter.AddRegion(bindable, offset);
+        }
+
+        public void RemoveRegion(Bindable bindable)
+        {
+            highlighter.RemoveRegion(bindable);
         }
     }
 }
