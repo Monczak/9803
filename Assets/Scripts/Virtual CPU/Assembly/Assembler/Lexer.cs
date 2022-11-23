@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Microsoft.Cci;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
@@ -16,6 +17,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static List<Token> tokens;
 
         private static string sourceCode;
+
+        private static TokenType? expectedToken;
+        private static TokenType? lastToken;
+
+        private static bool expectingToken;
+        
+        public static bool HadError { get; private set; }
 
         private enum NumberBase
         {
@@ -31,7 +39,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             current = 0;
             line = 1;
             Lexer.sourceCode = sourceCode;
-
+            expectedToken = null;
+            expectingToken = false;
+            HadError = false;
+            
             while (!IsAtEnd())
             {
                 start = current;
@@ -39,11 +50,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     ScanToken();
                 }
-                catch (Exception e)
+                catch (SyntaxErrorException e)
+                {
+                    Debug.LogError(e.Message);
+                    HadError = true;
+                }
+                catch (ArgumentOutOfRangeException e)
                 {
                     throw new InternalErrorException("Internal error occurred", e);
                 }
             }
+
+            if (HadError)
+                return null;
             
             tokens.Add(new Token
             {
@@ -76,7 +95,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 case '#':
                     AddToken(TokenType.ImmediateOp);
-                    // Expect number
+                    Expect(TokenType.Number);
                     break;
                 
                 case var _ when IsDecimalDigit(c) || (c == '$' && IsDigit( Peek(), NumberBase.Hex)) || (c == '%' && IsDigit( Peek(), NumberBase.Binary)):
@@ -84,6 +103,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     break;
                 
                 default: throw new SyntaxErrorException("Unexpected character", c, line);
+            }
+
+            switch (expectingToken)
+            {
+                case true when expectedToken is not null && expectedToken != lastToken:
+                    throw new SyntaxErrorException($"Expected {expectedToken.ToString()}, got {lastToken.ToString()}", c, line);
+                case false when expectedToken is not null:
+                    expectingToken = true;
+                    break;
+                default:
+                    expectedToken = null;
+                    expectingToken = false;
+                    break;
             }
         }
 
@@ -136,6 +168,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             _ => throw new ArgumentOutOfRangeException(nameof(@base), @base, null)
         };
 
+        private static void Expect(TokenType type)
+        {
+            expectedToken = type;
+        }
+
         private static void AddToken(TokenType type, object literal = null)
         {
             string text = sourceCode[start..current];
@@ -146,6 +183,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Literal = literal,
                 Type = type
             });
+            lastToken = type;
         }
 
         private static bool IsAtEnd() => current >= sourceCode.Length;
