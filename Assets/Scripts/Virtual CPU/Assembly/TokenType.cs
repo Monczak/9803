@@ -2,8 +2,15 @@
 {
     public enum TokenType
     {
-        Instruction,
-        Argument,
-        Label
+        Identifier,
+        LeftParen,
+        RightParen,
+        Comment,
+        HexOp,
+        BinaryOp,
+        ImmediateOp,
+        Comma,
+        Label,
+        EndOfFile
     }
 }

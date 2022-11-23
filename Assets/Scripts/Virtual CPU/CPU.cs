@@ -76,11 +76,13 @@ namespace NineEightOhThree.VirtualCPU
         // Start is called before the first frame update
         void Start()
         {
-            // var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\nbne $fa\njmp $0000");
+            /*// var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\nbne $fa\njmp $0000");
             var program = Assembler.Assemble("lda #$01\nsta $0200\nsta $0201\nldx #$00\nlda $0200,x\nclc\nadc $0201,x\nsta $0202,x\ninx\ncpx #$fe\nbne $f1\njmp $0008");
             // var program = Assembler.Assemble("inc $0300\ninc $0301\njmp $0000");
             for (int i = 0x00; i < program.Count; i++)
-                Memory.Write((ushort)i, program[i]);
+                Memory.Write((ushort)i, program[i]);*/
+
+            Assembler.Assemble("() #$ #% # $()");
         }
 
         // Update is called once per frame
@@ -144,7 +146,7 @@ namespace NineEightOhThree.VirtualCPU
 
         private void Execute()
         {
-            currentInstruction.Execute(this, addressingMode);
+            currentInstruction?.Execute(this, addressingMode);
         }
 
         private void PrintStatus()
