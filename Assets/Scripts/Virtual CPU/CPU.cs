@@ -82,7 +82,7 @@ namespace NineEightOhThree.VirtualCPU
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((ushort)i, program[i]);*/
 
-            Assembler.Assemble("() #$ #% # $()");
+            Assembler.Assemble("1234 $dead %10100010 #$12");
         }
 
         // Update is called once per frame

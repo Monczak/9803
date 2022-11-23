@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
+using Microsoft.Cci;
+using UnityEngine.UIElements;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -13,6 +16,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static List<Token> tokens;
 
         private static string sourceCode;
+
+        private enum NumberBase
+        {
+            Binary,
+            Decimal,
+            Hex
+        }
         
         public static List<Token> Lex(string sourceCode)
         {
@@ -25,7 +35,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             while (!IsAtEnd())
             {
                 start = current;
-                ScanToken();
+                try
+                {
+                    ScanToken();
+                }
+                catch (Exception e)
+                {
+                    throw new InternalErrorException("Internal error occurred", e);
+                }
             }
             
             tokens.Add(new Token
@@ -41,34 +58,83 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private static void ScanToken()
         {
-            void DoNothing() {}
-            
             char c = Advance();
 
-            // TODO: several people think this is bad, but I like it, consider reconsidering
-            (c switch
+            switch (c) 
             {
-                '\0' => new Action(DoNothing),  // Won't match on anything, but it's necessary
-                                                // for the switch expression to know the return type
+                case '(': AddToken(TokenType.LeftParen); break;
+                case ')': AddToken(TokenType.RightParen); break;
+                case ',': AddToken(TokenType.Comma); break;
+
+                case ';':
+                    while (Peek() != '\n' && !IsAtEnd()) Advance();
+                    break;
                 
-                '(' => () => AddToken(TokenType.LeftParen),
-                ')' => () => AddToken(TokenType.RightParen),
-                '#' => () => AddToken(TokenType.ImmediateOp),
-                '$' => () => AddToken(TokenType.HexOp),
-                '%' => () => AddToken(TokenType.BinaryOp),
-                ',' => () => AddToken(TokenType.Comma),
+                case '\n': line++; break;
+                
+                case var _ when char.IsWhiteSpace(c): break;
+                
+                case '#':
+                    AddToken(TokenType.ImmediateOp);
+                    // Expect number
+                    break;
+                
+                case var _ when IsDecimalDigit(c) || (c == '$' && IsDigit( Peek(), NumberBase.Hex)) || (c == '%' && IsDigit( Peek(), NumberBase.Binary)):
+                    LexNumber(c);
+                    break;
+                
+                default: throw new SyntaxErrorException("Unexpected character", c, line);
+            }
+        }
 
-                _ when char.IsWhiteSpace(c) => DoNothing,
-                '\n' => () => line++,
+        private static void LexNumber(char firstChar)
+        {
+            NumberBase numberBase = firstChar switch
+            {
+                '$' => NumberBase.Hex,
+                '%' => NumberBase.Binary,
+                _ => NumberBase.Decimal
+            };
 
-                _ => () => throw new SyntaxErrorException("Unexpected character", c, line)
-            })();
+            while (IsDigit(Peek(), numberBase)) Advance();
+            
+            // ReSharper disable once HeapView.BoxingAllocation
+            AddToken(TokenType.Number, numberBase switch
+            {
+                NumberBase.Decimal => Convert.ToInt16(sourceCode[start..current]),
+                NumberBase.Binary => Convert.ToInt16(sourceCode[(start+1)..current], 2),
+                NumberBase.Hex => Convert.ToInt16(sourceCode[(start+1)..current], 16),
+                _ => throw new ArgumentOutOfRangeException(nameof(numberBase))
+            });
         }
 
         private static char Advance()
         {
             return sourceCode[current++];
         }
+
+        private static bool MatchNext(char c)
+        {
+            if (IsAtEnd()) return false;
+            if (sourceCode[current] != c) return false;
+
+            current++;
+            return true;
+        }
+
+        private static char Peek(int offset = 0) => IsAtEnd() ? '\0' : sourceCode[current + offset];
+
+        private static bool IsHexDigit(char c) => IsDecimalDigit(c) || c is >= 'a' and <= 'f' or >= 'A' and <= 'F';
+        private static bool IsDecimalDigit(char c) => c is >= '0' and <= '9';
+        private static bool IsBinaryDigit(char c) => c is '0' or '1';
+
+        private static bool IsDigit(char c, NumberBase @base) => @base switch
+        {
+            NumberBase.Binary => IsBinaryDigit(c),
+            NumberBase.Decimal => IsDecimalDigit(c),
+            NumberBase.Hex => IsHexDigit(c),
+            _ => throw new ArgumentOutOfRangeException(nameof(@base), @base, null)
+        };
 
         private static void AddToken(TokenType type, object literal = null)
         {

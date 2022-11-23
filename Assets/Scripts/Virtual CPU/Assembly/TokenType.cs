@@ -3,6 +3,7 @@
     public enum TokenType
     {
         Identifier,
+        Number,
         LeftParen,
         RightParen,
         Comment,
