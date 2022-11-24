@@ -6,12 +6,10 @@
         Number,
         LeftParen,
         RightParen,
-        Comment,
-        HexOp,
-        BinaryOp,
         ImmediateOp,
         Comma,
         Label,
+        Newline,
         EndOfFile
     }
 }

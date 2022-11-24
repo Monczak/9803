@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -13,8 +14,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             List<byte> machineCode = new();
 
             var tokens = Lexer.Lex(input);
+
+            StringBuilder builder = new StringBuilder();
             foreach (Token token in tokens)
-                Debug.Log(token);
+                builder.Append("(").Append(token.ToString()).Append(") ");
+            Debug.Log(builder.ToString());
 
             return machineCode;
         }

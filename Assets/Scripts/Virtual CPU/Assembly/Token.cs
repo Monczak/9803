@@ -9,7 +9,7 @@
 
         public override string ToString()
         {
-            return $"{Type.ToString()} {Content} L{Line}";
+            return $"{Type.ToString()} {(Type == TokenType.Newline ? "" : Content)} L{Line}";
         }
     }
 }

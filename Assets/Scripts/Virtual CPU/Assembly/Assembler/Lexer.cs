@@ -50,7 +50,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     ScanToken();
                 }
-                catch (SyntaxErrorException e)
+                catch (LexicalErrorException e)
                 {
                     Debug.LogError(e.Message);
                     HadError = true;
@@ -89,7 +89,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     while (Peek() != '\n' && !IsAtEnd()) Advance();
                     break;
                 
-                case '\n': line++; break;
+                case '\n': AddToken(TokenType.Newline); line++; break;
                 
                 case var _ when char.IsWhiteSpace(c): break;
                 
@@ -102,13 +102,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     LexNumber(c);
                     break;
                 
-                default: throw new SyntaxErrorException("Unexpected character", c, line);
+                default: throw new LexicalErrorException("Unexpected character", c, line);
             }
 
             switch (expectingToken)
             {
                 case true when expectedToken is not null && expectedToken != lastToken:
-                    throw new SyntaxErrorException($"Expected {expectedToken.ToString()}, got {lastToken.ToString()}", c, line);
+                    throw new LexicalErrorException($"Expected {expectedToken.ToString()}, got {lastToken.ToString()}", c, line);
                 case false when expectedToken is not null:
                     expectingToken = true;
                     break;
