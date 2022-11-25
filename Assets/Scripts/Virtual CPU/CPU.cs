@@ -82,7 +82,12 @@ namespace NineEightOhThree.VirtualCPU
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((ushort)i, program[i]);*/
 
-            Assembler.Assemble("1234 $dead %10100010 #$12\n$00\n#%1");
+            string code = @"ldx #0
+loop: lda $0300,x
+sta $0400,x
+inx
+beq loop";
+            Assembler.Assemble(code);
         }
 
         // Update is called once per frame

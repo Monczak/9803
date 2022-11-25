@@ -102,6 +102,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     LexNumber(c);
                     break;
                 
+                case var _ when IsAlpha(c): LexIdentifier(); break;
+                
                 default: throw new LexicalErrorException("Unexpected character", c, line);
             }
 
@@ -116,6 +118,20 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     expectedToken = null;
                     expectingToken = false;
                     break;
+            }
+        }
+
+        private static void LexIdentifier()
+        {
+            while (IsAlphaNumeric(Peek())) Advance();
+
+            if (MatchNext(':'))
+            {
+                AddToken(TokenType.LabelDecl);
+            }
+            else
+            {
+                AddToken(TokenType.Identifier);
             }
         }
 
@@ -168,6 +184,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             _ => throw new ArgumentOutOfRangeException(nameof(@base), @base, null)
         };
 
+        private static bool IsAlpha(char c) => c is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_';
+
+        private static bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDecimalDigit(c);
+        
         private static void Expect(TokenType type)
         {
             expectedToken = type;

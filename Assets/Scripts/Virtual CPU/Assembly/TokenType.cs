@@ -8,7 +8,7 @@
         RightParen,
         ImmediateOp,
         Comma,
-        Label,
+        LabelDecl,
         Newline,
         EndOfFile
     }
