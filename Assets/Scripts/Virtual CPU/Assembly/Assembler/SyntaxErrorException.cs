@@ -28,10 +28,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
         }
         
-        public SyntaxErrorException(string message, Token token, int line) : base($"{message} ({token}) (line {line})")
+        public SyntaxErrorException(string message, Token token) : base($"{message} ({token}) (line {token.Line})")
         {
             Token = token;
-            Line = line;
+            Line = token.Line;
         }
     }
 }

@@ -1,4 +1,5 @@
 using NineEightOhThree.VirtualCPU.Assembly.Assembler;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
@@ -81,9 +82,10 @@ namespace NineEightOhThree.VirtualCPU
             // var program = Assembler.Assemble("inc $0300\ninc $0301\njmp $0000");
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((ushort)i, program[i]);*/
-
+            
             string code = @"ldx #0
 loop: lda $0300,x
+asl a
 sta $0400,x
 inx
 beq loop";

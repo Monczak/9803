@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
-using Microsoft.Cci;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -31,7 +30,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             Decimal,
             Hex
         }
-        
+
+        private static readonly Dictionary<string, TokenType> Keywords = new()
+        {
+            { "a", TokenType.RegisterA },
+            { "A", TokenType.RegisterA },
+            { "x", TokenType.RegisterX },
+            { "X", TokenType.RegisterX },
+            { "y", TokenType.RegisterY },
+            { "Y", TokenType.RegisterY },
+        };
+
         public static List<Token> Lex(string sourceCode)
         {
             tokens = new List<Token>(); 
@@ -125,14 +134,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             while (IsAlphaNumeric(Peek())) Advance();
 
-            if (MatchNext(':'))
-            {
-                AddToken(TokenType.LabelDecl);
-            }
-            else
-            {
-                AddToken(TokenType.Identifier);
-            }
+            string text = sourceCode[start..current];
+            TokenType type = Keywords.ContainsKey(text) ? Keywords[text] : TokenType.Identifier;
+
+            AddToken(MatchNext(':') ? TokenType.LabelDecl : type);
         }
 
         private static void LexNumber(char firstChar)

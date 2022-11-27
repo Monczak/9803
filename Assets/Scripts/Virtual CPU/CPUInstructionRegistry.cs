@@ -24,9 +24,8 @@ namespace NineEightOhThree.VirtualCPU
 
                 if (!cpuInstructionsByMnemonic.ContainsKey(instruction.Mnemonic))
                     cpuInstructionsByMnemonic.Add(instruction.Mnemonic, new List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>());
-                foreach (string alias in instruction.Aliases)
-                    if (!cpuInstructionsByMnemonic.ContainsKey(alias))
-                        cpuInstructionsByMnemonic.Add(alias, new List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>());
+                foreach (var alias in instruction.Aliases.Where(alias => !cpuInstructionsByMnemonic.ContainsKey(alias)))
+                    cpuInstructionsByMnemonic.Add(alias, new List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)>());
 
                 foreach (KeyValuePair<AddressingMode, CPUInstructionMetadata> metadata in instruction.Metadata)
                 {
@@ -50,14 +49,14 @@ namespace NineEightOhThree.VirtualCPU
             Debug.Log($"Loaded {instructionCount} instructions");
         }
 
-        public static (CPUInstruction, AddressingMode, CPUInstructionMetadata) GetInstruction(byte opcode)
+        public static (CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata) GetInstruction(byte opcode)
         {
             if (cpuInstructionsByOpcode.ContainsKey(opcode))
                 return cpuInstructionsByOpcode[opcode];
             throw new UnknownOpcodeException(opcode);
         }
 
-        public static List<(CPUInstruction, AddressingMode, CPUInstructionMetadata)> GetInstructions(string mnemonic)
+        public static IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> GetInstructions(string mnemonic)
         {
             if (cpuInstructionsByMnemonic.ContainsKey(mnemonic))
                 return cpuInstructionsByMnemonic[mnemonic];

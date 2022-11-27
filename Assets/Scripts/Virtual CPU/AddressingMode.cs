@@ -11,8 +11,8 @@
         AbsoluteX,
         AbsoluteY,
         Indirect,
-        IndirectX,
-        IndirectY,
+        IndexedIndirect,
+        IndirectIndexed,
         Relative,
         Accumulator,
     }

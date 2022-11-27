@@ -15,8 +15,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
             { AddressingMode.Absolute, new(0xCD, 2) },
             { AddressingMode.AbsoluteX, new(0xDD, 2) },
             { AddressingMode.AbsoluteY, new(0xD9, 2) },
-            { AddressingMode.IndirectX, new(0xC1, 1) },
-            { AddressingMode.IndirectY, new(0xD1, 1) },
+            { AddressingMode.IndexedIndirect, new(0xC1, 1) },
+            { AddressingMode.IndirectIndexed, new(0xD1, 1) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
@@ -44,10 +44,10 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                 case AddressingMode.AbsoluteY:
                     b = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterY);
                     break;
-                case AddressingMode.IndirectX:
+                case AddressingMode.IndexedIndirect:
                     b = cpu.Memory.Read(cpu.Memory.Read(args[0], cpu.RegisterX));
                     break;
-                case AddressingMode.IndirectY:
+                case AddressingMode.IndirectIndexed:
                     b = cpu.Memory.Read(cpu.Memory.Read(args[0]), cpu.RegisterY);
                     break;
             }
