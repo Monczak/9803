@@ -86,7 +86,9 @@ namespace NineEightOhThree.VirtualCPU
             string code = @"ldx #0
 loop: lda $0300,x
 asl a
-sta $0400,x
+sta $0400,
+inx a
+cmp ($03),y
 inx
 beq loop";
             Assembler.Assemble(code);

@@ -4,7 +4,6 @@ using System.Linq;
 using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -18,17 +17,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static List<Token> source;
 
         private static GrammarGraph graph;
+        
+        public static bool HadError { get; private set; }
 
         private class GrammarGraph
         {
-            private GrammarNode root;
+            public GrammarNode Root { get; }
 
             public GrammarGraph()
             {
-                root = new GrammarNode(null);
+                Root = new GrammarNode(null);
             }
 
-            private class GrammarNode
+            public class GrammarNode
             {
                 public TokenType? TokenType { get; }
                 public bool IsFinal { get; }
@@ -78,7 +79,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             private void AddPath(AbstractStatement stmt, Type connectTo = null)
             {
                 Queue<TokenType> typeQueue = new(stmt.Pattern.Select(p => p.type));
-                GrammarNode currentNode = root;
+                GrammarNode currentNode = Root;
                 while (typeQueue.Count > 0)
                 {
                     TokenType type = typeQueue.Dequeue();
@@ -88,7 +89,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     if (typeQueue.Count == 0 && connectTo is not null)
                     {
                         currentNode.Children.Add(node);
-                        node.Children.Add(FindEarliestOfType(root, (node.Statement as IntermediateStatement)?.FollowedBy));
+                        node.Children.Add(FindEarliestOfType(Root, (node.Statement as IntermediateStatement)?.FollowedBy));
                     }
                     else
                     {
@@ -117,7 +118,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                         UpdateBaseTypes(child);
                     }
 
-                    if (!Equals(node, root))
+                    if (!Equals(node, Root))
                         node.StatementType =
                             TypeUtils.MostDerivedCommonBase(node.Children.Select(child => child.StatementType));
                 }
@@ -143,14 +144,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 List<AbstractStatement> statements = FindAllStatementTypes<AbstractStatement>();
                 foreach (var stmt in statements)
                 {
-                    Debug.Log($"{stmt.GetType().Name} - {string.Join(' ', stmt.Pattern.Select(p => p.type.ToString()))}");
                     switch (stmt)
                     {
                         case FinalStatement s:
                             graph.AddPath(s);
                             break;
                         case IntermediateStatement s:
-                            graph.UpdateBaseTypes(graph.root);
+                            graph.UpdateBaseTypes(graph.Root);
                             graph.AddPath(s, s.FollowedBy);
                             break;
                     }
@@ -178,6 +178,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 catch (SyntaxErrorException e)
                 {
                     Debug.LogError(e.Message);
+                    HadError = true;
+                    Synchronize();
                 }
                 catch (Exception e)
                 {
@@ -186,33 +188,76 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
 
             return statements;
+            // return HadError ? null : statements;
+        }
+
+        private static void Synchronize()
+        {
+            while (Peek(-1).Type is not TokenType.Newline or TokenType.EndOfFile) Advance();
         }
 
         private static void ScanStatement()
         {
             List<Token> lineTokens = new();
 
+            GrammarGraph.GrammarNode currentNode = graph.Root;
+
             while (!IsAtEnd())
             {
                 Token token = Advance();
 
-                if (token.Type == TokenType.Newline)
+                if (token.Type is TokenType.Newline or TokenType.EndOfFile && !currentNode.IsFinal)
                 {
-                    AddStatement(MatchStatement(lineTokens));
+                    ErrorExpectedTokens(currentNode, token);
+                    return;
+                }
+                
+                if (token.Type is TokenType.Newline or TokenType.EndOfFile)
+                {
+                    AddStatement(currentNode.Statement.Build(lineTokens));
                     line++;
                     lineTokens.Clear();
+                    currentNode = graph.Root;
                 }
                 else
                 {
-                    // TODO: Walk the Graph (tm)
+                    bool found = false;
+                    foreach (GrammarGraph.GrammarNode child in currentNode.Children)
+                    {
+                        if ((child.TokenType & token.Type) != 0)
+                        {
+                            found = true;
+                            currentNode = child;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        ErrorExpectedTokens(currentNode, token);
+                        return;
+                    }
+
+                    if (currentNode.Statement is IntermediateStatement stmt)
+                    {
+                        AddStatement(stmt.Build(lineTokens));
+                    }
                 }
             }
         }
 
-        // TODO
-        private static AbstractStatement MatchStatement(List<Token> tokens)
+        private static void ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
         {
-            throw new NotImplementedException();
+            TokenType? expectedType = currentNode.Children
+                .Select(n => n.TokenType)
+                .Aggregate((acc, t) => acc | t);
+            if (!expectedType.HasValue)
+                throw new InternalErrorException("Expected type was null");
+
+            throw new SyntaxErrorException(SyntaxErrors.ExpectedGot(
+                expectedType.Value,
+                token.Type
+            ), token);
         }
 
         private static Token Advance()

@@ -23,7 +23,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             StringBuilder builder = new StringBuilder();
             foreach (AbstractStatement statement in statements)
-                builder.Append("(").Append(statement).Append(") ");
+                builder.Append("(").Append(statement.GetType().Name).Append(") ");
             Debug.Log(builder.ToString());
 
             return machineCode;

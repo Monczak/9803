@@ -34,5 +34,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public static string IndirectIndexedNotZeroPage(Token token) =>
             $"The address in indirect indexed addressing must be a zero-page address";
+
+        public static string ExpectedGot(TokenType expectedTypeMask, TokenType gotType) =>
+            $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}";
     }
 }
