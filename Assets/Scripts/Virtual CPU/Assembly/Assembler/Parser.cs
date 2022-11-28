@@ -165,6 +165,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             line = 1;
             current = 0;
 
+            // TODO: Do this only once and cache the graph
             GrammarGraph graph = GrammarGraph.Build(); 
 
             while (!IsAtEnd())
@@ -202,11 +203,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
                 else
                 {
-                    // Walk the Graph (tm)
+                    // TODO: Walk the Graph (tm)
                 }
             }
         }
 
+        // TODO
         private static AbstractStatement MatchStatement(List<Token> tokens)
         {
             throw new NotImplementedException();
