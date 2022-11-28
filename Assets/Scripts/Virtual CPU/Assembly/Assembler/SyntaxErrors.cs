@@ -24,7 +24,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             $"Unknown instruction \"{token.Content}\"";
 
         public static string AddressingModeNotSupported(Token token, AddressingMode addressingMode) =>
-            $"The instruction \"{AddressingModeNames[addressingMode]}\" does not support absolute indexed addressing";
+            $"The instruction \"{token.Content}\" does not support {AddressingModeNames[addressingMode]} addressing";
 
         public static string RegisterNotXY(Token token) => 
             $"Invalid register, expected X or Y";
@@ -36,6 +36,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             $"The address in indirect indexed addressing must be a zero-page address";
 
         public static string ExpectedGot(TokenType expectedTypeMask, TokenType gotType) =>
-            $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}";
+            expectedTypeMask is TokenType.Newline or TokenType.EndOfFile
+                ? $"Expected end of statement, got {gotType.ToString()}"
+                : $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}";
     }
 }
