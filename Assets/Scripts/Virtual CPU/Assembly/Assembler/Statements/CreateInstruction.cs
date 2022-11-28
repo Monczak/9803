@@ -36,7 +36,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             
             if (!InstructionCandidates.Any())
                 throw new SyntaxErrorException(
-                    SyntaxErrors.AbsoluteIndexedNotSupported(token), token);
+                    SyntaxErrors.AddressingModeNotSupported(token, AddressingMode), token);
         }
 
         protected void FindInstruction(Token token)
