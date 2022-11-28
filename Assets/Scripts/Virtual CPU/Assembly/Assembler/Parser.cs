@@ -17,6 +17,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private static List<Token> source;
 
+        private static GrammarGraph graph;
+
         private class GrammarGraph
         {
             private GrammarNode root;
@@ -164,9 +166,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             source = tokens;
             line = 1;
             current = 0;
-
-            // TODO: Do this only once and cache the graph
-            GrammarGraph graph = GrammarGraph.Build(); 
+            
+            graph ??= GrammarGraph.Build(); 
 
             while (!IsAtEnd())
             {

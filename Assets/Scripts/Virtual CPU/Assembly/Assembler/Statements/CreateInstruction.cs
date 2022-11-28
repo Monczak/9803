@@ -20,14 +20,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             get;
             set;
         }
-
-        protected void FindCandidates(Token token, Predicate<AddressingMode> modePredicate)
+        
+        protected void FindCandidates(Token token, AddressingMode modeFlags)
         {
             try
             {
                 InstructionCandidates = CPUInstructionRegistry
                     .GetInstructions(token.Content)
-                    .Where(info => modePredicate(info.addressingMode));
+                    .Where(info => (info.addressingMode & modeFlags) != 0);
             }
             catch (UnknownInstructionException)
             {
@@ -41,7 +41,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected void FindInstruction(Token token)
         {
-            FindCandidates(token, mode => mode == AddressingMode);
+            FindCandidates(token, AddressingMode);
             MatchInstructionFromFound(AddressingMode);
         }
 
@@ -113,7 +113,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, token => FindCandidates(token, mode => mode is AddressingMode.Absolute or AddressingMode.ZeroPage)),
+            (TokenType.Identifier, token => FindCandidates(token, AddressingMode.Absolute | AddressingMode.ZeroPage)),
             (TokenType.Number | TokenType.Identifier, token =>
             {
                 SetOperand(token);
@@ -151,7 +151,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, token => FindCandidates(token, mode => mode is AddressingMode.AbsoluteX or AddressingMode.AbsoluteY or AddressingMode.ZeroPageX or AddressingMode.ZeroPageY)),
+            (TokenType.Identifier, token => FindCandidates(token, AddressingMode.AbsoluteX | AddressingMode.AbsoluteY | AddressingMode.ZeroPageX | AddressingMode.ZeroPageY)),
             (TokenType.Number | TokenType.Identifier, SetOperand),
             (TokenType.Comma, null),
             (TokenType.RegisterX | TokenType.RegisterY, token =>
