@@ -83,6 +83,8 @@ namespace NineEightOhThree.VirtualCPU
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((ushort)i, program[i]);*/
             
+            Parser.RegisterErrorHandler(exception => Debug.LogError(exception.Message));
+            
             string code = @"ldx #0
 loop: lda $0300,x
 asl a

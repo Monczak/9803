@@ -17,8 +17,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static List<Token> source;
 
         private static GrammarGraph graph;
-        
+
         public static bool HadError { get; private set; }
+
+        public delegate void ErrorHandler(SyntaxErrorException ex);
+        private static event ErrorHandler OnError;
+
 
         private class GrammarGraph
         {
@@ -166,18 +170,29 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             source = tokens;
             line = 1;
             current = 0;
+            HadError = false;
             
-            graph ??= GrammarGraph.Build(); 
+            graph ??= GrammarGraph.Build();
 
+            CreateStatements();
+            CreateLabels();
+
+            return statements;
+            // return HadError ? null : statements;
+        }
+        
+        private static void CreateStatements()
+        {
             while (!IsAtEnd())
             {
+                // TODO: Refactor all this to not use exceptions (awfully slow)
                 try
                 {
                     ScanStatement();
                 }
                 catch (SyntaxErrorException e)
                 {
-                    Debug.LogError(e.Message);
+                    OnError?.Invoke(e);
                     HadError = true;
                     Synchronize();
                 }
@@ -186,9 +201,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     throw new InternalErrorException("Parser error", e);
                 }
             }
+        }
 
-            return statements;
-            // return HadError ? null : statements;
+        // TODO: Create labels from DeclareLabel statements and infer their usage based on the next statement (allow label at end of file?)
+        private static void CreateLabels()
+        {
+            
         }
 
         private static void Synchronize()
@@ -208,8 +226,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile && !currentNode.IsFinal)
                 {
-                    ErrorExpectedTokens(currentNode, token);
-                    return;
+                    throw ErrorExpectedTokens(currentNode, token);
                 }
                 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile)
@@ -221,6 +238,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
                 else
                 {
+                    lineTokens.Add(token);
+                    
                     bool found = false;
                     foreach (GrammarGraph.GrammarNode child in currentNode.Children)
                     {
@@ -234,8 +253,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                     if (!found)
                     {
-                        ErrorExpectedTokens(currentNode, token);
-                        return;
+                        throw ErrorExpectedTokens(currentNode, token);
                     }
 
                     if (currentNode.Statement is IntermediateStatement stmt)
@@ -246,18 +264,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
         }
 
-        private static void ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
+        private static Exception ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
         {
             TokenType? expectedType = currentNode.Children
                 .Select(n => n.TokenType)
                 .Aggregate((acc, t) => acc | t);
             if (!expectedType.HasValue)
-                throw new InternalErrorException("Expected type was null");
+                return new InternalErrorException("Expected type was null");
 
-            throw new SyntaxErrorException(SyntaxErrors.ExpectedGot(
+            return new SyntaxErrorException(SyntaxErrors.ExpectedGot(
                 expectedType.Value,
                 token.Type
             ), token);
+        }
+
+        public static void RegisterErrorHandler(ErrorHandler handler)
+        {
+            if (OnError == null)
+                OnError += handler;
         }
 
         private static Token Advance()
@@ -265,37 +289,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return source[current++];
         }
 
-        private static bool MatchPattern(List<Token> tokens, params TokenType[] types)
-        {
-            if (tokens.Count != types.Length) return false;
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                if (tokens[i].Type != types[i])
-                {
-                    return false;
-                }
-            }
-
-            current++;
-            return true;
-        }
-
-        private static bool MatchNext(TokenType type)
-        {
-            if (IsAtEnd()) return false;
-            if (Peek().Type != type) return false;
-
-            current++;
-            return true;
-        } 
-        
         private static Token Peek(int offset = 0) => IsAtEnd() ? new Token {Type = TokenType.EndOfFile} : source[current + offset];
-
-        private static Token Peek(out Token token, int offset = 0)
-        {
-            token = Peek(offset);
-            return token;
-        }
 
         private static void AddStatement(AbstractStatement statement)
         {

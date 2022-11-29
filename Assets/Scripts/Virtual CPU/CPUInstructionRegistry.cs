@@ -58,8 +58,8 @@ namespace NineEightOhThree.VirtualCPU
 
         public static IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> GetInstructions(string mnemonic)
         {
-            if (cpuInstructionsByMnemonic.ContainsKey(mnemonic))
-                return cpuInstructionsByMnemonic[mnemonic];
+            if (cpuInstructionsByMnemonic.ContainsKey(mnemonic.ToUpper()))
+                return cpuInstructionsByMnemonic[mnemonic.ToUpper()];
             throw new UnknownInstructionException(mnemonic);
         }
     }

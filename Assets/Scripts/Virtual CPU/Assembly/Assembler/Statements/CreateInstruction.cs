@@ -15,7 +15,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             
         }
 
-        private IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> InstructionCandidates
+        protected IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> InstructionCandidates
         {
             get;
             set;
@@ -113,12 +113,27 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, token => FindCandidates(token, AddressingMode.Absolute | AddressingMode.ZeroPage)),
+            (TokenType.Identifier, token => FindCandidates(token, AddressingMode.Absolute | AddressingMode.ZeroPage | AddressingMode.Relative)),
             (TokenType.Number | TokenType.Identifier, token =>
             {
                 SetOperand(token);
-                if (Operand.IsDefined)
-                    MatchInstructionFromFound(Operand.Number < 256 ? AddressingMode.ZeroPage : AddressingMode.Absolute);
+
+                // Assume that if the first instruction in the candidates is a branch, all other are as well
+                // (this enumerable contains multiple types of one instruction)
+                bool isBranch = InstructionCandidates.First().instruction.IsBranch;
+
+                if (isBranch)
+                {
+                    MatchInstructionFromFound(AddressingMode.Relative);
+                }
+                else if (Operand.IsDefined && Operand.Number < 256)
+                {
+                    MatchInstructionFromFound(AddressingMode.ZeroPage);
+                }
+                else
+                {
+                    MatchInstructionFromFound(AddressingMode.Absolute);
+                }
             })
         };
         
@@ -156,13 +171,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (TokenType.Comma, null),
             (TokenType.RegisterX | TokenType.RegisterY, token =>
             {
-                if (!Operand.IsDefined) return;
-                switch (Operand.Number < 256, token.Type)
+                switch (Operand.IsDefined, Operand.IsDefined && Operand.Number < 256, token.Type)
                 {
-                    case (false, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.AbsoluteX); break;
-                    case (false, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.AbsoluteY); break;
-                    case (true, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.ZeroPageX); break;
-                    case (true, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.ZeroPageY); break;
+                    case (_, false, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.AbsoluteX); break;
+                    case (_, false, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.AbsoluteY); break;
+                    case (true, true, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.ZeroPageX); break;
+                    case (true, true, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.ZeroPageY); break;
                     default: throw new SyntaxErrorException(SyntaxErrors.RegisterNotXY(token), token);
                 }
             })
@@ -205,7 +219,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (TokenType.Number | TokenType.Identifier, token =>
             {
                 SetOperand(token);
-                if (Operand.IsDefined)
+                if (Operand.IsDefined)  // If the operand is undefined (label), check if valid later
                 {
                     if (Operand.Number > 255)
                         throw new SyntaxErrorException(
@@ -235,7 +249,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (TokenType.Number | TokenType.Identifier, token =>
             {
                 SetOperand(token);
-                if (Operand.IsDefined)
+                if (Operand.IsDefined)  // If the operand is undefined (label), check if valid later
                 {
                     if (Operand.Number > 255)
                         throw new SyntaxErrorException(

@@ -10,6 +10,8 @@ namespace NineEightOhThree.VirtualCPU
         public virtual List<string> Aliases { get; } = new();
         public abstract Dictionary<AddressingMode, CPUInstructionMetadata> Metadata { get; }
 
+        public virtual bool IsBranch => false;
+
         public abstract void Execute(CPU cpu, AddressingMode addressingMode);
 
         public void Setup(params byte[] args)

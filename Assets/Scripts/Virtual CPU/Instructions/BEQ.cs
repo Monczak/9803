@@ -5,6 +5,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     public class BEQ : CPUInstruction
     {
         public override string Mnemonic => "BEQ";
+        
+        public override bool IsBranch => true;
 
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {

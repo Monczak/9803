@@ -19,11 +19,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             foreach (Token token in tokens)
                 builder.Append("(").Append(token.ToString()).Append(") ");
             Debug.Log(builder.ToString());*/
-            List<AbstractStatement> statements = Parser.Parse(tokens);
+            var statements = Parser.Parse(tokens);
 
             StringBuilder builder = new StringBuilder();
             foreach (AbstractStatement statement in statements)
-                builder.Append("(").Append(statement.GetType().Name).Append(") ");
+                builder.Append("(").Append(statement is null ? "invalid statement" : statement.GetType().Name).Append(") ");
             Debug.Log(builder.ToString());
 
             return machineCode;

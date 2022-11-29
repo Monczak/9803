@@ -18,6 +18,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { AddressingMode.ZeroPage, "zero page" },
             { AddressingMode.ZeroPageX, "zero page indexed" },
             { AddressingMode.ZeroPageY, "zero page indexed" },
+            { AddressingMode.Relative, "relative" },
         };
 
         public static string UnknownInstruction(Token token) => 

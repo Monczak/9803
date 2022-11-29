@@ -5,6 +5,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     public class BPL : CPUInstruction
     {
         public override string Mnemonic => "BPL";
+        
+        public override bool IsBranch => true;
 
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {

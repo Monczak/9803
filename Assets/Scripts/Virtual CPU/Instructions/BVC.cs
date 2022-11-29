@@ -5,6 +5,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     public class BVC : CPUInstruction
     {
         public override string Mnemonic => "BVC";
+        
+        public override bool IsBranch => true;
 
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {

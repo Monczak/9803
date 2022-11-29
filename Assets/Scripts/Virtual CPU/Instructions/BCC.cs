@@ -6,6 +6,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
     {
         public override string Mnemonic => "BCC";
 
+        public override bool IsBranch => true;
+
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
             { AddressingMode.Relative, new(0x90, 1) },

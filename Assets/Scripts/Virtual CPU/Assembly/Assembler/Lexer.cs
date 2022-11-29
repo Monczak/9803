@@ -154,9 +154,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             // ReSharper disable once HeapView.BoxingAllocation
             AddToken(TokenType.Number, numberBase switch
             {
-                NumberBase.Decimal => Convert.ToInt16(sourceCode[start..current]),
-                NumberBase.Binary => Convert.ToInt16(sourceCode[(start+1)..current], 2),
-                NumberBase.Hex => Convert.ToInt16(sourceCode[(start+1)..current], 16),
+                NumberBase.Decimal => Convert.ToUInt16(sourceCode[start..current]),
+                NumberBase.Binary => Convert.ToUInt16(sourceCode[(start+1)..current], 2),
+                NumberBase.Hex => Convert.ToUInt16(sourceCode[(start+1)..current], 16),
                 _ => throw new ArgumentOutOfRangeException(nameof(numberBase))
             });
         }
