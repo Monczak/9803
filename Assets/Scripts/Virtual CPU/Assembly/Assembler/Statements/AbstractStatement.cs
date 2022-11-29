@@ -8,7 +8,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         private readonly List<Token> tokens;
         private int current;
 
-        protected internal delegate void TokenHandler(Token token);
+        protected internal delegate ParsingResult TokenHandler(Token token);
         
         protected internal abstract List<(TokenType type, TokenHandler handler)> Pattern { get; }
 
@@ -24,7 +24,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected abstract AbstractStatement Construct(List<Token> tokens);
 
-        public AbstractStatement Build(List<Token> theTokens)
+        public ParsingResult<AbstractStatement> Build(List<Token> theTokens)
         {
             return Construct(theTokens).ConsumePattern();
         }
@@ -36,17 +36,21 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         private bool IsAtEnd() => current >= tokens.Count;
 
-        private AbstractStatement ConsumePattern()
+        private ParsingResult<AbstractStatement> ConsumePattern()
         {
             while (!IsAtEnd())
             {
                 Token token = Consume();
                 if ((token.Type & Pattern[current - 1].type) == 0)
-                    return null;
+                    return ParsingResult<AbstractStatement>.Error(new ParserError(SyntaxErrors.ExpectedGot(Pattern[current - 1].type, token.Type), token));
                 if (Pattern[current - 1].handler is not null)
-                    Pattern[current - 1].handler(token);
+                {
+                    ParsingResult result = Pattern[current - 1].handler(token);
+                    if (result.Failed)
+                        return ParsingResult<AbstractStatement>.Error(result.TheError);
+                }
             }
-            return this;
+            return ParsingResult<AbstractStatement>.Success(this);
         }
     }
 

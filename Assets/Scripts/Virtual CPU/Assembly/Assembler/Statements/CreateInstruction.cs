@@ -21,7 +21,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             set;
         }
         
-        protected void FindCandidates(Token token, AddressingMode modeFlags)
+        protected ParsingResult FindCandidates(Token token, AddressingMode modeFlags)
         {
             try
             {
@@ -31,18 +31,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             }
             catch (UnknownInstructionException)
             {
-                throw new SyntaxErrorException(SyntaxErrors.UnknownInstruction(token), token);
+                return ParsingResult.Error(new ParserError(SyntaxErrors.UnknownInstruction(token), token));
             }
             
             if (!InstructionCandidates.Any())
-                throw new SyntaxErrorException(
-                    SyntaxErrors.AddressingModeNotSupported(token, AddressingMode), token);
+                return ParsingResult.Error(new ParserError(
+                    SyntaxErrors.AddressingModeNotSupported(token, AddressingMode), token));
+            
+            return ParsingResult.Success();
         }
 
-        protected void FindInstruction(Token token)
+        protected ParsingResult FindInstruction(Token token)
         {
-            FindCandidates(token, AddressingMode);
+            ParsingResult candidateResult = FindCandidates(token, AddressingMode);
+            if (candidateResult.Failed)
+                return candidateResult;
+            
             MatchInstructionFromFound(AddressingMode);
+            return ParsingResult.Success();
         }
 
         protected void MatchInstructionFromFound(AddressingMode addressingMode)
@@ -60,7 +66,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         {
         }
 
-        protected void SetOperand(Token token)
+        protected ParsingResult SetOperand(Token token)
         {
             Operand = token.Type switch
             {
@@ -68,6 +74,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 TokenType.Identifier => new Operand(token.Content),
                 _ => Operand
             };
+            return ParsingResult.Success();
         }
     }
 
@@ -134,6 +141,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 {
                     MatchInstructionFromFound(AddressingMode.Absolute);
                 }
+                
+                return ParsingResult.Success();
             })
         };
         
@@ -177,8 +186,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                     case (_, false, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.AbsoluteY); break;
                     case (true, true, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.ZeroPageX); break;
                     case (true, true, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.ZeroPageY); break;
-                    default: throw new SyntaxErrorException(SyntaxErrors.RegisterNotXY(token), token);
+                    default: return ParsingResult.Error(new ParserError(SyntaxErrors.RegisterNotXY(token), token));
                 }
+                return ParsingResult.Success();
             })
         };
 
@@ -222,9 +232,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 if (Operand.IsDefined)  // If the operand is undefined (label), check if valid later
                 {
                     if (Operand.Number > 255)
-                        throw new SyntaxErrorException(
-                            SyntaxErrors.IndexedIndirectNotZeroPage(token), token);
+                        return ParsingResult.Error(new ParserError(
+                            SyntaxErrors.IndexedIndirectNotZeroPage(token), token));
                 }
+                return ParsingResult.Success();
             }),
             (TokenType.Comma, null),
             (TokenType.RegisterX, null),
@@ -252,9 +263,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 if (Operand.IsDefined)  // If the operand is undefined (label), check if valid later
                 {
                     if (Operand.Number > 255)
-                        throw new SyntaxErrorException(
-                            SyntaxErrors.IndirectIndexedNotZeroPage(token), token);
+                        return ParsingResult.Error(new ParserError(
+                            SyntaxErrors.IndirectIndexedNotZeroPage(token), token));
                 }
+                return ParsingResult.Success();
             }),
             (TokenType.RightParen, null),
             (TokenType.Comma, null),

@@ -20,7 +20,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public static bool HadError { get; private set; }
 
-        public delegate void ErrorHandler(SyntaxErrorException ex);
+        public delegate void ErrorHandler(ParserError? ex);
         private static event ErrorHandler OnError;
 
 
@@ -185,16 +185,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             while (!IsAtEnd())
             {
-                // TODO: Refactor all this to not use exceptions (awfully slow)
                 try
                 {
-                    ScanStatement();
-                }
-                catch (SyntaxErrorException e)
-                {
-                    OnError?.Invoke(e);
-                    HadError = true;
-                    Synchronize();
+                    ParsingResult<AbstractStatement> stmt = ScanStatement();
+                    if (stmt.Failed)
+                    {
+                        OnError?.Invoke(stmt.TheError);
+                        HadError = true;
+                        Synchronize();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -214,7 +213,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             while (Peek(-1).Type is not TokenType.Newline or TokenType.EndOfFile) Advance();
         }
 
-        private static void ScanStatement()
+        private static ParsingResult<AbstractStatement> ScanStatement()
         {
             List<Token> lineTokens = new();
 
@@ -226,13 +225,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile && !currentNode.IsFinal)
                 {
-                    throw ErrorExpectedTokens(currentNode, token);
+                    return ParsingResult<AbstractStatement>.Error(ErrorExpectedTokens(currentNode, token));
                 }
                 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile)
                 {
-                    AddStatement(currentNode.Statement.Build(lineTokens));
+                    ParsingResult<AbstractStatement> stmt = currentNode.Statement.Build(lineTokens);
                     line++;
+                    
+                    if (stmt.Failed) return stmt;
+
+                    AddStatement(stmt.Result);
                     lineTokens.Clear();
                     currentNode = graph.Root;
                 }
@@ -253,26 +256,31 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                     if (!found)
                     {
-                        throw ErrorExpectedTokens(currentNode, token);
+                        return ParsingResult<AbstractStatement>.Error(ErrorExpectedTokens(currentNode, token));
                     }
 
                     if (currentNode.Statement is IntermediateStatement stmt)
                     {
-                        AddStatement(stmt.Build(lineTokens));
+                        ParsingResult<AbstractStatement> s = stmt.Build(lineTokens);
+                        if (s.Failed) return s;
+                        
+                        AddStatement(s.Result);
+                        lineTokens.Clear();
                     }
                 }
             }
+            return ParsingResult<AbstractStatement>.Success();
         }
 
-        private static Exception ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
+        private static ParserError ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
         {
             TokenType? expectedType = currentNode.Children
                 .Select(n => n.TokenType)
                 .Aggregate((acc, t) => acc | t);
             if (!expectedType.HasValue)
-                return new InternalErrorException("Expected type was null");
+                throw new InternalErrorException("Expected type was null");
 
-            return new SyntaxErrorException(SyntaxErrors.ExpectedGot(
+            return new ParserError( SyntaxErrors.ExpectedGot(
                 expectedType.Value,
                 token.Type
             ), token);

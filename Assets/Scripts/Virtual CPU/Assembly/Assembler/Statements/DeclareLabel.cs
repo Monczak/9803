@@ -17,6 +17,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (TokenType.LabelDecl, token =>
             {
                 LabelName = token.Content[..^1];
+                return ParsingResult.Success();
             })
         };
         protected override AbstractStatement Construct(List<Token> tokens) => new DeclareLabel(tokens);
