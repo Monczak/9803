@@ -91,8 +91,8 @@ namespace NineEightOhThree.VirtualCPU
             string code = @"ldx #0
 loop: lda $0300,x
 asl a
-sta $0400,
-inx a
+sta $0400,  ; Error: unfinished statement
+inx a ; Error: unsupported addressing
 cmp ($03),y
 inx
 beq loop";
