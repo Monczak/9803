@@ -18,10 +18,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         protected IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> InstructionCandidates
         {
             get;
-            set;
+            private set;
         }
         
-        protected ParsingResult FindCandidates(Token token, AddressingMode modeFlags)
+        protected OperationResult FindCandidates(Token token, AddressingMode modeFlags)
         {
             try
             {
@@ -31,24 +31,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             }
             catch (UnknownInstructionException)
             {
-                return ParsingResult.Error(new ParserError(SyntaxErrors.UnknownInstruction(token), token));
+                return OperationResult.Error(SyntaxErrors.UnknownInstruction(token));
             }
             
             if (!InstructionCandidates.Any())
-                return ParsingResult.Error(new ParserError(
-                    SyntaxErrors.AddressingModeNotSupported(token, AddressingMode), token));
+                return OperationResult.Error(
+                    SyntaxErrors.AddressingModeNotSupported(token, AddressingMode));
             
-            return ParsingResult.Success();
+            return OperationResult.Success();
         }
 
-        protected ParsingResult FindInstruction(Token token)
+        protected OperationResult FindInstruction(Token token)
         {
-            ParsingResult candidateResult = FindCandidates(token, AddressingMode);
+            OperationResult candidateResult = FindCandidates(token, AddressingMode);
             if (candidateResult.Failed)
                 return candidateResult;
             
             MatchInstructionFromFound(AddressingMode);
-            return ParsingResult.Success();
+            return OperationResult.Success();
         }
 
         protected void MatchInstructionFromFound(AddressingMode addressingMode)
@@ -66,7 +66,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         {
         }
 
-        protected ParsingResult SetOperand(Token token)
+        protected OperationResult SetOperand(Token token)
         {
             Operand = token.Type switch
             {
@@ -74,7 +74,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 TokenType.Identifier => new Operand(token.Content),
                 _ => Operand
             };
-            return ParsingResult.Success();
+            return OperationResult.Success();
         }
     }
 
@@ -85,9 +85,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             AddressingMode = AddressingMode.Implied;
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, FindInstruction),
+            (NodePattern.Single(TokenType.Identifier), FindInstruction),
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
@@ -101,27 +101,27 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             AddressingMode = AddressingMode.Accumulator;
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, FindInstruction),
-            (TokenType.RegisterA, null)
+            (NodePattern.Single(TokenType.Identifier), FindInstruction),
+            (NodePattern.Single(TokenType.RegisterA), null)
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
             new CreateInstructionAccumulator(tokens);
     }
 
-    public sealed class CreateInstructionAbsolute : CreateInstructionOperand
+    public sealed class CreateInstructionAbsoluteRelative : CreateInstructionOperand
     {
-        public CreateInstructionAbsolute(List<Token> tokens) : base(tokens)
+        public CreateInstructionAbsoluteRelative(List<Token> tokens) : base(tokens)
         {
             
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, token => FindCandidates(token, AddressingMode.Absolute | AddressingMode.ZeroPage | AddressingMode.Relative)),
-            (TokenType.Number | TokenType.Identifier, token =>
+            (NodePattern.Single(TokenType.Identifier), token => FindCandidates(token, AddressingMode.Absolute | AddressingMode.ZeroPage | AddressingMode.Relative)),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), token =>
             {
                 SetOperand(token);
 
@@ -142,11 +142,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                     MatchInstructionFromFound(AddressingMode.Absolute);
                 }
                 
-                return ParsingResult.Success();
+                return OperationResult.Success();
             })
         };
         
-        protected override AbstractStatement Construct(List<Token> tokens) => new CreateInstructionAbsolute(tokens);
+        protected override AbstractStatement Construct(List<Token> tokens) => new CreateInstructionAbsoluteRelative(tokens);
     }
 
     public sealed class CreateInstructionImmediateOp : CreateInstructionOperand
@@ -156,11 +156,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             AddressingMode = AddressingMode.Immediate;
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, FindInstruction),
-            (TokenType.ImmediateOp, null),
-            (TokenType.Number | TokenType.Identifier, SetOperand)
+            (NodePattern.Single(TokenType.Identifier), FindInstruction),
+            (NodePattern.Single(TokenType.ImmediateOp), null),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), SetOperand)
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) => new CreateInstructionImmediateOp(tokens);
@@ -173,12 +173,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, token => FindCandidates(token, AddressingMode.AbsoluteX | AddressingMode.AbsoluteY | AddressingMode.ZeroPageX | AddressingMode.ZeroPageY)),
-            (TokenType.Number | TokenType.Identifier, SetOperand),
-            (TokenType.Comma, null),
-            (TokenType.RegisterX | TokenType.RegisterY, token =>
+            (NodePattern.Single(TokenType.Identifier), token => FindCandidates(token, AddressingMode.AbsoluteX | AddressingMode.AbsoluteY | AddressingMode.ZeroPageX | AddressingMode.ZeroPageY)),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), SetOperand),
+            (NodePattern.Single(TokenType.Comma), null),
+            (NodePattern.Single(TokenType.RegisterX | TokenType.RegisterY), token =>
             {
                 switch (Operand.IsDefined, Operand.IsDefined && Operand.Number < 256, token.Type)
                 {
@@ -186,9 +186,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                     case (_, false, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.AbsoluteY); break;
                     case (true, true, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.ZeroPageX); break;
                     case (true, true, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.ZeroPageY); break;
-                    default: return ParsingResult.Error(new ParserError(SyntaxErrors.RegisterNotXY(token), token));
+                    default: return OperationResult.Error(SyntaxErrors.RegisterNotXY(token));
                 }
-                return ParsingResult.Success();
+                return OperationResult.Success();
             })
         };
 
@@ -203,12 +203,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             AddressingMode = AddressingMode.Indirect;
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, FindInstruction),
-            (TokenType.LeftParen, null),
-            (TokenType.Number | TokenType.Identifier, SetOperand),
-            (TokenType.RightParen, null)
+            (NodePattern.Single(TokenType.Identifier), FindInstruction),
+            (NodePattern.Single(TokenType.LeftParen), null),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), SetOperand),
+            (NodePattern.Single(TokenType.RightParen), null)
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
@@ -222,24 +222,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             AddressingMode = AddressingMode.IndexedIndirect;
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, FindInstruction),
-            (TokenType.LeftParen, null),
-            (TokenType.Number | TokenType.Identifier, token =>
+            (NodePattern.Single(TokenType.Identifier), FindInstruction),
+            (NodePattern.Single(TokenType.LeftParen), null),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), token =>
             {
                 SetOperand(token);
                 if (Operand.IsDefined)  // If the operand is undefined (label), check if valid later
                 {
                     if (Operand.Number > 255)
-                        return ParsingResult.Error(new ParserError(
-                            SyntaxErrors.IndexedIndirectNotZeroPage(token), token));
+                        return OperationResult.Error(
+                            SyntaxErrors.IndexedIndirectNotZeroPage(token));
                 }
-                return ParsingResult.Success();
+                return OperationResult.Success();
             }),
-            (TokenType.Comma, null),
-            (TokenType.RegisterX, null),
-            (TokenType.RightParen, null),
+            (NodePattern.Single(TokenType.Comma), null),
+            (NodePattern.Single(TokenType.RegisterX), null),
+            (NodePattern.Single(TokenType.RightParen), null),
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
@@ -253,24 +253,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             AddressingMode = AddressingMode.IndirectIndexed;
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.Identifier, FindInstruction),
-            (TokenType.LeftParen, null),
-            (TokenType.Number | TokenType.Identifier, token =>
+            (NodePattern.Single(TokenType.Identifier), FindInstruction),
+            (NodePattern.Single(TokenType.LeftParen), null),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), token =>
             {
                 SetOperand(token);
                 if (Operand.IsDefined)  // If the operand is undefined (label), check if valid later
                 {
                     if (Operand.Number > 255)
-                        return ParsingResult.Error(new ParserError(
-                            SyntaxErrors.IndirectIndexedNotZeroPage(token), token));
+                        return OperationResult.Error(
+                            SyntaxErrors.IndirectIndexedNotZeroPage(token));
                 }
-                return ParsingResult.Success();
+                return OperationResult.Success();
             }),
-            (TokenType.RightParen, null),
-            (TokenType.Comma, null),
-            (TokenType.RegisterY, null)
+            (NodePattern.Single(TokenType.RightParen), null),
+            (NodePattern.Single(TokenType.Comma), null),
+            (NodePattern.Single(TokenType.RegisterY), null)
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>

@@ -21,28 +21,28 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { AddressingMode.Relative, "relative" },
         };
 
-        public static string UnknownInstruction(Token token) =>
-            $"Unknown instruction \"{token.Content}\"";
+        public static AssemblerError UnknownInstruction(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Unknown instruction \"{token.Content}\"", token);
 
-        public static string AddressingModeNotSupported(Token token, AddressingMode addressingMode) =>
-            $"The instruction \"{token.Content}\" does not support {AddressingModeNames[addressingMode]} addressing";
+        public static AssemblerError AddressingModeNotSupported(Token token, AddressingMode addressingMode) =>
+            new(AssemblerError.ErrorType.Syntax ,$"The instruction \"{token.Content}\" does not support {AddressingModeNames[addressingMode]} addressing", token);
 
-        public static string RegisterNotXY(Token token) =>
-            $"Invalid register, expected X or Y";
+        public static AssemblerError RegisterNotXY(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Invalid register, expected X or Y", token);
 
-        public static string IndexedIndirectNotZeroPage(Token token) =>
-            $"The address in indexed indirect addressing must be a zero-page address";
+        public static AssemblerError IndexedIndirectNotZeroPage(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"The address in indexed indirect addressing must be a zero-page address", token);
 
-        public static string IndirectIndexedNotZeroPage(Token token) =>
-            $"The address in indirect indexed addressing must be a zero-page address";
+        public static AssemblerError IndirectIndexedNotZeroPage(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"The address in indirect indexed addressing must be a zero-page address", token);
 
-        public static string ExpectedGot(TokenType expectedTypeMask, TokenType gotType) =>
-            (expectedTypeMask, gotType) switch
+        public static AssemblerError ExpectedGot(Token token, TokenType expectedTypeMask, TokenType gotType) =>
+            new(AssemblerError.ErrorType.Syntax, (expectedTypeMask, gotType) switch
             {
                 (TokenType.Newline or TokenType.EndOfFile, _) => $"Expected end of statement, got {gotType.ToString()}",
                 (_, TokenType.Newline or TokenType.EndOfFile) =>
                     $"Unterminated statement, expected {expectedTypeMask.ToString()}",
                 _ => $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}"
-            };
+            }, token);
     }
 }

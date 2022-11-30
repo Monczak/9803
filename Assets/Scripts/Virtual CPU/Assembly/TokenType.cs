@@ -16,6 +16,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly
         RegisterX = 1 << 8,
         RegisterY = 1 << 9,
         Newline = 1 << 10,
-        EndOfFile = 1 << 11
+        EndOfFile = 1 << 11,
+        Directive = 1 << 12,
     }
 }

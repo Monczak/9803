@@ -82,17 +82,30 @@ namespace NineEightOhThree.VirtualCPU
             // var program = Assembler.Assemble("inc $0300\ninc $0301\njmp $0000");
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((ushort)i, program[i]);*/
-            
-            Parser.RegisterErrorHandler(error =>
+
+            void LexicalErrorHandler(AssemblerError? error)
             {
-                if (error != null) Debug.LogError($"{error.Value.Message} ({error.Value.Token})");
-            });
+                if (error != null) Debug.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line})");
+            }
             
-            string code = @"ldx #0
+            void SyntaxErrorHandler(AssemblerError? error)
+            {
+                if (error != null) Debug.LogError($"Syntax error: {error.Value.Message} ({error.Value.Token})");
+            }
+
+            Lexer.RegisterErrorHandler(LexicalErrorHandler);
+            Parser.RegisterErrorHandler(SyntaxErrorHandler);
+            
+            string code = @"
+nums: .byte $ff $00 $de $ad $be $ef
+
+ldx #0
+[]          ; Error: unexpected character
+blah        ; Error: unknown instruction
 loop: lda $0300,x
 asl a
 sta $0400,  ; Error: unfinished statement
-inx a ; Error: unsupported addressing
+inx a       ; Error: unsupported addressing
 cmp ($03),y
 inx
 beq loop";

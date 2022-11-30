@@ -8,9 +8,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         private readonly List<Token> tokens;
         private int current;
 
-        protected internal delegate ParsingResult TokenHandler(Token token);
+        protected internal delegate OperationResult TokenHandler(Token token);
         
-        protected internal abstract List<(TokenType type, TokenHandler handler)> Pattern { get; }
+        protected internal abstract List<(NodePattern pattern, TokenHandler handler)> Pattern { get; }
 
         protected AbstractStatement()
         {
@@ -24,7 +24,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected abstract AbstractStatement Construct(List<Token> tokens);
 
-        public ParsingResult<AbstractStatement> Build(List<Token> theTokens)
+        public OperationResult<AbstractStatement> Build(List<Token> theTokens)
         {
             return Construct(theTokens).ConsumePattern();
         }
@@ -36,21 +36,28 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         private bool IsAtEnd() => current >= tokens.Count;
 
-        private ParsingResult<AbstractStatement> ConsumePattern()
+        private OperationResult<AbstractStatement> ConsumePattern()
         {
             while (!IsAtEnd())
             {
                 Token token = Consume();
-                if ((token.Type & Pattern[current - 1].type) == 0)
-                    return ParsingResult<AbstractStatement>.Error(new ParserError(SyntaxErrors.ExpectedGot(Pattern[current - 1].type, token.Type), token));
+                if ((token.Type & Pattern[current - 1].pattern.TokenType) == 0)
+                {
+                    TokenType? patternTokenType = Pattern[current - 1].pattern.TokenType;
+                    if (patternTokenType != null)
+                        return OperationResult<AbstractStatement>.Error(SyntaxErrors.ExpectedGot(token,
+                            patternTokenType.Value, token.Type));
+                    throw new InternalErrorException("Pattern token type was null");
+                }
+
                 if (Pattern[current - 1].handler is not null)
                 {
-                    ParsingResult result = Pattern[current - 1].handler(token);
+                    OperationResult result = Pattern[current - 1].handler(token);
                     if (result.Failed)
-                        return ParsingResult<AbstractStatement>.Error(result.TheError);
+                        return OperationResult<AbstractStatement>.Error(result.TheError);
                 }
             }
-            return ParsingResult<AbstractStatement>.Success(this);
+            return OperationResult<AbstractStatement>.Success(this);
         }
     }
 

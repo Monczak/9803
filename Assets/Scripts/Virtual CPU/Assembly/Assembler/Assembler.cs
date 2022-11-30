@@ -8,20 +8,23 @@ using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
+    public delegate void ErrorHandler(AssemblerError? ex);
+    
     public static class Assembler
     {
         public static List<byte> Assemble(string input)
         {
             List<byte> machineCode = new();
+            StringBuilder builder;
 
             var tokens = Lexer.Lex(input);
-            /*StringBuilder builder = new StringBuilder();
+            builder = new StringBuilder();
             foreach (Token token in tokens)
                 builder.Append("(").Append(token.ToString()).Append(") ");
-            Debug.Log(builder.ToString());*/
+            Debug.Log(builder.ToString());
             var statements = Parser.Parse(tokens);
 
-            StringBuilder builder = new StringBuilder();
+            builder = new StringBuilder();
             foreach (AbstractStatement statement in statements)
                 builder.Append("(").Append(statement is null ? "invalid statement" : statement.GetType().Name).Append(") ");
             Debug.Log(builder.ToString());

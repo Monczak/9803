@@ -21,7 +21,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static TokenType? lastToken;
 
         private static bool expectingToken;
-        
+
+        public static event ErrorHandler OnError;
         public static bool HadError { get; private set; }
 
         private enum NumberBase
@@ -41,6 +42,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { "Y", TokenType.RegisterY },
         };
 
+        public static void RegisterErrorHandler(ErrorHandler handler)
+        {
+            OnError += handler;
+        }
+
         public static List<Token> Lex(string sourceCode)
         {
             tokens = new List<Token>(); 
@@ -57,22 +63,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 start = current;
                 try
                 {
-                    ScanToken();
+                    OperationResult result = ScanToken();
+                    if (result.Failed)
+                    {
+                        OnError?.Invoke(result.TheError);
+                        HadError = true;
+                    }
                 }
-                catch (LexicalErrorException e)
-                {
-                    Debug.LogError(e.Message);
-                    HadError = true;
-                }
-                catch (ArgumentOutOfRangeException e)
+                catch (Exception e)
                 {
                     throw new InternalErrorException("Internal error occurred", e);
                 }
             }
 
-            if (HadError)
-                return null;
-            
             tokens.Add(new Token
             {
                 Type = TokenType.EndOfFile,
@@ -84,7 +87,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return tokens;
         }
 
-        private static void ScanToken()
+        private static OperationResult ScanToken()
         {
             char c = Advance();
 
@@ -97,6 +100,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 case ';':
                     while (Peek() != '\n' && !IsAtEnd()) Advance();
                     break;
+                
+                case '.': LexDirective(); break;
                 
                 case '\n': AddToken(TokenType.Newline); line++; break;
                 
@@ -113,13 +118,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 case var _ when IsAlpha(c): LexIdentifier(); break;
                 
-                default: throw new LexicalErrorException("Unexpected character", c, line);
+                default: return OperationResult.Error(LexicalErrors.UnexpectedCharacter(c, line));
             }
 
             switch (expectingToken)
             {
                 case true when expectedToken is not null && expectedToken != lastToken:
-                    throw new LexicalErrorException($"Expected {expectedToken.ToString()}, got {lastToken.ToString()}", c, line);
+                    if (lastToken != null)
+                        return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, expectedToken.Value,
+                            lastToken.Value));
+                    throw new InternalErrorException("Last token was null");
+
                 case false when expectedToken is not null:
                     expectingToken = true;
                     break;
@@ -128,6 +137,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     expectingToken = false;
                     break;
             }
+            
+            return OperationResult.Success();
+        }
+
+        private static void LexDirective()
+        {
+            while (IsAlphaNumeric(Peek())) Advance();
+            AddToken(TokenType.Directive);
         }
 
         private static void LexIdentifier()

@@ -12,12 +12,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             
         }
 
-        protected internal override List<(TokenType type, TokenHandler handler)> Pattern => new()
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (TokenType.LabelDecl, token =>
+            (NodePattern.Single(TokenType.LabelDecl), token =>
             {
                 LabelName = token.Content[..^1];
-                return ParsingResult.Success();
+                return OperationResult.Success();
             })
         };
         protected override AbstractStatement Construct(List<Token> tokens) => new DeclareLabel(tokens);

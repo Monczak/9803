@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
     public static class Parser
     {
         private static int current;
-        private static int line;
 
         private static List<AbstractStatement> statements;
 
@@ -19,8 +17,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static GrammarGraph graph;
 
         public static bool HadError { get; private set; }
-
-        public delegate void ErrorHandler(ParserError? ex);
         private static event ErrorHandler OnError;
 
 
@@ -35,22 +31,22 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             public class GrammarNode
             {
-                public TokenType? TokenType { get; }
+                public NodePattern Pattern { get; }
                 public bool IsFinal { get; }
                 public AbstractStatement Statement { get; }
                 public Type StatementType { get; set; }
                 public List<GrammarNode> Children { get; }
 
-                public GrammarNode(TokenType? type)
+                public GrammarNode(NodePattern pattern)
                 {
-                    TokenType = type;
+                    Pattern = pattern;
                     Children = new List<GrammarNode>();
                     IsFinal = false; 
                 }
 
-                public GrammarNode(TokenType? type, AbstractStatement stmt)
+                public GrammarNode(NodePattern pattern, AbstractStatement stmt)
                 {
-                    TokenType = type;
+                    Pattern = pattern;
                     Children = new List<GrammarNode>();
                     Statement = stmt;
                     IsFinal = true;
@@ -58,7 +54,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                 private bool Equals(GrammarNode other)
                 {
-                    return TokenType == other.TokenType;
+                    return Equals(Pattern, other.Pattern);
                 }
 
                 public override bool Equals(object obj)
@@ -70,7 +66,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                 public override int GetHashCode()
                 {
-                    return HashCode.Combine((int?)TokenType);
+                    return Pattern != null ? Pattern.GetHashCode() : 0;
                 }
             }
 
@@ -80,15 +76,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     .Select(t => (T)Activator.CreateInstance(t, new object[] {null}))
                     .ToList();
 
+            // TODO: Figure out how to transform this to use NodePatterns
             private void AddPath(AbstractStatement stmt, Type connectTo = null)
             {
-                Queue<TokenType> typeQueue = new(stmt.Pattern.Select(p => p.type));
+                Queue<NodePattern> typeQueue = new(stmt.Pattern.Select(p => p.pattern));
                 GrammarNode currentNode = Root;
                 while (typeQueue.Count > 0)
                 {
-                    TokenType type = typeQueue.Dequeue();
+                    NodePattern pattern = typeQueue.Dequeue();
 
-                    GrammarNode node = typeQueue.Count == 0 ? new GrammarNode(type, stmt) : new GrammarNode(type);
+                    GrammarNode node = typeQueue.Count == 0 ? new GrammarNode(pattern, stmt) : new GrammarNode(pattern);
 
                     if (typeQueue.Count == 0 && connectTo is not null)
                     {
@@ -168,7 +165,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             statements = new List<AbstractStatement>();
             source = tokens;
-            line = 1;
             current = 0;
             HadError = false;
             
@@ -187,7 +183,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 try
                 {
-                    ParsingResult<AbstractStatement> stmt = ScanStatement();
+                    OperationResult<AbstractStatement> stmt = ScanStatement();
                     if (stmt.Failed)
                     {
                         OnError?.Invoke(stmt.TheError);
@@ -213,7 +209,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             while (Peek(-1).Type is not TokenType.Newline or TokenType.EndOfFile) Advance();
         }
 
-        private static ParsingResult<AbstractStatement> ScanStatement()
+        private static OperationResult<AbstractStatement> ScanStatement()
         {
             List<Token> lineTokens = new();
 
@@ -225,14 +221,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile && !currentNode.IsFinal)
                 {
-                    return ParsingResult<AbstractStatement>.Error(ErrorExpectedTokens(currentNode, token));
+                    if (lineTokens.Count == 0)  // If parsing an empty line
+                        return OperationResult<AbstractStatement>.Success();
+                    
+                    return OperationResult<AbstractStatement>.Error(ErrorExpectedTokens(currentNode, token));
                 }
                 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile)
                 {
-                    ParsingResult<AbstractStatement> stmt = currentNode.Statement.Build(lineTokens);
-                    line++;
-                    
+                    OperationResult<AbstractStatement> stmt = currentNode.Statement.Build(lineTokens);
+
                     if (stmt.Failed) return stmt;
 
                     AddStatement(stmt.Result);
@@ -246,7 +244,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     bool found = false;
                     foreach (GrammarGraph.GrammarNode child in currentNode.Children)
                     {
-                        if ((child.TokenType & token.Type) != 0)
+                        if (!child.Pattern.TokenType.HasValue)
+                            throw new InternalErrorException("Pattern token type was null");
+                        if ((child.Pattern.TokenType.Value & token.Type) != 0)
                         {
                             found = true;
                             currentNode = child;
@@ -256,12 +256,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                     if (!found)
                     {
-                        return ParsingResult<AbstractStatement>.Error(ErrorExpectedTokens(currentNode, token));
+                        return OperationResult<AbstractStatement>.Error(ErrorExpectedTokens(currentNode, token));
                     }
 
                     if (currentNode.Statement is IntermediateStatement stmt)
                     {
-                        ParsingResult<AbstractStatement> s = stmt.Build(lineTokens);
+                        OperationResult<AbstractStatement> s = stmt.Build(lineTokens);
                         if (s.Failed) return s;
                         
                         AddStatement(s.Result);
@@ -269,27 +269,26 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     }
                 }
             }
-            return ParsingResult<AbstractStatement>.Success();
+            return OperationResult<AbstractStatement>.Success();
         }
 
-        private static ParserError ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
+        private static AssemblerError ErrorExpectedTokens(GrammarGraph.GrammarNode currentNode, Token token)
         {
             TokenType? expectedType = currentNode.Children
-                .Select(n => n.TokenType)
+                .Select(n => n.Pattern.TokenType)
                 .Aggregate((acc, t) => acc | t);
             if (!expectedType.HasValue)
                 throw new InternalErrorException("Expected type was null");
 
-            return new ParserError( SyntaxErrors.ExpectedGot(
+            return SyntaxErrors.ExpectedGot(token, 
                 expectedType.Value,
                 token.Type
-            ), token);
+            );
         }
 
         public static void RegisterErrorHandler(ErrorHandler handler)
-        {
-            if (OnError == null)
-                OnError += handler;
+        { 
+            OnError += handler;
         }
 
         private static Token Advance()
