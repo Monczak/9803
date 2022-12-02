@@ -70,6 +70,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
             }
 
+            // TODO: Run topological sort on the statements (to resolve IntermediateStatement dependencies)
             private static List<T> FindAllStatementTypes<T>() where T : AbstractStatement =>
                 System.Reflection.Assembly.GetAssembly(typeof(T)).GetTypes()
                     .Where(type => type.IsClass && !type.IsAbstract && type.IsSealed && type.IsSubclassOf(typeof(T)))
