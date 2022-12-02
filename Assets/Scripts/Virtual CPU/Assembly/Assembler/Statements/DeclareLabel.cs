@@ -21,6 +21,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             })
         };
         protected override AbstractStatement Construct(List<Token> tokens) => new DeclareLabel(tokens);
-        public override Type FollowedBy => typeof(CreateInstruction);
+        public override List<Type> FollowedBy => new() {typeof(CreateInstruction), typeof(Directive)};
     }
 }

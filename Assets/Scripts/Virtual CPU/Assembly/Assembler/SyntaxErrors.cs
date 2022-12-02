@@ -44,5 +44,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     $"Unterminated statement, expected {expectedTypeMask.ToString()}",
                 _ => $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}"
             }, token);
+
+        public static AssemblerError UnknownDirective(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Unknown directive \"{token.Content[1..]}\"", token);
+
+        public static AssemblerError OperandNotByte(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Expected number in range 0-255", token);
     }
 }

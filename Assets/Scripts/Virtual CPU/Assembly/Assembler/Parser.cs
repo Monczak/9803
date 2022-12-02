@@ -75,22 +75,30 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     .Where(type => type.IsClass && !type.IsAbstract && type.IsSealed && type.IsSubclassOf(typeof(T)))
                     .Select(t => (T)Activator.CreateInstance(t, new object[] {null}))
                     .ToList();
-
-            // TODO: Figure out how to transform this to use NodePatterns
-            private void AddPath(AbstractStatement stmt, Type connectTo = null)
+            
+            private void AddPath(AbstractStatement stmt, List<Type> connectTo = null)
             {
-                Queue<NodePattern> typeQueue = new(stmt.Pattern.Select(p => p.pattern));
+                Queue<NodePattern> patterns = new(stmt.Pattern.Select(p => p.pattern));
                 GrammarNode currentNode = Root;
-                while (typeQueue.Count > 0)
+                while (patterns.Count > 0)
                 {
-                    NodePattern pattern = typeQueue.Dequeue();
+                    NodePattern pattern = patterns.Dequeue();
 
-                    GrammarNode node = typeQueue.Count == 0 ? new GrammarNode(pattern, stmt) : new GrammarNode(pattern);
+                    GrammarNode node = 
+                        pattern.Cycle 
+                        ? currentNode
+                        : patterns.Count == 0 
+                            ? new GrammarNode(pattern, stmt) 
+                            : new GrammarNode(pattern);
 
-                    if (typeQueue.Count == 0 && connectTo is not null)
+                    if (patterns.Count == 0 && connectTo is not null)
                     {
                         currentNode.Children.Add(node);
-                        node.Children.Add(FindEarliestOfType(Root, (node.Statement as IntermediateStatement)?.FollowedBy));
+                        List<Type> followedBy = (node.Statement as IntermediateStatement)?.FollowedBy;
+                        if (followedBy != null)
+                            foreach (Type type in followedBy)
+                                node.Children.Add(FindEarliestOfType(Root, type));
+                        else throw new InternalErrorException("FollowedBy was null");
                     }
                     else
                     {

@@ -7,6 +7,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
     {
         private readonly List<Token> tokens;
         private int current;
+        private int currentPattern;
 
         protected internal delegate OperationResult TokenHandler(Token token);
         
@@ -38,24 +39,37 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         private OperationResult<AbstractStatement> ConsumePattern()
         {
+            current = 0;
+            currentPattern = 0;
+
+            TokenType? previousTokenType = null;
+
             while (!IsAtEnd())
             {
                 Token token = Consume();
-                if ((token.Type & Pattern[current - 1].pattern.TokenType) == 0)
+                if (currentPattern + 1 < Pattern.Count && !Pattern[currentPattern + 1].pattern.Cycle && token.Type != previousTokenType)
+                    currentPattern++;
+
+                (NodePattern pattern, TokenHandler handler) = Pattern[currentPattern];
+                if ((token.Type & pattern.TokenType) == 0)
                 {
-                    TokenType? patternTokenType = Pattern[current - 1].pattern.TokenType;
+                    TokenType? patternTokenType = pattern.TokenType;
                     if (patternTokenType != null)
                         return OperationResult<AbstractStatement>.Error(SyntaxErrors.ExpectedGot(token,
                             patternTokenType.Value, token.Type));
                     throw new InternalErrorException("Pattern token type was null");
                 }
 
-                if (Pattern[current - 1].handler is not null)
+                if (handler is not null)
                 {
-                    OperationResult result = Pattern[current - 1].handler(token);
+                    OperationResult result = handler(token);
                     if (result.Failed)
                         return OperationResult<AbstractStatement>.Error(result.TheError);
                 }
+
+                if (!pattern.Cycle) currentPattern++;
+
+                previousTokenType = token.Type;
             }
             return OperationResult<AbstractStatement>.Success(this);
         }
@@ -63,7 +77,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
     public abstract class IntermediateStatement : AbstractStatement
     {
-        public abstract Type FollowedBy { get; }
+        public abstract List<Type> FollowedBy { get; }
         
         protected IntermediateStatement(List<Token> tokens) : base(tokens)
         {
