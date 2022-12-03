@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
-    public sealed class DeclareLabel : IntermediateStatement
+    public sealed class Label : IntermediateStatement
     {
         public string LabelName { get; private set; }
         
-        public DeclareLabel(List<Token> tokens) : base(tokens)
+        public Label(List<Token> tokens) : base(tokens)
         {
             
         }
@@ -20,7 +20,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 return OperationResult.Success();
             })
         };
-        protected override AbstractStatement Construct(List<Token> tokens) => new DeclareLabel(tokens);
-        public override List<Type> FollowedBy => new() {typeof(CreateInstruction), typeof(Directive)};
+        protected override AbstractStatement Construct(List<Token> tokens) => new Label(tokens);
+        public override List<Type> FollowedBy => new() {typeof(Instruction), typeof(Directive)};
     }
 }

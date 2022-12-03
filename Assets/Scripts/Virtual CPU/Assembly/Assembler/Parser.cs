@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
+using Unity.VisualScripting;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -71,11 +72,31 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
 
             // TODO: Run topological sort on the statements (to resolve IntermediateStatement dependencies)
-            private static List<T> FindAllStatementTypes<T>() where T : AbstractStatement =>
-                System.Reflection.Assembly.GetAssembly(typeof(T)).GetTypes()
-                    .Where(type => type.IsClass && !type.IsAbstract && type.IsSealed && type.IsSubclassOf(typeof(T)))
-                    .Select(t => (T)Activator.CreateInstance(t, new object[] {null}))
-                    .ToList();
+            private static List<AbstractStatement> FindAllStatementTypes()
+            {
+                AbstractStatement CreateInstance(Type t)
+                {
+                    return (AbstractStatement)Activator.CreateInstance(t, new object[] {null});
+                }
+
+                List<AbstractStatement> stmts = System.Reflection.Assembly.GetAssembly(typeof(AbstractStatement)).GetTypes()
+                    .Where(type => type.IsClass && !type.IsAbstract && type.IsSealed && type.IsSubclassOf(typeof(AbstractStatement)))
+                    .Select(CreateInstance)
+                    .ToList(); 
+
+                // TODO: Quick hacky way to get directives working, replace with topo sort
+                stmts.Sort((s1, s2) => (s1, s2) switch
+                {
+                    (IntermediateStatement, IntermediateStatement) => 0,
+                    (FinalStatement, FinalStatement) => 0,
+                    (IntermediateStatement, FinalStatement) => 1,
+                    (FinalStatement, IntermediateStatement) => -1,
+                    _ => 0
+                });
+
+                return stmts;
+            }
+                
             
             private void AddPath(AbstractStatement stmt, List<Type> connectTo = null)
             {
@@ -86,11 +107,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     NodePattern pattern = patterns.Dequeue();
 
                     GrammarNode node = 
-                        pattern.Cycle 
-                        ? currentNode
-                        : patterns.Count == 0 
+                        patterns.Count == 0 
                             ? new GrammarNode(pattern, stmt) 
                             : new GrammarNode(pattern);
+                    
+                    if (pattern.Cycle)
+                        node.Children.Add(node);
 
                     if (patterns.Count == 0 && connectTo is not null)
                     {
@@ -119,29 +141,41 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             private void UpdateBaseTypes(GrammarNode node)
             {
-                if (node.Children.Count == 0)
+                if (node.Children.Count(n => !Equals(n, node)) == 0)
                     node.StatementType = node.Statement.GetType();
                 else
                 {
                     foreach (GrammarNode child in node.Children)
                     {
-                        UpdateBaseTypes(child);
+                        if (!Equals(child, node))
+                            UpdateBaseTypes(child);
                     }
 
                     if (!Equals(node, Root))
-                        node.StatementType =
-                            TypeUtils.MostDerivedCommonBase(node.Children.Select(child => child.StatementType));
+                    {
+                        List<Type> types = node.Children.Select(child => child.StatementType).ToList();
+                        node.StatementType = TypeUtils.MostDerivedCommonBase(types);
+                        if (node.Statement is not null)
+                        {
+                            types.Add(node.Statement.GetType());
+                            node.StatementType = TypeUtils.MostDerivedCommonBase(types);
+                        }
+                    }
+                        
                 }
             }
 
             private static GrammarNode FindEarliestOfType(GrammarNode node, Type type)
             {
-                if (node.Children.Count == 0) return null;
+                if (node.Children.Count(n => !Equals(n, node)) == 0) return null;
                 if (node.StatementType == type) return node;
                 foreach (GrammarNode child in node.Children)
                 {
-                    GrammarNode potentialMatch = FindEarliestOfType(child, type);
-                    if (potentialMatch is not null) return potentialMatch;
+                    if (!Equals(child, node))
+                    {
+                        GrammarNode potentialMatch = FindEarliestOfType(child, type);
+                        if (potentialMatch is not null) return potentialMatch;
+                    }
                 }
 
                 return null;
@@ -149,9 +183,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             
             public static GrammarGraph Build()
             {
-                GrammarGraph graph = new GrammarGraph();
+                GrammarGraph graph = new();
 
-                List<AbstractStatement> statements = FindAllStatementTypes<AbstractStatement>();
+                List<AbstractStatement> statements = FindAllStatementTypes();
                 foreach (var stmt in statements)
                 {
                     switch (stmt)
@@ -160,7 +194,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                             graph.AddPath(s);
                             break;
                         case IntermediateStatement s:
-                            graph.UpdateBaseTypes(graph.Root);
+                            graph.UpdateBaseTypes(graph.Root); 
                             graph.AddPath(s, s.FollowedBy);
                             break;
                     }
@@ -249,6 +283,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 else
                 {
                     lineTokens.Add(token);
+
+                    if (currentNode.Children.Count == 0)
+                    {
+                        return OperationResult<AbstractStatement>.Error(SyntaxErrors.UnexpectedToken(token));
+                    }
                     
                     bool found = false;
                     foreach (GrammarGraph.GrammarNode child in currentNode.Children)

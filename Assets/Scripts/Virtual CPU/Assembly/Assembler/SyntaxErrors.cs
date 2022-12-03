@@ -50,5 +50,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public static AssemblerError OperandNotByte(Token token) =>
             new(AssemblerError.ErrorType.Syntax, $"Expected number in range 0-255", token);
+
+        public static AssemblerError UnexpectedToken(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Unexpected token \"{token.Content}\"", token);
     }
 }

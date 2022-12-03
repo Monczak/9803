@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
-    public abstract class CreateInstruction : FinalStatement
+    public abstract class Instruction : FinalStatement
     {
-        public CPUInstruction Instruction { get; protected set; }
+        public CPUInstruction CPUInstruction { get; protected set; }
         public AddressingMode AddressingMode { get; protected set; }
-        public CPUInstructionMetadata Metadata => Instruction.Metadata[AddressingMode];
+        public CPUInstructionMetadata Metadata => CPUInstruction.Metadata[AddressingMode];
         
-        protected CreateInstruction(List<Token> tokens) : base(tokens)
+        protected Instruction(List<Token> tokens) : base(tokens)
         {
             
         }
@@ -53,16 +53,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected void MatchInstructionFromFound(AddressingMode addressingMode)
         {
-            Instruction = InstructionCandidates.First(info => info.addressingMode == addressingMode).instruction;
+            CPUInstruction = InstructionCandidates.First(info => info.addressingMode == addressingMode).instruction;
             AddressingMode = addressingMode;
         }
     }
 
-    public abstract class CreateInstructionOperand : CreateInstruction
+    public abstract class InstructionOperand : Instruction
     {
         public Operand Operand { get; protected set; }
         
-        protected CreateInstructionOperand(List<Token> tokens) : base(tokens)
+        protected InstructionOperand(List<Token> tokens) : base(tokens)
         {
         }
 
@@ -78,9 +78,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         }
     }
 
-    public sealed class CreateInstructionImplied : CreateInstruction
+    public sealed class InstructionImplied : Instruction
     {
-        public CreateInstructionImplied(List<Token> tokens) : base(tokens)
+        public InstructionImplied(List<Token> tokens) : base(tokens)
         {
             AddressingMode = AddressingMode.Implied;
         }
@@ -91,12 +91,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
-            new CreateInstructionImplied(tokens);
+            new InstructionImplied(tokens);
     }
 
-    public sealed class CreateInstructionAccumulator : CreateInstruction
+    public sealed class InstructionAccumulator : Instruction
     {
-        public CreateInstructionAccumulator(List<Token> tokens) : base(tokens)
+        public InstructionAccumulator(List<Token> tokens) : base(tokens)
         {
             AddressingMode = AddressingMode.Accumulator;
         }
@@ -108,12 +108,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
-            new CreateInstructionAccumulator(tokens);
+            new InstructionAccumulator(tokens);
     }
 
-    public sealed class CreateInstructionAbsoluteRelative : CreateInstructionOperand
+    public sealed class InstructionAbsoluteRelative : InstructionOperand
     {
-        public CreateInstructionAbsoluteRelative(List<Token> tokens) : base(tokens)
+        public InstructionAbsoluteRelative(List<Token> tokens) : base(tokens)
         {
             
         }
@@ -146,12 +146,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             })
         };
         
-        protected override AbstractStatement Construct(List<Token> tokens) => new CreateInstructionAbsoluteRelative(tokens);
+        protected override AbstractStatement Construct(List<Token> tokens) => new InstructionAbsoluteRelative(tokens);
     }
 
-    public sealed class CreateInstructionImmediateOp : CreateInstructionOperand
+    public sealed class InstructionImmediateOp : InstructionOperand
     {
-        public CreateInstructionImmediateOp(List<Token> tokens) : base(tokens)
+        public InstructionImmediateOp(List<Token> tokens) : base(tokens)
         {
             AddressingMode = AddressingMode.Immediate;
         }
@@ -163,12 +163,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (NodePattern.Single(TokenType.Number | TokenType.Identifier), SetOperand)
         };
 
-        protected override AbstractStatement Construct(List<Token> tokens) => new CreateInstructionImmediateOp(tokens);
+        protected override AbstractStatement Construct(List<Token> tokens) => new InstructionImmediateOp(tokens);
     }
 
-    public sealed class CreateInstructionAbsoluteIndexed : CreateInstructionOperand
+    public sealed class InstructionAbsoluteIndexed : InstructionOperand
     {
-        public CreateInstructionAbsoluteIndexed(List<Token> tokens) : base(tokens)
+        public InstructionAbsoluteIndexed(List<Token> tokens) : base(tokens)
         {
             
         }
@@ -193,12 +193,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
-            new CreateInstructionAbsoluteIndexed(tokens);
+            new InstructionAbsoluteIndexed(tokens);
     }
 
-    public sealed class CreateInstructionIndirect : CreateInstructionOperand
+    public sealed class InstructionIndirect : InstructionOperand
     {
-        public CreateInstructionIndirect(List<Token> tokens) : base(tokens)
+        public InstructionIndirect(List<Token> tokens) : base(tokens)
         {
             AddressingMode = AddressingMode.Indirect;
         }
@@ -212,12 +212,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
-            new CreateInstructionIndirect(tokens);
+            new InstructionIndirect(tokens);
     }
 
-    public sealed class CreateInstructionIndexedIndirect : CreateInstructionOperand
+    public sealed class InstructionIndexedIndirect : InstructionOperand
     {
-        public CreateInstructionIndexedIndirect(List<Token> tokens) : base(tokens)
+        public InstructionIndexedIndirect(List<Token> tokens) : base(tokens)
         {
             AddressingMode = AddressingMode.IndexedIndirect;
         }
@@ -243,12 +243,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
-            new CreateInstructionIndexedIndirect(tokens);
+            new InstructionIndexedIndirect(tokens);
     }
 
-    public sealed class CreateInstructionIndirectIndexed : CreateInstructionOperand
+    public sealed class InstructionIndirectIndexed : InstructionOperand
     {
-        public CreateInstructionIndirectIndexed(List<Token> tokens) : base(tokens)
+        public InstructionIndirectIndexed(List<Token> tokens) : base(tokens)
         {
             AddressingMode = AddressingMode.IndirectIndexed;
         }
@@ -274,6 +274,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         };
 
         protected override AbstractStatement Construct(List<Token> tokens) =>
-            new CreateInstructionIndirectIndexed(tokens);
+            new InstructionIndirectIndexed(tokens);
     }
 }

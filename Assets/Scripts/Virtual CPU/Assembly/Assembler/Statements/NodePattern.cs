@@ -18,7 +18,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         private bool Equals(NodePattern other)
         {
-            return TokenType == other.TokenType && Cycle == other.Cycle;
+            return TokenType == other.TokenType;
         }
 
         public override bool Equals(object obj)

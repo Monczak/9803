@@ -11,53 +11,112 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             
         }
 
-        protected OperationResult MatchDirective(Token token, string name)
+        protected OperationResult MatchDirective(Token token)
         {
-            string tokenName = token.Content[1..];
-            if (tokenName != name) return OperationResult.Error(SyntaxErrors.UnknownDirective(token));
-            Name = tokenName;
+            Name = token.Content[1..];
             return OperationResult.Success();
         }
     }
 
-    public abstract class Directive1Arg<T> : Directive
+    public abstract class DirectiveOperands : Directive
     {
-        public T Arg { get; private set; }
+        public List<Operand> Args { get; }
         
-        protected Directive1Arg(List<Token> tokens) : base(tokens)
+        protected DirectiveOperands(List<Token> tokens) : base(tokens)
         {
-            
+            Args = new List<Operand>();
+        }
+
+        protected OperationResult AddOperand(Token token)
+        {
+            switch (token.Type)
+            {
+                case TokenType.Number:
+                    ushort n = (ushort)token.Literal;
+                    Args.Add(new Operand(n));
+                    break;
+                case TokenType.Identifier:
+                    Args.Add(new Operand(token.Content));
+                    break;
+            }
+                
+            return OperationResult.Success();
         }
     }
-
-    public abstract class VariadicDirective<T> : Directive
+    
+    public sealed class NullaryDirective : Directive
     {
-        public List<T> Args { get; private set; }
-
-        protected VariadicDirective(List<Token> tokens) : base(tokens)
+        public NullaryDirective(List<Token> tokens) : base(tokens)
         {
-            Args = new List<T>();
-        }
-    }
-
-    public sealed class ByteDirective : VariadicDirective<byte>
-    {
-        public ByteDirective(List<Token> tokens) : base(tokens)
-        {
-            
         }
 
         protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
-            (NodePattern.Single(TokenType.Directive), token => MatchDirective(token, "byte")),
-            (NodePattern.Multiple(TokenType.Number), token =>
-            {
-                ushort n = (ushort)token.Literal;
-                if (n >= 256)
-                    return OperationResult.Error(SyntaxErrors.OperandNotByte(token));
-                return OperationResult.Success();
-            })
+            (NodePattern.Single(TokenType.Directive), MatchDirective)
         };
-        protected override AbstractStatement Construct(List<Token> tokens) => new ByteDirective(tokens);
+
+        protected override AbstractStatement Construct(List<Token> tokens) => new NullaryDirective(tokens);
+    }
+    
+    public sealed class UnaryDirective : DirectiveOperands
+    {
+        public UnaryDirective(List<Token> tokens) : base(tokens)
+        {
+        }
+        
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
+        {
+            (NodePattern.Single(TokenType.Directive), MatchDirective),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand)
+        };
+        protected override AbstractStatement Construct(List<Token> tokens) => new UnaryDirective(tokens);
+    }
+    
+    public sealed class BinaryDirective : DirectiveOperands
+    {
+        public BinaryDirective(List<Token> tokens) : base(tokens)
+        {
+        }
+        
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
+        {
+            (NodePattern.Single(TokenType.Directive), MatchDirective),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+        };
+        protected override AbstractStatement Construct(List<Token> tokens) => new BinaryDirective(tokens);
+    }
+    
+    public sealed class TernaryDirective : DirectiveOperands
+    {
+        public TernaryDirective(List<Token> tokens) : base(tokens)
+        {
+        }
+        
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
+        {
+            (NodePattern.Single(TokenType.Directive), MatchDirective),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+        };
+        protected override AbstractStatement Construct(List<Token> tokens) => new TernaryDirective(tokens);
+    }
+    
+    public sealed class QuaternaryDirective : DirectiveOperands
+    {
+        public QuaternaryDirective(List<Token> tokens) : base(tokens)
+        {
+        }
+        
+        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
+        {
+            (NodePattern.Single(TokenType.Directive), MatchDirective),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
+        };
+        protected override AbstractStatement Construct(List<Token> tokens) => new QuaternaryDirective(tokens);
     }
 }

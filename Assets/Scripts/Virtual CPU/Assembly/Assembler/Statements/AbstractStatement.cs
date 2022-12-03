@@ -42,12 +42,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             current = 0;
             currentPattern = 0;
 
-            TokenType? previousTokenType = null;
-
             while (!IsAtEnd())
             {
                 Token token = Consume();
-                if (currentPattern + 1 < Pattern.Count && !Pattern[currentPattern + 1].pattern.Cycle && token.Type != previousTokenType)
+                if (currentPattern + 1 < Pattern.Count && !Pattern[currentPattern + 1].pattern.Cycle && Pattern[currentPattern].pattern.Cycle)
                     currentPattern++;
 
                 (NodePattern pattern, TokenHandler handler) = Pattern[currentPattern];
@@ -68,8 +66,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 }
 
                 if (!pattern.Cycle) currentPattern++;
-
-                previousTokenType = token.Type;
             }
             return OperationResult<AbstractStatement>.Success(this);
         }
