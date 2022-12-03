@@ -58,65 +58,18 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         protected override AbstractStatement Construct(List<Token> tokens) => new NullaryDirective(tokens);
     }
     
-    public sealed class UnaryDirective : DirectiveOperands
+    public sealed class VariadicDirective : DirectiveOperands
     {
-        public UnaryDirective(List<Token> tokens) : base(tokens)
+        public VariadicDirective(List<Token> tokens) : base(tokens)
         {
         }
-        
+
         protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
         {
             (NodePattern.Single(TokenType.Directive), MatchDirective),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand)
+            (NodePattern.Multiple(TokenType.Number | TokenType.Identifier), AddOperand)
         };
-        protected override AbstractStatement Construct(List<Token> tokens) => new UnaryDirective(tokens);
-    }
-    
-    public sealed class BinaryDirective : DirectiveOperands
-    {
-        public BinaryDirective(List<Token> tokens) : base(tokens)
-        {
-        }
-        
-        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
-        {
-            (NodePattern.Single(TokenType.Directive), MatchDirective),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-        };
-        protected override AbstractStatement Construct(List<Token> tokens) => new BinaryDirective(tokens);
-    }
-    
-    public sealed class TernaryDirective : DirectiveOperands
-    {
-        public TernaryDirective(List<Token> tokens) : base(tokens)
-        {
-        }
-        
-        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
-        {
-            (NodePattern.Single(TokenType.Directive), MatchDirective),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-        };
-        protected override AbstractStatement Construct(List<Token> tokens) => new TernaryDirective(tokens);
-    }
-    
-    public sealed class QuaternaryDirective : DirectiveOperands
-    {
-        public QuaternaryDirective(List<Token> tokens) : base(tokens)
-        {
-        }
-        
-        protected internal override List<(NodePattern pattern, TokenHandler handler)> Pattern => new()
-        {
-            (NodePattern.Single(TokenType.Directive), MatchDirective),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-            (NodePattern.Single(TokenType.Number | TokenType.Identifier), AddOperand),
-        };
-        protected override AbstractStatement Construct(List<Token> tokens) => new QuaternaryDirective(tokens);
+
+        protected override AbstractStatement Construct(List<Token> tokens) => new VariadicDirective(tokens);
     }
 }
