@@ -14,7 +14,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     {
         public static List<byte> Assemble(string input)
         {
-            List<byte> machineCode = new();
             StringBuilder builder;
 
             var tokens = Lexer.Lex(input);
@@ -22,14 +21,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             foreach (Token token in tokens)
                 builder.Append("(").Append(token.ToString()).Append(") ");
             Debug.Log(builder.ToString());
+            
             var statements = Parser.Parse(tokens);
-
             builder = new StringBuilder();
             foreach (AbstractStatement statement in statements)
                 builder.Append("(").Append(statement is null ? "invalid statement" : statement.GetType().Name).Append(") ");
             Debug.Log(builder.ToString());
 
-            return machineCode;
+            var code = CodeGenerator.GenerateCode(statements);
+            
+            return code;
         }
     }
 }

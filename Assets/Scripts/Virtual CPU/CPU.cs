@@ -95,6 +95,7 @@ namespace NineEightOhThree.VirtualCPU
 
             Lexer.RegisterErrorHandler(LexicalErrorHandler);
             Parser.RegisterErrorHandler(SyntaxErrorHandler);
+            CodeGenerator.RegisterErrorHandler(SyntaxErrorHandler);
             
             string code = @"
 nums: .byte $ff $00 $de $ad $be $ef
@@ -108,7 +109,9 @@ sta $0400,  ; Error: unfinished statement
 inx a       ; Error: unsupported addressing
 cmp ($03),y
 inx
-beq loop";
+bne end
+beq loop
+end: jmp loop";
             Assembler.Assemble(code);
         }
 

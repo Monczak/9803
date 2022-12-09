@@ -2,11 +2,11 @@
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
-    public abstract class Directive : FinalStatement
+    public abstract class DirectiveStatement : FinalStatement
     {
         public string Name { get; private set; }
 
-        protected Directive(List<Token> tokens) : base(tokens)
+        protected DirectiveStatement(List<Token> tokens) : base(tokens)
         {
             
         }
@@ -18,11 +18,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         }
     }
 
-    public abstract class DirectiveOperands : Directive
+    public abstract class DirectiveStatementOperands : DirectiveStatement
     {
         public List<Operand> Args { get; }
         
-        protected DirectiveOperands(List<Token> tokens) : base(tokens)
+        protected DirectiveStatementOperands(List<Token> tokens) : base(tokens)
         {
             Args = new List<Operand>();
         }
@@ -44,9 +44,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         }
     }
     
-    public sealed class NullaryDirective : Directive
+    public sealed class NullaryDirectiveStatement : DirectiveStatement
     {
-        public NullaryDirective(List<Token> tokens) : base(tokens)
+        public NullaryDirectiveStatement(List<Token> tokens) : base(tokens)
         {
         }
 
@@ -55,12 +55,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (NodePattern.Single(TokenType.Directive), MatchDirective)
         };
 
-        protected override AbstractStatement Construct(List<Token> tokens) => new NullaryDirective(tokens);
+        protected override AbstractStatement Construct(List<Token> tokens) => new NullaryDirectiveStatement(tokens);
     }
     
-    public sealed class VariadicDirective : DirectiveOperands
+    public sealed class VariadicDirectiveStatement : DirectiveStatementOperands
     {
-        public VariadicDirective(List<Token> tokens) : base(tokens)
+        public VariadicDirectiveStatement(List<Token> tokens) : base(tokens)
         {
         }
 
@@ -70,6 +70,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (NodePattern.Multiple(TokenType.Number | TokenType.Identifier), AddOperand)
         };
 
-        protected override AbstractStatement Construct(List<Token> tokens) => new VariadicDirective(tokens);
+        protected override AbstractStatement Construct(List<Token> tokens) => new VariadicDirectiveStatement(tokens);
     }
 }

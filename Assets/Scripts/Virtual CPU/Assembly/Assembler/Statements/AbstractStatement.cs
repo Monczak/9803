@@ -5,7 +5,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
     public abstract class AbstractStatement
     {
-        private readonly List<Token> tokens;
+        public List<Token> Tokens { get; }
         private int current;
         private int currentPattern;
 
@@ -19,7 +19,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected AbstractStatement(List<Token> tokens)
         {
-            this.tokens = tokens;
+            Tokens = tokens;
             current = 0;
         }
 
@@ -32,10 +32,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         private Token Consume()
         {
-            return tokens[current++];
+            return Tokens[current++];
         }
 
-        private bool IsAtEnd() => current >= tokens.Count;
+        private bool IsAtEnd() => current >= Tokens.Count;
 
         private OperationResult<AbstractStatement> ConsumePattern()
         {
