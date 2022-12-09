@@ -18,10 +18,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             List<byte> code = new();
 
+            OperationResult result;
             statements = stmts;
             labels = new Dictionary<string, Label>();
 
-            OperationResult result = FindLabels();
+            result = FindLabels();
             if (result.Failed)
             {
                 ThrowError(result.TheError);
@@ -51,22 +52,45 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult.Success();
         }
 
-        private static OperationResult TryAddLabel(AbstractStatement stmt, bool isDeclaration = true)
+        private static OperationResult TryAddLabel(AbstractStatement stmt)
         {
-            string labelName = stmt switch
+            Label label = stmt switch
             {
-                LabelStatement labelStmt => labelStmt.LabelName,
-                InstructionStatementOperand opStmt => opStmt.Operand.LabelRef,
+                LabelStatement labelStmt => new Label(labelStmt.LabelName, null, true),
+                InstructionStatementOperand opStmt => new Label(opStmt.Operand.LabelRef, null, false),
                 _ => null
             };
+            if (label is null) return OperationResult.Success();
 
-            if (labelName != null)
+            bool isDeclaration = stmt is LabelStatement;
+
+            if (label.Name is not null)
             {
-                if (isDeclaration && labels.ContainsKey(labelName))
-                    return OperationResult.Error(SyntaxErrors.LabelAlreadyDefined(stmt.Tokens[0])); // Assuming LabelStatements are created from 1 token
-                labels.Add(labelName, new Label(labelName, null));
+                if (labels.ContainsKey(label.Name))
+                {
+                    if (isDeclaration && labels[label.Name].IsDeclared)
+                        return OperationResult.Error(
+                            SyntaxErrors
+                                .LabelAlreadyDeclared(
+                                    stmt.Tokens[0])); // Assuming LabelStatements are created from 1 token
+                    
+                    labels[label.Name].IsDeclared = true;
+                }
+                else
+                {
+                    labels.Add(label.Name, label);
+                }
             }
             return OperationResult.Success();
+        }
+
+        private static IEnumerator<(ushort programCounter, AbstractStatement stmt)> Walk()
+        {
+            ushort programCounter = 0;
+            foreach (AbstractStatement stmt in statements)
+            {
+                yield return (programCounter, stmt);
+            }
         }
 
         public static void RegisterErrorHandler(ErrorHandler handler)

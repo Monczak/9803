@@ -159,19 +159,20 @@ end: jmp loop";
 
         private void Fetch()
         {
-            try
+            byte opcode = Memory.Read(ProgramCounter);
+            if (!CPUInstructionRegistry.GetInstruction(opcode, out var data) || data is null)
             {
-                CPUInstructionMetadata metadata;
-                (currentInstruction, addressingMode, metadata) = CPUInstructionRegistry.GetInstruction(Memory.Read(ProgramCounter));
-                byte[] args = Memory.ReadBlock((ushort)(ProgramCounter + 1), metadata.ArgumentCount);
-                currentInstruction.Setup(args);
+                Debug.LogError($"Unknown opcode {opcode} at {ProgramCounter:X4}");
+                return;
+            }
 
-                ProgramCounter += (ushort)(1 + args.Length);
-            }
-            catch (UnknownOpcodeException e)
-            {
-                Debug.LogError($"Unknown opcode {e.Opcode} at {ProgramCounter:X4}");
-            }
+            currentInstruction = data.Value.instruction;
+            addressingMode = data.Value.addressingMode;
+                
+            byte[] args = Memory.ReadBlock((ushort)(ProgramCounter + 1), data.Value.metadata.ArgumentCount);
+            currentInstruction.Setup(args);
+
+            ProgramCounter += (ushort)(1 + args.Length);
         }
 
         private void Execute()

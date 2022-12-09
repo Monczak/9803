@@ -23,16 +23,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         
         protected OperationResult FindCandidates(Token token, AddressingMode modeFlags)
         {
-            try
-            {
-                InstructionCandidates = CPUInstructionRegistry
-                    .GetInstructions(token.Content)
-                    .Where(info => (info.addressingMode & modeFlags) != 0);
-            }
-            catch (UnknownInstructionException)
-            {
+            if (!CPUInstructionRegistry.GetInstructions(token.Content, out var candidates))
                 return OperationResult.Error(SyntaxErrors.UnknownInstruction(token));
-            }
+            
+            InstructionCandidates = candidates.Where(info => (info.addressingMode & modeFlags) != 0);
             
             if (!InstructionCandidates.Any())
                 return OperationResult.Error(

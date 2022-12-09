@@ -5,12 +5,13 @@
         public string Name { get; set; }
         public ushort? Address { get; set; }
 
-        public bool IsDefined => Address is not null;
-        
-        public Label(string name, ushort? address)
+        public bool IsDeclared { get; set; }
+
+        public Label(string name, ushort? address, bool isDeclared)
         {
             Name = name;
             Address = address;
+            IsDeclared = isDeclared;
         }
 
         public override string ToString()

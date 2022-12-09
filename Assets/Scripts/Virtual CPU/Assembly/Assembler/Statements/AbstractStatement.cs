@@ -17,9 +17,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         {
         }
 
-        protected AbstractStatement(List<Token> tokens)
+        protected AbstractStatement(IEnumerable<Token> tokens)
         {
-            Tokens = tokens;
+            Tokens = tokens is null ? new List<Token>() : new List<Token>(tokens);
             current = 0;
         }
 

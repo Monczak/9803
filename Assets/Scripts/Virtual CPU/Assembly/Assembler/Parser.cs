@@ -25,7 +25,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             public GrammarNode Root { get; }
 
-            public GrammarGraph()
+            private GrammarGraph()
             {
                 Root = new GrammarNode(null);
             }

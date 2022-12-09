@@ -8,9 +8,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected DirectiveStatement(List<Token> tokens) : base(tokens)
         {
-            
         }
 
+        // TODO: Use directives defined in separate classes, like instructions (add DirectiveRegistry)
         protected OperationResult MatchDirective(Token token)
         {
             Name = token.Content[1..];
