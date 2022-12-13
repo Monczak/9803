@@ -23,7 +23,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         
         protected OperationResult FindCandidates(Token token, AddressingMode modeFlags)
         {
-            if (!CPUInstructionRegistry.GetInstructions(token.Content, out var candidates))
+            if (!CPUInstructionRegistry.TryGetInstructions(token.Content, out var candidates))
                 return OperationResult.Error(SyntaxErrors.UnknownInstruction(token));
             
             InstructionCandidates = candidates.Where(info => (info.addressingMode & modeFlags) != 0);
@@ -64,8 +64,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         {
             Operand = token.Type switch
             {
-                TokenType.Number => new Operand((ushort)token.Literal),
-                TokenType.Identifier => new Operand(token.Content),
+                TokenType.Number => new Operand(token, (ushort)token.Literal),
+                TokenType.Identifier => new Operand(token, token.Content),
                 _ => Operand
             };
             return OperationResult.Success();

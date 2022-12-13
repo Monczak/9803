@@ -13,6 +13,13 @@
         
         public static OperationResult Success() => new(failed: false, theError: null);
         public static OperationResult Error(AssemblerError? error) => new(failed: true, theError: error);
+
+        public static OperationResult Error(AssemblerError? error, Token token)
+        {
+            if (error == null) throw new InternalErrorException("OperationResult Error was null");
+            OperationResult result = new(failed: true, theError: error.Value.WithToken(token));
+            return result;
+        }
     }
     
     public class OperationResult<T> : OperationResult

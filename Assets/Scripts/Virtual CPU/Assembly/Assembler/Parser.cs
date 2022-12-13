@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using Unity.VisualScripting;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -311,6 +310,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     {
                         OperationResult<AbstractStatement> s = stmt.Build(lineTokens);
                         if (s.Failed) return s;
+                        
+                        stmt.FinalizeStatement();
                         
                         AddStatement(s.Result);
                         lineTokens.Clear();

@@ -49,7 +49,7 @@ namespace NineEightOhThree.VirtualCPU
             Debug.Log($"Loaded {instructionCount} instructions");
         }
 
-        public static bool GetInstruction(byte opcode, out (CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)? result)
+        public static bool TryGetInstruction(byte opcode, out (CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)? result)
         {
             if (cpuInstructionsByOpcode.ContainsKey(opcode))
             {
@@ -61,7 +61,7 @@ namespace NineEightOhThree.VirtualCPU
             return false;
         }
 
-        public static bool GetInstructions(string mnemonic, out IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> result)
+        public static bool TryGetInstructions(string mnemonic, out IEnumerable<(CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)> result)
         {
             if (cpuInstructionsByMnemonic.ContainsKey(mnemonic.ToUpper()))
             {

@@ -30,6 +30,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             return Construct(theTokens).ConsumePattern();
         }
 
+        public virtual void FinalizeStatement() { }
+
         private Token Consume()
         {
             return Tokens[current++];

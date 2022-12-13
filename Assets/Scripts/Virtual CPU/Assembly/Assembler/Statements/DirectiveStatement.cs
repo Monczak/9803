@@ -1,19 +1,22 @@
 ﻿using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
     public abstract class DirectiveStatement : FinalStatement
     {
-        public string Name { get; private set; }
+        public Directive Directive { get; protected set; }
 
         protected DirectiveStatement(List<Token> tokens) : base(tokens)
         {
         }
-
-        // TODO: Use directives defined in separate classes, like instructions (add DirectiveRegistry)
+        
         protected OperationResult MatchDirective(Token token)
         {
-            Name = token.Content[1..];
+            if (!DirectiveRegistry.TryGetDirective(token.Content[1..], out Directive directive))
+                return OperationResult.Error(SyntaxErrors.UnknownDirective(token));
+
+            Directive = directive;
             return OperationResult.Success();
         }
     }
@@ -33,14 +36,20 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             {
                 case TokenType.Number:
                     ushort n = (ushort)token.Literal;
-                    Args.Add(new Operand(n));
+                    Args.Add(new Operand(token, n));
                     break;
                 case TokenType.Identifier:
-                    Args.Add(new Operand(token.Content));
+                    Args.Add(new Operand(token, token.Content));
                     break;
             }
                 
             return OperationResult.Success();
+        }
+        
+        
+        public override void FinalizeStatement()
+        {
+            Directive = Directive.Construct(Args);
         }
     }
     

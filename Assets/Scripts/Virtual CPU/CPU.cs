@@ -99,7 +99,7 @@ namespace NineEightOhThree.VirtualCPU
             
             string code = @"
 nums: .byte $ff $00 $de $ad $be $ef
-
+.org $8000
 ldx #0
 []          ; Error: unexpected character
 blah        ; Error: unknown instruction
@@ -160,7 +160,7 @@ end: jmp loop";
         private void Fetch()
         {
             byte opcode = Memory.Read(ProgramCounter);
-            if (!CPUInstructionRegistry.GetInstruction(opcode, out var data) || data is null)
+            if (!CPUInstructionRegistry.TryGetInstruction(opcode, out var data) || data is null)
             {
                 Debug.LogError($"Unknown opcode {opcode} at {ProgramCounter:X4}");
                 return;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -45,6 +46,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 _ => $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}"
             }, token);
 
+        public static AssemblerError Expected(Token? token, TokenType expectedTypeMask) =>
+            new(AssemblerError.ErrorType.Syntax, expectedTypeMask switch
+            {
+                TokenType.Newline or TokenType.EndOfFile => $"Expected end of statement",
+                _ => $"Expected {expectedTypeMask.ToString()}"
+            }, token);
+        
         public static AssemblerError UnknownDirective(Token token) =>
             new(AssemblerError.ErrorType.Syntax, $"Unknown directive \"{token.Content[1..]}\"", token);
 
@@ -56,5 +64,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public static AssemblerError LabelAlreadyDeclared(Token token) =>
             new(AssemblerError.ErrorType.Syntax, $"Label {token.Content[..^1]} is already defined", token);
+
+        public static AssemblerError WrongArgumentCount(Token? token, int count) =>
+            new(AssemblerError.ErrorType.Syntax,
+                $"Wrong argument count, expected {(count == -1 ? "at least 1 argument" : $"{count} {(count == 1 ? "argument" : "arguments")}")}", token);
     }
 }

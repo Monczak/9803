@@ -43,6 +43,7 @@ namespace NineEightOhThree.Managers
         {
             Inventories.ItemRegistry.RegisterItems();
             VirtualCPU.CPUInstructionRegistry.RegisterInstructions();
+            VirtualCPU.Assembly.Assembler.Directives.DirectiveRegistry.RegisterDirectives();
         }
     }
 }

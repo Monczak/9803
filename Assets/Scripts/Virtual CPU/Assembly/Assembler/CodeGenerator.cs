@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
@@ -17,12 +19,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public static List<byte> GenerateCode(List<AbstractStatement> stmts)
         {
             List<byte> code = new();
-
             OperationResult result;
+
             statements = stmts;
             labels = new Dictionary<string, Label>();
 
             result = FindLabels();
+            if (result.Failed)
+            {
+                ThrowError(result.TheError);
+                return null;
+            }
+
+            result = EvaluateStatements();
             if (result.Failed)
             {
                 ThrowError(result.TheError);
@@ -40,6 +49,56 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             HadError = true;
             OnError?.Invoke(error);
+        }
+
+        // TODO: Evaluate statements (convert them to bytes or do other stuff)
+        private static OperationResult EvaluateStatements()
+        {
+            ushort programCounter = 0;
+
+            foreach (AbstractStatement stmt in statements)
+            {
+                switch (stmt)
+                {
+                    case DirectiveStatementOperands s:
+                    {
+                        var result = s.Directive.Build(s.Args);
+                        if (result.Failed)
+                            return OperationResult.Error(result.TheError, s.Tokens[0]);
+                        
+                        if (EvaluateDirective(result, ref programCounter, out var error)) return error;
+                        break;
+                    }
+                    case DirectiveStatement s:
+                    {
+                        var result = s.Directive.Build(null);
+                        if (result.Failed)
+                            return OperationResult.Error(result.TheError, s.Tokens[0]);
+                        
+                        if (EvaluateDirective(result, ref programCounter, out var error)) return error;
+                        break;
+                    }
+                }
+                Debug.Log(programCounter);
+            }
+            
+            return OperationResult.Success();
+        }
+
+        private static bool EvaluateDirective(OperationResult<Directive> result, ref ushort programCounter, out OperationResult error)
+        {
+            var evalResult = result.Result.Evaluate(ref programCounter);
+            if (evalResult.Failed)
+            {
+                error = OperationResult.Error(evalResult.TheError);
+                return true;
+            }
+            
+            if (evalResult.Result is not null)
+                programCounter += (ushort)evalResult.Result.Count;
+
+            error = null;
+            return false;
         }
 
         private static OperationResult FindLabels()
