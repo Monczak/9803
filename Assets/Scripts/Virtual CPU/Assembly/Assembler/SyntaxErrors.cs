@@ -68,5 +68,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public static AssemblerError WrongArgumentCount(Token? token, int count) =>
             new(AssemblerError.ErrorType.Syntax,
                 $"Wrong argument count, expected {(count == -1 ? "at least 1 argument" : $"{count} {(count == 1 ? "argument" : "arguments")}")}", token);
+
+        public static AssemblerError UseOfUndeclaredLabel(Token? token, Label label) =>
+            new(AssemblerError.ErrorType.Syntax, $"Use of undeclared label \"{label.Name}\"", token);
     }
 }

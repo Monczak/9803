@@ -11,9 +11,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         public override string Name => "bogus";
         public override DirectiveType Type => DirectiveType.Nullary;
         public override int ArgCount => 0;
-        public override OperationResult<List<byte>> Evaluate(ref ushort programCounter)
+        public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter)
         {
-            return OperationResult<List<byte>>.Success(null);
+            return OperationResult<List<Operand>>.Success(null);
         }
 
         protected internal override Directive Construct(List<Operand> ops) => new BogusDirective(ops);

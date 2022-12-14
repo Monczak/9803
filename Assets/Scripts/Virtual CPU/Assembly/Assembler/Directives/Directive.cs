@@ -10,7 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         
         protected readonly List<Operand> operands;
 
-        public abstract OperationResult<List<byte>> Evaluate(ref ushort programCounter);
+        public abstract OperationResult<List<Operand>> Evaluate(ref ushort programCounter);
         
         protected Directive(List<Operand> operands)
         {

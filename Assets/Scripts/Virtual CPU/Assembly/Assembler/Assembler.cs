@@ -12,7 +12,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     
     public static class Assembler
     {
-        public static List<byte> Assemble(string input)
+        public static byte[] Assemble(string input)
         {
             StringBuilder builder;
 

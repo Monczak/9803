@@ -12,18 +12,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         public override DirectiveType Type => DirectiveType.Variadic;
         public override int ArgCount => -1;
 
-        public override OperationResult<List<byte>> Evaluate(ref ushort programCounter)
+        public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter)
         {
-            List<byte> bytes = new();
             foreach (Operand op in operands)
             {
-                if (op.IsDefined && op.Number <= 0xFF)
-                    bytes.Add((byte)op.Number);
-                else
-                    return OperationResult<List<byte>>.Error(SyntaxErrors.OperandNotByte(op.Token));
+                if (!(op.IsDefined && op.Number <= 0xFF))
+                    return OperationResult<List<Operand>>.Error(SyntaxErrors.OperandNotByte(op.Token));
             }
 
-            return OperationResult<List<byte>>.Success(bytes);
+            return OperationResult<List<Operand>>.Success(operands);
         }
 
         protected internal override Directive Construct(List<Operand> ops) => new ByteDirective(ops);

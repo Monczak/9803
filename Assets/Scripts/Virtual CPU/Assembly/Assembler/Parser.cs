@@ -213,7 +213,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             graph ??= GrammarGraph.Build();
 
             CreateStatements();
-            CreateLabels();
 
             return statements;
             // return HadError ? null : statements;
@@ -238,12 +237,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     throw new InternalErrorException("Parser error", e);
                 }
             }
-        }
-
-        // TODO: Create labels from DeclareLabel statements and infer their usage based on the next statement (allow label at end of file?)
-        private static void CreateLabels()
-        {
-            
         }
 
         private static void Synchronize()

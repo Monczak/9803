@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using Unity.VisualScripting;
+using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
@@ -12,37 +12,87 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     {
         private static List<AbstractStatement> statements;
         private static Dictionary<string, Label> labels;
+
+        private static ushort programCounter;
+
+        private const int MemorySize = 65536;
         
         public static bool HadError { get; private set; }
         private static event ErrorHandler OnError;
         
-        public static List<byte> GenerateCode(List<AbstractStatement> stmts)
+        public static byte[] GenerateCode(List<AbstractStatement> stmts)
         {
-            List<byte> code = new();
-            OperationResult result;
+            byte[] code = new byte[MemorySize];
 
             statements = stmts;
             labels = new Dictionary<string, Label>();
+            programCounter = 0;
 
-            result = FindLabels();
-            if (result.Failed)
+            // Pass 1: Find labels
+            foreach (AbstractStatement stmt in statements)
             {
-                ThrowError(result.TheError);
-                return null;
-            }
-
-            result = EvaluateStatements();
-            if (result.Failed)
-            {
-                ThrowError(result.TheError);
-                return null;
+                OperationResult result = FindLabel(stmt);
+                if (result.Failed) ThrowError(result.TheError);
             }
 
             StringBuilder builder = new();
             builder.AppendJoin(" ", labels);
             Debug.Log(builder.ToString());
+
+            // Pass 2: Convert statements to a compiled form
+            List<CompiledStatement> compiledStatements = new();
+            programCounter = 0;
+            foreach (AbstractStatement stmt in statements)
+            {
+                OperationResult<CompiledStatement> result = CompileStatement(stmt);
+                if (result.Failed) ThrowError(result.TheError);
+
+                if (result.Result is not null)
+                    compiledStatements.Add(result.Result);
+            }
+
+            // Pass 3: Replace label references with label addresses
+            programCounter = 0;
+            foreach (CompiledStatement cStmt in compiledStatements)
+            {
+                OperationResult result = UpdateLabelRefs(cStmt);
+                if (result.Failed) ThrowError(result.TheError);
+            }
             
-            return code;
+            // Pass 4: Emit bytes
+            if (!HadError)
+            {
+                foreach (CompiledStatement cStmt in compiledStatements)
+                {
+                    ushort pc = cStmt.StartProgramCounter;
+                    foreach (byte b in cStmt.Bytes)
+                    {
+                        // TODO: Protect from overwriting existing code
+                        code[pc++] = b;
+                    }
+                }
+            }
+
+            return HadError ? null : code;
+        }
+
+        private static OperationResult UpdateLabelRefs(CompiledStatement cStmt)
+        {
+            if (cStmt.Operands is not null)
+            {
+                foreach (Operand op in cStmt.Operands)
+                {
+                    if (!op.IsDefined)
+                    {
+                        Label label = labels[op.LabelRef];
+                        if (!label.IsDeclared)
+                            return OperationResult.Error(SyntaxErrors.UseOfUndeclaredLabel(op.Token, label));
+                        op.Number = labels[op.LabelRef].Address;
+                    }
+                }
+            }
+            
+            return OperationResult.Success();
         }
 
         private static void ThrowError(AssemblerError? error)
@@ -50,65 +100,84 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             HadError = true;
             OnError?.Invoke(error);
         }
-
-        // TODO: Evaluate statements (convert them to bytes or do other stuff)
-        private static OperationResult EvaluateStatements()
+        
+        private static OperationResult<CompiledStatement> CompileStatement(AbstractStatement stmt)
         {
-            ushort programCounter = 0;
-
-            foreach (AbstractStatement stmt in statements)
+            StringBuilder debugMsgBuilder = new StringBuilder($"PC {programCounter}: ");
+            CompiledStatement cStmt = null;
+            switch (stmt)
             {
-                switch (stmt)
+                case LabelStatement s:
                 {
-                    case DirectiveStatementOperands s:
-                    {
-                        var result = s.Directive.Build(s.Args);
-                        if (result.Failed)
-                            return OperationResult.Error(result.TheError, s.Tokens[0]);
-                        
-                        if (EvaluateDirective(result, ref programCounter, out var error)) return error;
-                        break;
-                    }
-                    case DirectiveStatement s:
-                    {
-                        var result = s.Directive.Build(null);
-                        if (result.Failed)
-                            return OperationResult.Error(result.TheError, s.Tokens[0]);
-                        
-                        if (EvaluateDirective(result, ref programCounter, out var error)) return error;
-                        break;
-                    }
+                    labels[s.LabelName].Address = programCounter;
+                    break;
                 }
-                Debug.Log(programCounter);
+                case DirectiveStatement s:
+                {
+                    var result = CompileDirective(s);
+                    if (result.Failed)
+                        return OperationResult<CompiledStatement>.Error(result.TheError);
+                    cStmt = result.Result;
+                    break;
+                }
+                case InstructionStatement s:
+                {
+                    var result = CompileInstruction(s);
+                    if (result.Failed)
+                        return OperationResult<CompiledStatement>.Error(result.TheError);
+                    cStmt = result.Result;
+                    break;
+                }
             }
-            
-            return OperationResult.Success();
+
+            if (cStmt is not null)
+            {
+                programCounter += cStmt.ByteCount;
+                Debug.Log(debugMsgBuilder.Append(cStmt).ToString());
+            }
+
+            return OperationResult<CompiledStatement>.Success(cStmt);
         }
 
-        private static bool EvaluateDirective(OperationResult<Directive> result, ref ushort programCounter, out OperationResult error)
+        private static OperationResult<CompiledStatement> CompileInstruction(InstructionStatement stmt)
         {
-            var evalResult = result.Result.Evaluate(ref programCounter);
+            CompiledStatement cStmt = stmt switch
+            {
+                InstructionStatementOperand s => new CompiledStatement(programCounter, (s.AddressingMode, s.Metadata), s.Operand),
+                _ => new CompiledStatement(programCounter, (stmt.AddressingMode, stmt.Metadata))
+            };
+
+            return OperationResult<CompiledStatement>.Success(cStmt);
+        }
+
+        private static OperationResult<CompiledStatement> CompileDirective(DirectiveStatement stmt)
+        {
+            var result = stmt.Directive.Build(stmt is DirectiveStatementOperands s ? s.Args : null);
+            if (result.Failed)
+                return OperationResult<CompiledStatement>.Error(result.TheError, stmt.Tokens[0]);
+
+            var evalResult = EvaluateDirective(result.Result);
+            if (evalResult.Failed)
+                return OperationResult<CompiledStatement>.Error(evalResult.TheError);
+            
+            return OperationResult<CompiledStatement>.Success(new CompiledStatement(programCounter, null, evalResult.Result));
+        }
+
+        private static OperationResult<List<Operand>> EvaluateDirective(Directive directive)
+        {
+            var evalResult = directive.Evaluate(ref programCounter);
             if (evalResult.Failed)
             {
-                error = OperationResult.Error(evalResult.TheError);
-                return true;
+                return OperationResult<List<Operand>>.Error(evalResult.TheError);
             }
-            
-            if (evalResult.Result is not null)
-                programCounter += (ushort)evalResult.Result.Count;
 
-            error = null;
-            return false;
+            return OperationResult<List<Operand>>.Success(evalResult.Result);
         }
 
-        private static OperationResult FindLabels()
+        private static OperationResult FindLabel(AbstractStatement stmt)
         {
-            foreach (AbstractStatement stmt in statements)
-            {
-                OperationResult result = TryAddLabel(stmt);
-                if (result.Failed) return result;
-            }
-            return OperationResult.Success();
+            OperationResult result = TryAddLabel(stmt);
+            return result.Failed ? result : OperationResult.Success();
         }
 
         private static OperationResult TryAddLabel(AbstractStatement stmt)
@@ -141,15 +210,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
             }
             return OperationResult.Success();
-        }
-
-        private static IEnumerator<(ushort programCounter, AbstractStatement stmt)> Walk()
-        {
-            ushort programCounter = 0;
-            foreach (AbstractStatement stmt in statements)
-            {
-                yield return (programCounter, stmt);
-            }
         }
 
         public static void RegisterErrorHandler(ErrorHandler handler)

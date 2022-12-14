@@ -1,8 +1,8 @@
 ﻿namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public struct Operand
+    public class Operand
     {
-        public ushort? Number { get; }
+        public ushort? Number { get; set; }
         public string LabelRef { get; }
         
         public Token Token { get; }
@@ -28,6 +28,11 @@
             Token = token;
             Number = null;
             LabelRef = labelRef;
+        }
+
+        public override string ToString()
+        {
+            return IsDefined ? $"{Number:X4}" : $"[{LabelRef}]";
         }
     }
 }

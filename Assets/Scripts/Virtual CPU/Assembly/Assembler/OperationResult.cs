@@ -35,5 +35,12 @@
         
         public new static OperationResult<T> Success() => new(failed: false, theError: null, result: default);
         public new static OperationResult<T> Error(AssemblerError? error) => new(failed: true, theError: error, result: default);
+        
+        public new static OperationResult<T> Error(AssemblerError? error, Token token)
+        {
+            if (error == null) throw new InternalErrorException("OperationResult Error was null");
+            OperationResult<T> result = new(failed: true, theError: error.Value.WithToken(token), default);
+            return result;
+        }
     }
 }
