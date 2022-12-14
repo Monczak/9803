@@ -71,5 +71,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public static AssemblerError UseOfUndeclaredLabel(Token? token, Label label) =>
             new(AssemblerError.ErrorType.Syntax, $"Use of undeclared label \"{label.Name}\"", token);
+
+        public static AssemblerError OverlappingCode(Token? token, ushort address) =>
+            new(AssemblerError.ErrorType.Syntax, $"Overlapping code (at address ${address:X4})", token);
     }
 }

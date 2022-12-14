@@ -4,6 +4,7 @@ using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Utilities;
+using UnityEditor;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
@@ -15,14 +16,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private static ushort programCounter;
 
+        private static byte[] code;
+        private static bool[] codeMask;
+        
         private const int MemorySize = 65536;
         
         public static bool HadError { get; private set; }
         private static event ErrorHandler OnError;
+        private static event ErrorHandler OnWarning;
         
         public static byte[] GenerateCode(List<AbstractStatement> stmts)
         {
-            byte[] code = new byte[MemorySize];
+            code = new byte[MemorySize];
+            codeMask = new bool[MemorySize];
 
             statements = stmts;
             labels = new Dictionary<string, Label>();
@@ -31,7 +37,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             // Pass 1: Find labels
             foreach (AbstractStatement stmt in statements)
             {
-                OperationResult result = FindLabel(stmt);
+                var result = FindLabel(stmt);
                 if (result.Failed) ThrowError(result.TheError);
             }
 
@@ -44,7 +50,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             programCounter = 0;
             foreach (AbstractStatement stmt in statements)
             {
-                OperationResult<CompiledStatement> result = CompileStatement(stmt);
+                var result = CompileStatement(stmt);
                 if (result.Failed) ThrowError(result.TheError);
 
                 if (result.Result is not null)
@@ -55,7 +61,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             programCounter = 0;
             foreach (CompiledStatement cStmt in compiledStatements)
             {
-                OperationResult result = UpdateLabelRefs(cStmt);
+                var result = UpdateLabelRefs(cStmt);
                 if (result.Failed) ThrowError(result.TheError);
             }
             
@@ -64,16 +70,35 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 foreach (CompiledStatement cStmt in compiledStatements)
                 {
-                    ushort pc = cStmt.StartProgramCounter;
-                    foreach (byte b in cStmt.Bytes)
-                    {
-                        // TODO: Protect from overwriting existing code
-                        code[pc++] = b;
-                    }
+                    var result = EmitBytes(cStmt);
+                    if (result.Failed) ThrowError(result.TheError);
                 }
             }
 
             return HadError ? null : code;
+        }
+
+        private static OperationResult EmitBytes(CompiledStatement cStmt)
+        {
+            ushort pc = cStmt.StartProgramCounter;
+
+            StringBuilder debugStringBuilder = new();
+            
+            foreach (byte b in cStmt.GetBytes(pc))
+            {
+                if (codeMask[pc])
+                {
+                    return OperationResult.Error(SyntaxErrors.OverlappingCode(cStmt.Stmt.Tokens[0], pc));
+                }
+                        
+                code[pc] = b;
+                codeMask[pc] = true;
+                pc++;
+
+                debugStringBuilder.Append($"{b:X2} ");
+            }
+            Debug.Log($"{cStmt.StartProgramCounter:X4} {cStmt}: {debugStringBuilder}");
+            return OperationResult.Success();
         }
 
         private static OperationResult UpdateLabelRefs(CompiledStatement cStmt)
@@ -99,6 +124,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             HadError = true;
             OnError?.Invoke(error);
+        }
+
+        private static void ThrowWarning(AssemblerError? warning)
+        {
+            OnWarning?.Invoke(warning);
         }
         
         private static OperationResult<CompiledStatement> CompileStatement(AbstractStatement stmt)
@@ -143,8 +173,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             CompiledStatement cStmt = stmt switch
             {
-                InstructionStatementOperand s => new CompiledStatement(programCounter, (s.AddressingMode, s.Metadata), s.Operand),
-                _ => new CompiledStatement(programCounter, (stmt.AddressingMode, stmt.Metadata))
+                InstructionStatementOperand s => new CompiledStatement(stmt, programCounter, (s.AddressingMode, s.Metadata), s.Operand),
+                _ => new CompiledStatement(stmt, programCounter, (stmt.AddressingMode, stmt.Metadata))
             };
 
             return OperationResult<CompiledStatement>.Success(cStmt);
@@ -160,7 +190,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             if (evalResult.Failed)
                 return OperationResult<CompiledStatement>.Error(evalResult.TheError);
             
-            return OperationResult<CompiledStatement>.Success(new CompiledStatement(programCounter, null, evalResult.Result));
+            return OperationResult<CompiledStatement>.Success(new CompiledStatement(stmt, programCounter, null, evalResult.Result));
         }
 
         private static OperationResult<List<Operand>> EvaluateDirective(Directive directive)
@@ -215,6 +245,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public static void RegisterErrorHandler(ErrorHandler handler)
         {
             OnError += handler;
+        }
+
+        public static void RegisterWarningHandler(ErrorHandler handler)
+        {
+            OnWarning += handler;
         }
     }
 }

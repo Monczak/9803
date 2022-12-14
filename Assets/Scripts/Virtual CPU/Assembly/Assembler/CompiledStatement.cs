@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Utilities;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
     public class CompiledStatement
     {
+        public AbstractStatement Stmt { get; }
         public byte? Opcode { get; }
         public AddressingMode? AddressingMode { get; }
         public List<Operand> Operands { get; }
@@ -29,7 +31,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                             case true when op.Number <= 0xFF:
                                 bytes += 1;
                                 break;
-                            case true:
+                            case true when AddressingMode is not VirtualCPU.AddressingMode.Relative:
                                 bytes += 2;
                                 break;
                             default:
@@ -49,66 +51,71 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
         }
 
-        public List<byte> Bytes
+        public List<byte> GetBytes(ushort programCounter)
         {
-            get
+            List<byte> bytes = new();
+            if (Opcode is not null) bytes.Add(Opcode.Value);
+
+            void Add8Bit(Operand op)
             {
-                List<byte> bytes = new();
-                if (Opcode is not null) bytes.Add(Opcode.Value);
-                
-                void Add8Bit(Operand op)
-                {
-                    if (op.Number != null) bytes.Add((byte)op.Number.Value);
-                    else throw new InternalErrorException("Operand number was null");
-                }
+                if (op.Number != null) bytes.Add((byte)op.Number.Value);
+                else throw new InternalErrorException("Operand number was null");
+            }
+            
+            void Add8BitRelative(Operand op)
+            {
+                if (op.Number != null) bytes.Add((byte)(op.Number.Value - programCounter - ByteCount));
+                else throw new InternalErrorException("Operand number was null");
+            }
 
-                void Add16Bit(Operand op)
-                {
-                    if (op.Number != null) bytes.AddRange(BitUtils.ToLittleEndian(op.Number.Value));
-                    else throw new InternalErrorException("Operand number was null");
-                }
+            void Add16Bit(Operand op)
+            {
+                if (op.Number != null) bytes.AddRange(BitUtils.ToLittleEndian(op.Number.Value));
+                else throw new InternalErrorException("Operand number was null");
+            }
 
-                if (Operands is not null)
+            if (Operands is not null)
+            {
+                foreach (Operand op in Operands)
                 {
-                    foreach (Operand op in Operands)
+                    switch (op.IsDefined)
                     {
-                        switch (op.IsDefined)
-                        {
-                            case true when op.Number <= 0xFF:
-                                Add8Bit(op);
-                                break;
-                            case true:
-                                Add16Bit(op);
-                                break;
-                            default:
-                                if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
-                                    or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
-                                    or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed 
-                                    or VirtualCPU.AddressingMode.Relative)
+                        case true when op.Number <= 0xFF:
+                            Add8Bit(op);
+                            break;
+                        case true when AddressingMode is not VirtualCPU.AddressingMode.Relative:
+                            Add16Bit(op);
+                            break;
+                        default:
+                            if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
+                                or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
+                                or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed
+                                or VirtualCPU.AddressingMode.Relative)
+                            {
+                                if (AddressingMode is VirtualCPU.AddressingMode.Relative)
                                 {
-                                    if (AddressingMode is VirtualCPU.AddressingMode.Relative)
-                                    {
-                                        // TODO: Handle relative addressing separately
-                                        Add8Bit(op);
-                                    }
-                                    else
-                                    {
-                                        Add16Bit(op);
-                                    }
+                                    // TODO: Warn if distance to label exceeds byte limit
+                                    Add8BitRelative(op);
                                 }
                                 else
-                                    Add16Bit(op);
-                                break;
-                        }
+                                {
+                                    Add8Bit(op);
+                                }
+                            }
+                            else
+                                Add16Bit(op);
+
+                            break;
                     }
                 }
-
-                return bytes;
             }
+
+            return bytes;
         }
 
-        public CompiledStatement(ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? instrData)
+        public CompiledStatement(AbstractStatement origStmt, ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? instrData)
         {
+            Stmt = origStmt;
             StartProgramCounter = startPC;
             if (instrData.HasValue)
             {
@@ -123,12 +130,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             Operands = null;
         }
 
-        public CompiledStatement(ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? metadata, List<Operand> operands) : this(startPC, metadata)
+        public CompiledStatement(AbstractStatement origStmt, ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? metadata, List<Operand> operands) : this(origStmt, startPC, metadata)
         {
             Operands = operands;
         }
 
-        public CompiledStatement(ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? metadata, params Operand[] operands) : this(startPC, metadata, new List<Operand>(operands))
+        public CompiledStatement(AbstractStatement origStmt, ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? metadata, params Operand[] operands) : this(origStmt, startPC, metadata, new List<Operand>(operands))
         {
         }
 
