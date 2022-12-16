@@ -8,5 +8,8 @@
 
         public static AssemblerError UnexpectedCharacter(char c, int line) =>
             new(AssemblerError.ErrorType.Lexical, $"Unexpected character '{c}'", c, line);
+        
+        public static AssemblerError InvalidNumber(char c, int line) =>
+            new(AssemblerError.ErrorType.Lexical, $"Invalid number (should be in range 0 - 65535)", c, line);
     }
 }

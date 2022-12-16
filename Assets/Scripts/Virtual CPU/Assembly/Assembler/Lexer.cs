@@ -3,23 +3,22 @@ using System.Collections.Generic;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public static class Lexer
+    public class Lexer : LogErrorProducer
     {
-        private static int start;
-        private static int current;
-        private static int line;
+        private int start;
+        private int current;
+        private int line;
 
-        private static List<Token> tokens;
+        private List<Token> tokens;
 
-        private static string sourceCode;
+        private string sourceCode;
 
-        private static TokenType? expectedToken;
-        private static TokenType? lastToken;
+        private TokenType? expectedToken;
+        private TokenType? lastToken;
 
-        private static bool expectingToken;
+        private bool expectingToken;
 
-        public static event ErrorHandler OnError;
-        public static bool HadError { get; private set; }
+        public bool HadError { get; private set; }
 
         private enum NumberBase
         {
@@ -28,7 +27,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             Hex
         }
 
-        private static readonly Dictionary<string, TokenType> Keywords = new()
+        private Dictionary<string, TokenType> Keywords => new()
         {
             { "a", TokenType.RegisterA },
             { "A", TokenType.RegisterA },
@@ -38,18 +37,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { "Y", TokenType.RegisterY },
         };
 
-        public static void RegisterErrorHandler(ErrorHandler handler)
-        {
-            OnError += handler;
-        }
-
-        public static List<Token> Lex(string sourceCode)
+        public List<Token> Lex(string sourceCode)
         {
             tokens = new List<Token>(); 
             start = 0;
             current = 0;
             line = 1;
-            Lexer.sourceCode = sourceCode;
+            this.sourceCode = sourceCode;
             expectedToken = null;
             expectingToken = false;
             HadError = false;
@@ -62,7 +56,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     OperationResult result = ScanToken();
                     if (result.Failed)
                     {
-                        OnError?.Invoke(result.TheError);
+                        MakeError(result.TheError);
                         HadError = true;
                     }
                 }
@@ -83,7 +77,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return tokens;
         }
 
-        private static OperationResult ScanToken()
+        private OperationResult ScanToken()
         {
             char c = Advance();
 
@@ -109,7 +103,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     break;
                 
                 case var _ when IsDecimalDigit(c) || (c == '$' && IsDigit( Peek(), NumberBase.Hex)) || (c == '%' && IsDigit( Peek(), NumberBase.Binary)):
-                    LexNumber(c);
+                    var result = LexNumber(c);
+                    if (result.Failed) return result;
                     break;
                 
                 case var _ when IsAlpha(c): LexIdentifier(); break;
@@ -137,13 +132,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult.Success();
         }
 
-        private static void LexDirective()
+        private void LexDirective()
         {
             while (IsAlphaNumeric(Peek())) Advance();
             AddToken(TokenType.Directive);
         }
 
-        private static void LexIdentifier()
+        private void LexIdentifier()
         {
             while (IsAlphaNumeric(Peek())) Advance();
 
@@ -153,7 +148,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             AddToken(MatchNext(':') ? TokenType.LabelDecl : type);
         }
 
-        private static void LexNumber(char firstChar)
+        private OperationResult LexNumber(char firstChar)
         {
             NumberBase numberBase = firstChar switch
             {
@@ -163,23 +158,33 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             };
 
             while (IsDigit(Peek(), numberBase)) Advance();
-            
-            // ReSharper disable once HeapView.BoxingAllocation
-            AddToken(TokenType.Number, numberBase switch
+
+            // TODO: Maybe do this without exceptions?
+            try
             {
-                NumberBase.Decimal => Convert.ToUInt16(sourceCode[start..current]),
-                NumberBase.Binary => Convert.ToUInt16(sourceCode[(start+1)..current], 2),
-                NumberBase.Hex => Convert.ToUInt16(sourceCode[(start+1)..current], 16),
-                _ => throw new ArgumentOutOfRangeException(nameof(numberBase))
-            });
+                // ReSharper disable once HeapView.BoxingAllocation
+                AddToken(TokenType.Number, numberBase switch
+                {
+                    NumberBase.Decimal => Convert.ToUInt16(sourceCode[start..current]),
+                    NumberBase.Binary => Convert.ToUInt16(sourceCode[(start + 1)..current], 2),
+                    NumberBase.Hex => Convert.ToUInt16(sourceCode[(start + 1)..current], 16),
+                    _ => throw new ArgumentOutOfRangeException(nameof(numberBase))
+                });
+            }
+            catch (Exception)
+            {
+                return OperationResult.Error(LexicalErrors.InvalidNumber(sourceCode[start], line));
+            }
+            
+            return OperationResult.Success();
         }
 
-        private static char Advance()
+        private char Advance()
         {
             return sourceCode[current++];
         }
 
-        private static bool MatchNext(char c)
+        private bool MatchNext(char c)
         {
             if (IsAtEnd()) return false;
             if (sourceCode[current] != c) return false;
@@ -188,13 +193,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return true;
         }
 
-        private static char Peek(int offset = 0) => IsAtEnd() ? '\0' : sourceCode[current + offset];
+        private char Peek(int offset = 0) => IsAtEnd() ? '\0' : sourceCode[current + offset];
 
-        private static bool IsHexDigit(char c) => IsDecimalDigit(c) || c is >= 'a' and <= 'f' or >= 'A' and <= 'F';
-        private static bool IsDecimalDigit(char c) => c is >= '0' and <= '9';
-        private static bool IsBinaryDigit(char c) => c is '0' or '1';
+        private bool IsHexDigit(char c) => IsDecimalDigit(c) || c is >= 'a' and <= 'f' or >= 'A' and <= 'F';
+        private bool IsDecimalDigit(char c) => c is >= '0' and <= '9';
+        private bool IsBinaryDigit(char c) => c is '0' or '1';
 
-        private static bool IsDigit(char c, NumberBase @base) => @base switch
+        private bool IsDigit(char c, NumberBase @base) => @base switch
         {
             NumberBase.Binary => IsBinaryDigit(c),
             NumberBase.Decimal => IsDecimalDigit(c),
@@ -202,16 +207,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             _ => throw new ArgumentOutOfRangeException(nameof(@base), @base, null)
         };
 
-        private static bool IsAlpha(char c) => c is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_';
+        private bool IsAlpha(char c) => c is >= 'A' and <= 'Z' or >= 'a' and <= 'z' or '_';
 
-        private static bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDecimalDigit(c);
+        private bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDecimalDigit(c);
         
-        private static void Expect(TokenType type)
+        private void Expect(TokenType type)
         {
             expectedToken = type;
         }
 
-        private static void AddToken(TokenType type, object literal = null)
+        private void AddToken(TokenType type, object literal = null)
         {
             string text = sourceCode[start..current];
             tokens.Add(new Token
@@ -224,7 +229,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             lastToken = type;
         }
 
-        private static bool IsAtEnd() => current >= sourceCode.Length;
-
+        private bool IsAtEnd() => current >= sourceCode.Length;
     }
 }

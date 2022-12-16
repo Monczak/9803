@@ -1,31 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using NineEightOhThree.VirtualCPU.Utilities;
-using UnityEditor;
-using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public static class CodeGenerator
+    public class CodeGenerator : LogErrorProducer
     {
-        private static List<AbstractStatement> statements;
-        private static Dictionary<string, Label> labels;
+        private List<AbstractStatement> statements;
+        private Dictionary<string, Label> labels;
 
-        private static ushort programCounter;
+        private ushort programCounter;
 
-        private static byte[] code;
-        private static bool[] codeMask;
+        private byte[] code;
+        private bool[] codeMask;
         
         private const int MemorySize = 65536;
         
-        public static bool HadError { get; private set; }
-        private static event ErrorHandler OnError;
-        private static event ErrorHandler OnWarning;
+        public bool HadError { get; private set; }
+        private event ErrorHandler OnWarning;
         
-        public static byte[] GenerateCode(List<AbstractStatement> stmts)
+        public byte[] GenerateCode(List<AbstractStatement> stmts)
         {
             code = new byte[MemorySize];
             codeMask = new bool[MemorySize];
@@ -43,7 +38,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             StringBuilder builder = new();
             builder.AppendJoin(" ", labels);
-            Debug.Log(builder.ToString());
+            MakeLog(builder.ToString());
 
             // Pass 2: Convert statements to a compiled form
             List<CompiledStatement> compiledStatements = new();
@@ -78,7 +73,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return HadError ? null : code;
         }
 
-        private static OperationResult EmitBytes(CompiledStatement cStmt)
+        private OperationResult EmitBytes(CompiledStatement cStmt)
         {
             ushort pc = cStmt.StartProgramCounter;
 
@@ -97,11 +92,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                 debugStringBuilder.Append($"{b:X2} ");
             }
-            Debug.Log($"{cStmt.StartProgramCounter:X4} {cStmt}: {debugStringBuilder}");
+            MakeLog($"{cStmt.StartProgramCounter:X4} {cStmt}: {debugStringBuilder}");
             return OperationResult.Success();
         }
 
-        private static OperationResult UpdateLabelRefs(CompiledStatement cStmt)
+        private OperationResult UpdateLabelRefs(CompiledStatement cStmt)
         {
             if (cStmt.Operands is not null)
             {
@@ -120,18 +115,18 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult.Success();
         }
 
-        private static void ThrowError(AssemblerError? error)
+        private void ThrowError(AssemblerError? error)
         {
             HadError = true;
-            OnError?.Invoke(error);
+            MakeError(error);
         }
 
-        private static void ThrowWarning(AssemblerError? warning)
+        private void ThrowWarning(AssemblerError? warning)
         {
             OnWarning?.Invoke(warning);
         }
         
-        private static OperationResult<CompiledStatement> CompileStatement(AbstractStatement stmt)
+        private OperationResult<CompiledStatement> CompileStatement(AbstractStatement stmt)
         {
             StringBuilder debugMsgBuilder = new StringBuilder($"PC {programCounter}: ");
             CompiledStatement cStmt = null;
@@ -163,13 +158,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             if (cStmt is not null)
             {
                 programCounter += cStmt.ByteCount;
-                Debug.Log(debugMsgBuilder.Append(cStmt).ToString());
+                MakeLog(debugMsgBuilder.Append(cStmt).ToString());
             }
 
             return OperationResult<CompiledStatement>.Success(cStmt);
         }
 
-        private static OperationResult<CompiledStatement> CompileInstruction(InstructionStatement stmt)
+        private OperationResult<CompiledStatement> CompileInstruction(InstructionStatement stmt)
         {
             CompiledStatement cStmt = stmt switch
             {
@@ -180,7 +175,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult<CompiledStatement>.Success(cStmt);
         }
 
-        private static OperationResult<CompiledStatement> CompileDirective(DirectiveStatement stmt)
+        private OperationResult<CompiledStatement> CompileDirective(DirectiveStatement stmt)
         {
             var result = stmt.Directive.Build(stmt is DirectiveStatementOperands s ? s.Args : null);
             if (result.Failed)
@@ -193,7 +188,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult<CompiledStatement>.Success(new CompiledStatement(stmt, programCounter, null, evalResult.Result));
         }
 
-        private static OperationResult<List<Operand>> EvaluateDirective(Directive directive)
+        private OperationResult<List<Operand>> EvaluateDirective(Directive directive)
         {
             var evalResult = directive.Evaluate(ref programCounter);
             if (evalResult.Failed)
@@ -204,13 +199,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult<List<Operand>>.Success(evalResult.Result);
         }
 
-        private static OperationResult FindLabel(AbstractStatement stmt)
+        private OperationResult FindLabel(AbstractStatement stmt)
         {
             OperationResult result = TryAddLabel(stmt);
             return result.Failed ? result : OperationResult.Success();
         }
 
-        private static OperationResult TryAddLabel(AbstractStatement stmt)
+        private OperationResult TryAddLabel(AbstractStatement stmt)
         {
             Label label = stmt switch
             {
@@ -240,16 +235,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
             }
             return OperationResult.Success();
-        }
-
-        public static void RegisterErrorHandler(ErrorHandler handler)
-        {
-            OnError += handler;
-        }
-
-        public static void RegisterWarningHandler(ErrorHandler handler)
-        {
-            OnWarning += handler;
         }
     }
 }

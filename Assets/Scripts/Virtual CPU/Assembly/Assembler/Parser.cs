@@ -6,18 +6,17 @@ using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public static class Parser
+    public class Parser : LogErrorProducer
     {
-        private static int current;
+        private int current;
 
-        private static List<AbstractStatement> statements;
+        private List<AbstractStatement> statements;
 
-        private static List<Token> source;
+        private List<Token> source;
 
-        private static GrammarGraph graph;
+        private GrammarGraph graph;
 
-        public static bool HadError { get; private set; }
-        private static event ErrorHandler OnError;
+        public bool HadError { get; private set; }
 
 
         private class GrammarGraph
@@ -203,7 +202,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
         }
         
-        public static List<AbstractStatement> Parse(List<Token> tokens)
+        public List<AbstractStatement> Parse(List<Token> tokens)
         {
             statements = new List<AbstractStatement>();
             source = tokens;
@@ -218,7 +217,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             // return HadError ? null : statements;
         }
         
-        private static void CreateStatements()
+        private void CreateStatements()
         {
             while (!IsAtEnd())
             {
@@ -227,7 +226,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     OperationResult<AbstractStatement> stmt = ScanStatement();
                     if (stmt.Failed)
                     {
-                        OnError?.Invoke(stmt.TheError);
+                        MakeError(stmt.TheError);
                         HadError = true;
                         Synchronize();
                     }
@@ -239,20 +238,27 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
         }
 
-        private static void Synchronize()
+        private void Synchronize()
         {
-            while (Peek(-1).Type is not TokenType.Newline or TokenType.EndOfFile) Advance();
+            while (!IsAtEnd() && Peek(-1).Type is not TokenType.Newline or TokenType.EndOfFile) Advance();
         }
 
-        private static OperationResult<AbstractStatement> ScanStatement()
+        private OperationResult<AbstractStatement> ScanStatement()
         {
             List<Token> lineTokens = new();
+            bool ignoreNewlines = false;
 
             GrammarGraph.GrammarNode currentNode = graph.Root;
 
             while (!IsAtEnd())
             {
                 Token token = Advance();
+
+                if (!IsAtEnd() && ignoreNewlines && token.Type is TokenType.Newline or TokenType.EndOfFile)
+                    continue;
+                ignoreNewlines = false;
+                
+                if (token.Type is not (TokenType.Newline or TokenType.EndOfFile)) lineTokens.Add(token);
 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile && !currentNode.IsFinal)
                 {
@@ -274,8 +280,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
                 else
                 {
-                    lineTokens.Add(token);
-
                     if (currentNode.Children.Count == 0)
                     {
                         return OperationResult<AbstractStatement>.Error(SyntaxErrors.UnexpectedToken(token));
@@ -308,6 +312,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                         
                         AddStatement(s.Result);
                         lineTokens.Clear();
+
+                        ignoreNewlines = true;
                     }
                 }
             }
@@ -328,23 +334,18 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             );
         }
 
-        public static void RegisterErrorHandler(ErrorHandler handler)
-        { 
-            OnError += handler;
-        }
-
-        private static Token Advance()
+        private Token Advance()
         {
             return source[current++];
         }
 
-        private static Token Peek(int offset = 0) => IsAtEnd() ? new Token {Type = TokenType.EndOfFile} : source[current + offset];
+        private Token Peek(int offset = 0) => IsAtEnd() ? new Token {Type = TokenType.EndOfFile} : source[current + offset];
 
-        private static void AddStatement(AbstractStatement statement)
+        private void AddStatement(AbstractStatement statement)
         {
             statements.Add(statement);
         }
 
-        private static bool IsAtEnd() => current >= source.Count;
+        private bool IsAtEnd() => current >= source.Count;
     }
 }

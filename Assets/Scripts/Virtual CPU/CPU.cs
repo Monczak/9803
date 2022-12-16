@@ -1,3 +1,5 @@
+using System;
+using NineEightOhThree.Managers;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Interfacing;
@@ -82,20 +84,6 @@ namespace NineEightOhThree.VirtualCPU
             // var program = Assembler.Assemble("inc $0300\ninc $0301\njmp $0000");
             for (int i = 0x00; i < program.Count; i++)
                 Memory.Write((ushort)i, program[i]);*/
-
-            void LexicalErrorHandler(AssemblerError? error)
-            {
-                if (error != null) Debug.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line})");
-            }
-            
-            void SyntaxErrorHandler(AssemblerError? error)
-            {
-                if (error != null) Debug.LogError($"Syntax error: {error.Value.Message} ({error.Value.Token})");
-            }
-
-            Lexer.RegisterErrorHandler(LexicalErrorHandler);
-            Parser.RegisterErrorHandler(SyntaxErrorHandler);
-            CodeGenerator.RegisterErrorHandler(SyntaxErrorHandler);
             
             string code = @"
 nums: .byte $ff $00 $de $ad $be $ef
@@ -112,7 +100,7 @@ inx
 bne end
 beq loop
 end: jmp loop";
-            Assembler.Assemble(code);
+            AssemblerInterface.ScheduleAssembly(code, _ => Debug.Log("Done!"));
         }
 
         // Update is called once per frame
