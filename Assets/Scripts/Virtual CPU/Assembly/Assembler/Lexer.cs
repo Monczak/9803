@@ -173,6 +173,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
             catch (Exception)
             {
+                while (IsDigit(Peek(), numberBase)) Advance();
+                expectedToken = null;
+                expectingToken = false;
                 return OperationResult.Error(LexicalErrors.InvalidNumber(sourceCode[start], line));
             }
             

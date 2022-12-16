@@ -26,23 +26,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     foreach (Operand op in Operands)
                     {
-                        switch (op.IsDefined)
+                        if (op.IsDefined)
                         {
-                            case true when op.Number <= 0xFF:
+                            if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
+                                or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
+                                or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed 
+                                or VirtualCPU.AddressingMode.Immediate or VirtualCPU.AddressingMode.Relative)
                                 bytes += 1;
-                                break;
-                            case true when AddressingMode is not VirtualCPU.AddressingMode.Relative:
+                            else
                                 bytes += 2;
-                                break;
-                            default:
-                                if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
-                                    or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
-                                    or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed 
-                                    or VirtualCPU.AddressingMode.Relative)
-                                    bytes += 1;
-                                else
-                                    bytes += 2;
-                                break;
+                        }
+                        else
+                        {
+                            bytes += 2;
                         }
                     }
                 }
@@ -51,66 +47,86 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
         }
 
-        public List<byte> GetBytes(ushort programCounter)
+        public OperationResult<List<byte>> GetBytes(ushort programCounter)
         {
             List<byte> bytes = new();
             if (Opcode is not null) bytes.Add(Opcode.Value);
 
-            void Add8Bit(Operand op)
+            OperationResult Add8Bit(Operand op)
             {
-                if (op.Number != null) bytes.Add((byte)op.Number.Value);
-                else throw new InternalErrorException("Operand number was null");
+                if (op.Number != null)
+                {
+                    if (op.Number.Value > 0xFF)
+                        return OperationResult.Error(SyntaxErrors.OperandNotByte(op.Token));
+                    
+                    bytes.Add((byte)op.Number.Value);
+                }
+                else 
+                    throw new InternalErrorException("Operand number was null");
+                
+                return OperationResult.Success();
             }
             
-            void Add8BitRelative(Operand op)
+            OperationResult Add8BitRelative(Operand op)
             {
-                if (op.Number != null) bytes.Add((byte)(op.Number.Value - programCounter - ByteCount));
-                else throw new InternalErrorException("Operand number was null");
+                if (op.Number != null)
+                {
+                    if (op.LabelRef is null && op.Number > 0xFF)
+                        return OperationResult.Error(SyntaxErrors.OperandNotByte(op.Token));
+                    
+                    bytes.Add((byte)(op.Number.Value - programCounter - ByteCount));
+                }
+                else
+                    throw new InternalErrorException("Operand number was null");
+                
+                return OperationResult.Success();
             }
 
-            void Add16Bit(Operand op)
+            OperationResult Add16Bit(Operand op)
             {
                 if (op.Number != null) bytes.AddRange(BitUtils.ToLittleEndian(op.Number.Value));
                 else throw new InternalErrorException("Operand number was null");
+                
+                return OperationResult.Success();
             }
 
             if (Operands is not null)
             {
                 foreach (Operand op in Operands)
                 {
-                    switch (op.IsDefined)
+                    if (op.IsDefined)
                     {
-                        case true when op.Number <= 0xFF:
-                            Add8Bit(op);
-                            break;
-                        case true when AddressingMode is not VirtualCPU.AddressingMode.Relative:
-                            Add16Bit(op);
-                            break;
-                        default:
-                            if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
-                                or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
-                                or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed
-                                or VirtualCPU.AddressingMode.Relative)
+                        if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
+                            or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
+                            or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed
+                            or VirtualCPU.AddressingMode.Immediate or VirtualCPU.AddressingMode.Relative)
+                        {
+                            if (AddressingMode is VirtualCPU.AddressingMode.Relative)
                             {
-                                if (AddressingMode is VirtualCPU.AddressingMode.Relative)
-                                {
-                                    // TODO: Warn if distance to label exceeds byte limit
-                                    Add8BitRelative(op);
-                                }
-                                else
-                                {
-                                    Add8Bit(op);
-                                }
+                                // TODO: Warn if distance to label exceeds byte limit
+                                var result = Add8BitRelative(op);
+                                if (result.Failed) return OperationResult<List<byte>>.Error(result.TheError);
                             }
                             else
-                                Add16Bit(op);
-
-                            break;
+                            {
+                                var result = Add8Bit(op);
+                                if (result.Failed) return OperationResult<List<byte>>.Error(result.TheError);
+                            }
+                        }
+                        else
+                        {
+                            var result = Add16Bit(op);
+                            if (result.Failed) return OperationResult<List<byte>>.Error(result.TheError);
+                        }
+                    }
+                    else
+                    {
+                        throw new InternalErrorException("Operand still undefined");
                     }
                 }
             }
 
-            return bytes;
+            return OperationResult<List<byte>>.Success(bytes);
         }
 
         public CompiledStatement(AbstractStatement origStmt, ushort startPC, (AddressingMode addressingMode, CPUInstructionMetadata metadata)? instrData)

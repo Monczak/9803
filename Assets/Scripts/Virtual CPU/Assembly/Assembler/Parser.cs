@@ -270,6 +270,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile)
                 {
+                    // If the last statement parsed is an IntermediateStatement, don't add it again
+                    if (currentNode.Statement is IntermediateStatement && IsAtEnd()) continue;
+
                     OperationResult<AbstractStatement> stmt = currentNode.Statement.Build(lineTokens);
 
                     if (stmt.Failed) return stmt;

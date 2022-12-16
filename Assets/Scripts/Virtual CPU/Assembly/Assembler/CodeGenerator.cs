@@ -78,8 +78,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             ushort pc = cStmt.StartProgramCounter;
 
             StringBuilder debugStringBuilder = new();
-            
-            foreach (byte b in cStmt.GetBytes(pc))
+
+            var bytesResult = cStmt.GetBytes(pc);
+            if (bytesResult.Failed)
+                return OperationResult.Error(bytesResult.TheError);
+            foreach (byte b in bytesResult.Result)
             {
                 if (codeMask[pc])
                 {

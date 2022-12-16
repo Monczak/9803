@@ -10,7 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
         public override Dictionary<AddressingMode, CPUInstructionMetadata> Metadata => new()
         {
             { AddressingMode.Absolute, new(0x4C, 2) },
-            { AddressingMode.Indirect, new(0x6C, 1) },
+            { AddressingMode.Indirect, new(0x6C, 2) },
         };
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
