@@ -8,6 +8,7 @@
         public Token Token { get; }
 
         public bool IsDefined => Number.HasValue;
+        public bool IsByte { get; set; }
 
         public Operand(Token token, ushort number, string labelRef)
         {
@@ -28,6 +29,16 @@
             Token = token;
             Number = null;
             LabelRef = labelRef;
+        }
+
+        public Operand(Token token, ushort number, bool isByte) : this(token, number)
+        {
+            IsByte = isByte;
+        }
+        
+        public Operand(Token token, string labelRef, bool isByte) : this(token, labelRef)
+        {
+            IsByte = isByte;
         }
 
         public override string ToString()

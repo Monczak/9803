@@ -74,12 +74,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     tokens = lexer.Lex(input);
                     statements = parser.Parse(tokens);
-
                     code = codeGenerator.GenerateCode(statements);
                 }
                 catch (Exception e)
                 {
-                    errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message, null));
+                    errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message + e.StackTrace, null));
                 }
 
                 return new AssemblerResult(code, logs, errors);

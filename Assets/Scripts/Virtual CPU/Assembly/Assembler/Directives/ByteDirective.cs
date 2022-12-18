@@ -18,6 +18,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
             {
                 if (!(op.IsDefined && op.Number <= 0xFF))
                     return OperationResult<List<Operand>>.Error(SyntaxErrors.OperandNotByte(op.Token));
+                op.IsByte = true;
             }
 
             return OperationResult<List<Operand>>.Success(operands);

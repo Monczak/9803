@@ -96,10 +96,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     if (op.IsDefined)
                     {
-                        if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
-                            or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
-                            or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed
-                            or VirtualCPU.AddressingMode.Immediate or VirtualCPU.AddressingMode.Relative)
+                        if (op.IsByte)
+                        {
+                            var result = Add8Bit(op);
+                            if (result.Failed) return OperationResult<List<byte>>.Error(result.TheError);
+                        }
+                        else if (AddressingMode is VirtualCPU.AddressingMode.ZeroPage
+                                 or VirtualCPU.AddressingMode.ZeroPageX or VirtualCPU.AddressingMode.ZeroPageY
+                                 or VirtualCPU.AddressingMode.IndexedIndirect or VirtualCPU.AddressingMode.IndirectIndexed
+                                 or VirtualCPU.AddressingMode.Immediate or VirtualCPU.AddressingMode.Relative)
                         {
                             if (AddressingMode is VirtualCPU.AddressingMode.Relative)
                             {

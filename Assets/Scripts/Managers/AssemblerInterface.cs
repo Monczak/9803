@@ -34,6 +34,11 @@ namespace NineEightOhThree.Managers
         {
             if (error != null) Debug.LogError($"Syntax error: {error.Value.Message} ({error.Value.Token})");
         }
+        
+        private static void InternalErrorHandler(AssemblerError? error)
+        {
+            if (error != null) Debug.LogError($"Internal error: {error.Value.Message}");
+        }
 
         private static void ErrorHandler(AssemblerError? error)
         {
@@ -46,6 +51,9 @@ namespace NineEightOhThree.Managers
                     break;
                 case AssemblerError.ErrorType.Syntax:
                     SyntaxErrorHandler(error);
+                    break;
+                case AssemblerError.ErrorType.Internal:
+                    InternalErrorHandler(error);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
