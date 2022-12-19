@@ -99,6 +99,7 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                         if (cellIndex is < 0 or > 255)
                             continue;
 
+                        // TODO: Make borders prettier (don't put borders between adjacent cells)
                         SetBorder(memoryCells[cellIndex].style, BorderSide.All, region.Color);
                     }
                 }

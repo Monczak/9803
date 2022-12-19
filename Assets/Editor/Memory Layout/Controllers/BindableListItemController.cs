@@ -55,7 +55,7 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 ushort spanStart = bindable.addresses[0];
                 bool isInSpan = false;
 
-                List<(ushort, ushort)> addressSpans = new List<(ushort, ushort)>();
+                List<(ushort start, ushort end)> addressSpans = new();
 
                 for (int i = 0; i < bindable.addresses.Length; i++)
                 {
@@ -78,9 +78,9 @@ namespace NineEightOhThree.Editor.MemoryLayout.Controllers
                 }
 
                 builder.AppendJoin(", ", addressSpans.Select(span =>
-                    span.Item1 == span.Item2
-                        ? $"{span.Item1:X4}"
-                        : $"{span.Item1:X4}-{span.Item2:X4}"));
+                    span.start == span.end
+                        ? $"{span.start:X4}"
+                        : $"{span.start:X4}-{span.end:X4}"));
             }
             
             return builder.ToString();
