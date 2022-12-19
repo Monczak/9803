@@ -56,6 +56,8 @@ namespace NineEightOhThree.VirtualCPU
 
         public bool showDebugInfo;
 
+        private readonly object lockObj = new();
+
         private CPUInstruction currentInstruction;
         private AddressingMode addressingMode;
 
@@ -100,7 +102,28 @@ inx
 bne end
 beq loop
 end: jmp loop";
-            AssemblerInterface.ScheduleAssembly(code, _ => Debug.Log("Done!"));
+            AssemblerInterface.ScheduleAssembly(code, WriteCode);
+        }
+
+        public void WriteCode(Assembler.AssemblerResult result)
+        {
+            ushort byteCount = 0;
+
+            lock (lockObj)
+            {
+                for (int i = 0; i < result.Code.Length; i++)
+                {
+                    if (result.CodeMask[i])
+                    {
+                        Memory.Write((ushort)i, result.Code[i]);
+                        byteCount++;
+                    }
+                }
+            }
+            Debug.Log($"{byteCount} bytes written");
+            
+
+            ProgramCounter = 0; // TODO: Read from reset vector
         }
 
         // Update is called once per frame

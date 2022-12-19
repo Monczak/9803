@@ -74,7 +74,7 @@ namespace NineEightOhThree.Objects
 
         public void SyncPositions()
         {
-            if (PosDelta.sqrMagnitude > 1)
+            if (PosDelta.sqrMagnitude >= 1)
             {
                 if (pixelPos.dirty) truePosition = (Vector2)pixelPos.GetValue<Vector2Byte>();
                 if (truePositionDirty) pixelPos.SetValue((Vector2Byte)truePosition);
@@ -90,7 +90,7 @@ namespace NineEightOhThree.Objects
             }
 
             pixelPos.SetValue((Vector2Byte)TruePosition);
-            if (PosDelta.sqrMagnitude > 1)
+            if (PosDelta.sqrMagnitude >= 1)
             {
                 SyncTransformWithPixelPos();
             }

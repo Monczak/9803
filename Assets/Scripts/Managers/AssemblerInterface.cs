@@ -21,8 +21,11 @@ namespace NineEightOhThree.Managers
             var assemble = assembler.Assemble(code);
 
             Task<Assembler.AssemblerResult>.Factory.StartNew(assemble)
-                .ContinueWith(assembler.OnAssemblerFinished, TaskScheduler.FromCurrentSynchronizationContext())
-                .ContinueWith(_ => Debug.Log("Done"), TaskScheduler.FromCurrentSynchronizationContext());
+                .ContinueWith(t =>
+                {
+                    Assembler.AssemblerResult result = assembler.OnAssemblerFinished(t);
+                    onFinish(result);
+                }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private static void LexicalErrorHandler(AssemblerError? error)

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NineEightOhThree.Managers;
+using NineEightOhThree.VirtualCPU;
 using UnityEngine;
 using TMPro;
 
@@ -47,7 +48,7 @@ namespace NineEightOhThree.UI.CodeEditor
         
         private void AssembleCode()
         {
-            AssemblerInterface.ScheduleAssembly(currentCode, null);
+            AssemblerInterface.ScheduleAssembly(currentCode, CPU.Instance.WriteCode);
         }
     }
 }

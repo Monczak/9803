@@ -20,7 +20,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public bool HadError { get; private set; }
         private event ErrorHandler OnWarning;
         
-        public byte[] GenerateCode(List<AbstractStatement> stmts)
+        public (byte[] code, bool[] mask) GenerateCode(List<AbstractStatement> stmts)
         {
             code = new byte[MemorySize];
             codeMask = new bool[MemorySize];
@@ -70,7 +70,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
             }
 
-            return HadError ? null : code;
+            return HadError ? (null, null) : (code, codeMask);
         }
 
         private OperationResult EmitBytes(CompiledStatement cStmt)

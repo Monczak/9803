@@ -28,12 +28,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public struct AssemblerResult
         {
             public byte[] Code { get; }
+            public bool[] CodeMask { get; }
             public List<string> Logs { get; }
             public List<AssemblerError?> Errors { get; }
 
-            public AssemblerResult(byte[] code, List<string> logs, List<AssemblerError?> errors)
+            public AssemblerResult(byte[] code, bool[] codeMask, List<string> logs, List<AssemblerError?> errors)
             {
                 Code = code;
+                CodeMask = codeMask;
                 Logs = logs;
                 Errors = errors;
             }
@@ -70,18 +72,19 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 codeGenerator.RegisterLogHandler(AddLog);
 
                 byte[] code = null;
+                bool[] codeMask = null;
                 try
                 {
                     tokens = lexer.Lex(input);
                     statements = parser.Parse(tokens);
-                    code = codeGenerator.GenerateCode(statements);
+                    (code, codeMask) = codeGenerator.GenerateCode(statements);
                 }
                 catch (Exception e)
                 {
                     errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message + e.StackTrace, null));
                 }
 
-                return new AssemblerResult(code, logs, errors);
+                return new AssemblerResult(code, codeMask, logs, errors);
             };
         }
 
