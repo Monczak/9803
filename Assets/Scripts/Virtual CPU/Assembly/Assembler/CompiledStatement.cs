@@ -38,7 +38,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                         }
                         else
                         {
-                            bytes += 2;
+                            if (AddressingMode is VirtualCPU.AddressingMode.Relative)
+                                bytes += 1;
+                            else
+                                bytes += 2;
                         }
                     }
                 }
