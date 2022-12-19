@@ -30,10 +30,10 @@ namespace NineEightOhThree.VirtualCPU.Instructions
                     cpu.RegisterY = cpu.Memory.Read(args[0], cpu.RegisterX);
                     break;
                 case AddressingMode.Absolute:
-                    cpu.RegisterA = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]));
+                    cpu.RegisterY = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]));
                     break;
                 case AddressingMode.AbsoluteX:
-                    cpu.RegisterA = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterX);
+                    cpu.RegisterY = cpu.Memory.Read(BitUtils.FromLittleEndian(args[0], args[1]), cpu.RegisterX);
                     break;
             }
 
