@@ -1,10 +1,14 @@
 using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using NineEightOhThree.Managers;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Interfacing;
 using NineEightOhThree.VirtualCPU.Utilities;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace NineEightOhThree.VirtualCPU
 {
@@ -63,6 +67,11 @@ namespace NineEightOhThree.VirtualCPU
 
         public BindableManager BindableManager { get; private set; }
 
+        private Thread cpuThread;
+        public bool running;
+        public double cyclesPerSecond;
+        private double currentSpeed;
+
         private void SetStatusRegisterBit(byte bit, bool set)
         {
             BitUtils.SetBit(ref statusRegister, bit, set);
@@ -81,28 +90,53 @@ namespace NineEightOhThree.VirtualCPU
         // Start is called before the first frame update
         void Start()
         {
-            /*// var program = Assembler.Assemble("lda #$00\nldx #$10\nclc\nadc #$02\ndex\nbne $fa\njmp $0000");
-            var program = Assembler.Assemble("lda #$01\nsta $0200\nsta $0201\nldx #$00\nlda $0200,x\nclc\nadc $0201,x\nsta $0202,x\ninx\ncpx #$fe\nbne $f1\njmp $0008");
-            // var program = Assembler.Assemble("inc $0300\ninc $0301\njmp $0000");
-            for (int i = 0x00; i < program.Count; i++)
-                Memory.Write((ushort)i, program[i]);*/
+            StartCPUThread();
+        }
+        
+        // Update is called once per frame
+        void Update()
+        {
+            // Debug.Log($"Speed: {currentSpeed:F2} ({currentSpeed / cyclesPerSecond * 100:F2}%)");
             
-            string code = @"
-nums: .byte $ff $00 $de $ad $be $ef
-.org $8000
-ldx #0
-[]          ; Error: unexpected character
-blah        ; Error: unknown instruction
-loop: lda $0300,x
-asl a
-sta $0400,  ; Error: unfinished statement
-inx a       ; Error: unsupported addressing
-cmp ($03),y
-inx
-bne end
-beq loop
-end: jmp loop";
-            AssemblerInterface.ScheduleAssembly(code, WriteCode);
+            BindableManager.Synchronize();
+        }
+
+        private void FixedUpdate()
+        {
+            
+        }
+
+        private void StartCPUThread()
+        {
+            cpuThread = new Thread(CycleAndWait);
+            cpuThread.Start();
+        }
+
+        private void CycleAndWait()
+        {
+            while (true)
+            {
+                if (running)
+                {
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+
+                    Cycle();
+                    
+                    double delayMs = 1 / cyclesPerSecond * 1000;
+                    while (stopwatch.Elapsed.TotalMilliseconds < delayMs)
+                    {
+                        // Spin
+                    }
+
+                    currentSpeed = 1 / (stopwatch.Elapsed.TotalMilliseconds / 1000);
+                }
+            }
+            
+        }
+
+        public void InitProcessor()
+        {
+            StackPointer = StackTopPointer;
         }
 
         public void WriteCode(Assembler.AssemblerResult result)
@@ -126,24 +160,7 @@ end: jmp loop";
             ProgramCounter = 0; // TODO: Read from reset vector
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
-        private void FixedUpdate()
-        {
-            Cycle();
-
-            BindableManager.Synchronize();
-        }
-
-        public void InitProcessor()
-        {
-            StackPointer = StackTopPointer;
-        }
-
+        
         public void PushStack(byte b)
         {
             Memory.Write(StackPointer--, b);

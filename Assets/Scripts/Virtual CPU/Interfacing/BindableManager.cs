@@ -1,20 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Interfacing
 {
     public class BindableManager : MonoBehaviour
     {
-        private Dictionary<ushort, Bindable> bindables = new();
+        private ConcurrentDictionary<ushort, Bindable> bindables = new();
 
-        private HashSet<ushort> dirtyAddresses = new();
+        private ConcurrentBag<ushort> dirtyAddresses = new();
 
         private Memory memory;
 
         public void RegisterBindable(Bindable bindable)
         {
             foreach (ushort address in bindable.addresses)
-                bindables.Add(address, bindable);
+                bindables.TryAdd(address, bindable);
         }
 
         public void UnregisterBindable(Bindable bindable)
@@ -22,7 +24,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             foreach (ushort address in bindable.addresses)
             {
                 if (bindables.ContainsKey(address))
-                    bindables.Remove(address);
+                    bindables.TryRemove(address, out _);
             }
         }
 
