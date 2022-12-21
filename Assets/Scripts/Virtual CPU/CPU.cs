@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NineEightOhThree.Managers;
@@ -70,7 +71,9 @@ namespace NineEightOhThree.VirtualCPU
         private Thread cpuThread;
         public bool running;
         public double cyclesPerSecond;
-        private double currentSpeed;
+
+        private double[] executionTimes;
+        private int executionTimeIndex;
 
         private void SetStatusRegisterBit(byte bit, bool set)
         {
@@ -85,6 +88,9 @@ namespace NineEightOhThree.VirtualCPU
             Instance = this;
 
             InitProcessor();
+
+            executionTimes = new double[50];
+            executionTimeIndex = 0;
         }
 
         // Start is called before the first frame update
@@ -96,7 +102,8 @@ namespace NineEightOhThree.VirtualCPU
         // Update is called once per frame
         void Update()
         {
-            // Debug.Log($"Speed: {currentSpeed:F2} ({currentSpeed / cyclesPerSecond * 100:F2}%)");
+            double currentSpeed = 1 / (executionTimes.Average() / 1000);
+            Debug.Log($"Speed: {currentSpeed:F2} ({currentSpeed / cyclesPerSecond * 100:F2}%)");
             
             BindableManager.Synchronize();
         }
@@ -128,7 +135,9 @@ namespace NineEightOhThree.VirtualCPU
                         // Spin
                     }
 
-                    currentSpeed = 1 / (stopwatch.Elapsed.TotalMilliseconds / 1000);
+                    double time = stopwatch.Elapsed.TotalMilliseconds;
+                    executionTimes[executionTimeIndex] = time;
+                    executionTimeIndex = (executionTimeIndex + 1) % executionTimes.Length;
                 }
             }
             

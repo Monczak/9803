@@ -722,6 +722,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stackSize: 256
   showDebugInfo: 0
+  running: 0
+  cyclesPerSecond: 30
 --- !u!114 &454578873
 MonoBehaviour:
   m_ObjectHideFlags: 0
