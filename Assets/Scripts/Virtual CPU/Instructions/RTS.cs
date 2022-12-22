@@ -13,7 +13,7 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
-            ushort returnAddress = (ushort)(cpu.PullStack() + cpu.PullStack() << 8);  // Stack should contain the return address in little-endian
+            ushort returnAddress = (ushort)(cpu.PullStack() + (cpu.PullStack() << 8));  // Stack should contain the return address in little-endian
             cpu.ProgramCounter = returnAddress;
         }
     }

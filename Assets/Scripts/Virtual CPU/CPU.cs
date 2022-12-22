@@ -89,7 +89,7 @@ namespace NineEightOhThree.VirtualCPU
 
             InitProcessor();
 
-            executionTimes = new double[50];
+            executionTimes = new double[500];
             executionTimeIndex = 0;
         }
 
@@ -179,7 +179,7 @@ namespace NineEightOhThree.VirtualCPU
 
         public byte PullStack()
         {
-            byte b = Memory.Read(StackPointer++);
+            byte b = Memory.Read(++StackPointer);
             if (StackPointer == (ushort)(StackTopPointer + 1))
                 throw new StackUnderflowException();
             return b;

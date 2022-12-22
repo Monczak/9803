@@ -14,8 +14,8 @@ namespace NineEightOhThree.VirtualCPU.Instructions
 
         public override void Execute(CPU cpu, AddressingMode addressingMode)
         {
-            cpu.PushStack((byte)(cpu.ProgramCounter & 0xFF));
             cpu.PushStack((byte)(cpu.ProgramCounter >> 8));  // Current program counter (this does NOT implement the bug present in the 6502)
+            cpu.PushStack((byte)(cpu.ProgramCounter & 0xFF));
 
             ushort address = BitUtils.FromLittleEndian(args[0], args[1]);
             if (addressingMode == AddressingMode.Indirect)
