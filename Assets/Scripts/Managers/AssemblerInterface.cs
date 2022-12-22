@@ -30,7 +30,7 @@ namespace NineEightOhThree.Managers
 
         private static void LexicalErrorHandler(AssemblerError? error)
         {
-            if (error != null) Debug.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line})");
+            if (error != null) Debug.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line}, col {error.Value.Column})");
         }
 
         private static void SyntaxErrorHandler(AssemblerError? error)

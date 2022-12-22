@@ -8,6 +8,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private int start;
         private int current;
         private int line;
+        private int column, tokenStartColumn;
 
         private List<Token> tokens;
 
@@ -43,7 +44,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             start = 0;
             current = 0;
             line = 1;
+            column = 0;
+            tokenStartColumn = 0;
+            
             this.sourceCode = sourceCode;
+            
             expectedToken = null;
             expectingToken = false;
             HadError = false;
@@ -71,7 +76,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Type = TokenType.EndOfFile,
                 Content = "",
                 Line = line,
-                Literal = null
+                Literal = null,
+                Column = column + 1
             });
             
             return tokens;
@@ -93,7 +99,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 case '.': LexDirective(); break;
                 
-                case '\n': AddToken(TokenType.Newline); line++; break;
+                case '\n': 
+                    AddToken(TokenType.Newline); 
+                    line++; 
+                    column = 0;
+                    tokenStartColumn = 0; 
+                    break;
                 
                 case var _ when char.IsWhiteSpace(c): break;
                 
@@ -109,14 +120,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 case var _ when IsAlpha(c): LexIdentifier(); break;
                 
-                default: return OperationResult.Error(LexicalErrors.UnexpectedCharacter(c, line));
+                default: return OperationResult.Error(LexicalErrors.UnexpectedCharacter(c, line, column));
             }
 
             switch (expectingToken)
             {
                 case true when expectedToken is not null && expectedToken != lastToken:
                     if (lastToken != null)
-                        return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, expectedToken.Value,
+                        return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, expectedToken.Value,
                             lastToken.Value));
                     throw new InternalErrorException("Last token was null");
 
@@ -128,7 +139,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     expectingToken = false;
                     break;
             }
-            
+
+            tokenStartColumn = column;
+
             return OperationResult.Success();
         }
 
@@ -176,7 +189,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 while (IsDigit(Peek(), numberBase)) Advance();
                 expectedToken = null;
                 expectingToken = false;
-                return OperationResult.Error(LexicalErrors.InvalidNumber(sourceCode[start], line));
+                return OperationResult.Error(LexicalErrors.InvalidNumber(sourceCode[start], line, column));
             }
             
             return OperationResult.Success();
@@ -184,6 +197,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private char Advance()
         {
+            column++;
             return sourceCode[current++];
         }
 
@@ -227,7 +241,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Content = text,
                 Line = line,
                 Literal = literal,
-                Type = type
+                Type = type,
+                Column = tokenStartColumn + 1
             });
             lastToken = type;
         }

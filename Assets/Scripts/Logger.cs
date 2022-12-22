@@ -38,7 +38,7 @@ namespace NineEightOhThree
 
         public static void Finish()
         {
-            logFileStream.Dispose();
+            logFileStream?.Dispose();
         }
         
         public static void Log(object message)

@@ -13,6 +13,7 @@
         public Token? Token { get; private set; }
         public char? Char { get; }
         public int? Line { get; }
+        public int? Column { get; }
         
         public ErrorType Type { get; }
 
@@ -23,15 +24,17 @@
             Token = token;
             Char = null;
             Line = null;
+            Column = null;
         }
         
-        public AssemblerError(ErrorType type, string message, char c, int line)
+        public AssemblerError(ErrorType type, string message, char c, int line, int column)
         {
             Type = type;
             Message = message;
             Token = null;
             Char = c;
             Line = line;
+            Column = column;
         }
 
         public AssemblerError WithToken(Token token)
