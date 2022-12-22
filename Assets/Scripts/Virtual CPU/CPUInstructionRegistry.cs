@@ -33,7 +33,7 @@ namespace NineEightOhThree.VirtualCPU
 
                     if (cpuInstructionsByOpcode.ContainsKey(opcode))
                     {
-                        Debug.LogError($"Conflicting opcode {opcode:X2} for instruction {instruction.Mnemonic} {metadata.Key} (originally {cpuInstructionsByOpcode[opcode].Item1.Mnemonic} {cpuInstructionsByOpcode[opcode].Item2})");
+                        Logger.LogError($"Conflicting opcode {opcode:X2} for instruction {instruction.Mnemonic} {metadata.Key} (originally {cpuInstructionsByOpcode[opcode].Item1.Mnemonic} {cpuInstructionsByOpcode[opcode].Item2})");
                         continue;
                     }
 
@@ -46,7 +46,7 @@ namespace NineEightOhThree.VirtualCPU
                 }
             }
 
-            Debug.Log($"Loaded {instructionCount} instructions");
+            Logger.Log($"Loaded {instructionCount} instructions");
         }
 
         public static bool TryGetInstruction(byte opcode, out (CPUInstruction instruction, AddressingMode addressingMode, CPUInstructionMetadata metadata)? result)

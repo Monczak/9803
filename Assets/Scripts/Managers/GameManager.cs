@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace NineEightOhThree.Managers
@@ -21,6 +22,8 @@ namespace NineEightOhThree.Managers
 
             Application.targetFrameRate = -1;
             QualitySettings.vSyncCount = 0;
+            
+            Logger.Setup();
 
             // DontDestroyOnLoad(gameObject);
 
@@ -44,6 +47,11 @@ namespace NineEightOhThree.Managers
             Inventories.ItemRegistry.RegisterItems();
             VirtualCPU.CPUInstructionRegistry.RegisterInstructions();
             VirtualCPU.Assembly.Assembler.Directives.DirectiveRegistry.RegisterDirectives();
+        }
+
+        private void OnDestroy()
+        {
+            Logger.Finish();
         }
     }
 }

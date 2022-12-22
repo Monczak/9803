@@ -327,7 +327,7 @@ namespace NineEightOhThree.Controllers
                 cornerDetectionBoxSize - Vector2.one * (gridTransform.UnitsPerPixel * 2), input, 1, hits,
                 ContactFilters.WallFilter);
             
-            // Debug.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
+            // Logger.Log($"L {leftHitCount} C {centralHitCount} R {rightHitCount}");
 
             if (leftHitCount != 0 && centralHitCount == 0 && rightHitCount == 0)
                 relativeAngle = -90;

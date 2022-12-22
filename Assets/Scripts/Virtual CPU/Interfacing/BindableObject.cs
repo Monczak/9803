@@ -27,7 +27,7 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
             }
             catch (InvalidOperationException)
             {
-                // Debug.LogError($"{e.Message}\n{e.StackTrace}");
+                // Logger.LogError($"{e.Message}\n{e.StackTrace}");
                 return false;
             }
         }

@@ -140,7 +140,7 @@ namespace NineEightOhThree.Objects
                     Vector2 delta = (hit.point - gridTransform.QuantizedPosition - Collider.size / 2 * dir) *
                                     MathExtensions.Abs(dir);
                     delta = MathExtensions.Quantize(delta, gridTransform.pixelsPerUnit);
-                    // Debug.Log($"Point: {hit.point} Distance: {hit.distance} Normal: {hit.normal} Direction: {direction} Delta: {delta}");
+                    // Logger.Log($"Point: {hit.point} Distance: {hit.distance} Normal: {hit.normal} Direction: {direction} Delta: {delta}");
                     
                     filter *= new Vector2((int)Mathf.Abs(hit.normal.y), (int)Mathf.Abs(hit.normal.x));
                     return delta;

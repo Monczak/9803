@@ -25,12 +25,12 @@ namespace NineEightOhThree.Objects
 
         private void MovementHandlerOnCollisionExit(CollisionInfo info)
         {
-            // Debug.Log($"{info.Origin.name} left me alone!");
+            // Logger.Log($"{info.Origin.name} left me alone!");
         }
 
         private void MovementHandlerOnCollisionEnter(CollisionInfo info)
         {
-            // Debug.Log($"{info.Origin.name} hit me!");
+            // Logger.Log($"{info.Origin.name} hit me!");
         }
 
         private void OnDestroy()

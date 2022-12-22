@@ -26,17 +26,17 @@ namespace NineEightOhThree.Managers
             TextAsset bugFile = Resources.Load<TextAsset>("GameData/Bugs");
             if (bugFile == null)
             {
-                Debug.LogError($"Failed to load bugs (file couldn't be loaded)");
+                Logger.LogError($"Failed to load bugs (file couldn't be loaded)");
                 return;
             }
             
             List<BugInfo> bugList = JsonConvert.DeserializeObject<List<BugInfo>>(bugFile.text);
             if (bugList == null)
             {
-                Debug.LogError($"Failed to load bugs (something went wrong with JSON)");
+                Logger.LogError($"Failed to load bugs (something went wrong with JSON)");
                 return;
             }
-            Debug.Log($"Loaded {bugList.Count} bugs");
+            Logger.Log($"Loaded {bugList.Count} bugs");
 
             bugs = new Dictionary<string, BugInfo>();
             activeBugs = new Dictionary<string, bool>();

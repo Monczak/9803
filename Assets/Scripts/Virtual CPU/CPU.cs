@@ -103,14 +103,9 @@ namespace NineEightOhThree.VirtualCPU
         void Update()
         {
             double currentSpeed = 1 / (executionTimes.Average() / 1000);
-            Debug.Log($"Speed: {currentSpeed:F2} ({currentSpeed / cyclesPerSecond * 100:F2}%)");
+            // Logger.Log($"Speed: {currentSpeed:F2} ({currentSpeed / cyclesPerSecond * 100:F2}%)");
             
             BindableManager.Synchronize();
-        }
-
-        private void FixedUpdate()
-        {
-            
         }
 
         private void StartCPUThread()
@@ -163,7 +158,7 @@ namespace NineEightOhThree.VirtualCPU
                     }
                 }
             }
-            Debug.Log($"{byteCount} bytes written");
+            Logger.Log($"{byteCount} bytes written");
             
 
             ProgramCounter = 0; // TODO: Read from reset vector
@@ -199,7 +194,7 @@ namespace NineEightOhThree.VirtualCPU
             byte opcode = Memory.Read(ProgramCounter);
             if (!CPUInstructionRegistry.TryGetInstruction(opcode, out var data) || data is null)
             {
-                Debug.LogError($"Unknown opcode {opcode} at {ProgramCounter:X4}");
+                Logger.LogError($"Unknown opcode {opcode} at {ProgramCounter:X4}");
                 return;
             }
 
@@ -219,7 +214,7 @@ namespace NineEightOhThree.VirtualCPU
 
         private void PrintStatus()
         {
-            Debug.Log($"PC: {preCycleProgramCounter:X4} | {currentInstruction.Mnemonic} {string.Join(" ", currentInstruction.args)} | A: {RegisterA} X: {RegisterX} Y: {RegisterY}");
+            Logger.Log($"PC: {preCycleProgramCounter:X4} | {currentInstruction.Mnemonic} {string.Join(" ", currentInstruction.args)} | A: {RegisterA} X: {RegisterX} Y: {RegisterY}");
         }
     }
 }

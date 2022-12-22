@@ -20,7 +20,7 @@ namespace NineEightOhThree.Objects
             if (!cache.ContainsKey(origin))
                 cache.Add(origin, new Dictionary<Type, Component>());
 
-            Debug.Log($"Registered {component.GetType().Name} for {origin.gameObject.name}");
+            Logger.Log($"Registered {component.GetType().Name} for {origin.gameObject.name}");
             cache[origin][component.GetType()] = component;
             
         }

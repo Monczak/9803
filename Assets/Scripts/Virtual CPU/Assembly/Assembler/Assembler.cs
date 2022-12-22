@@ -103,12 +103,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             StringBuilder builder = new StringBuilder();
             foreach (Token token in tokens)
                 builder.Append("(").Append(token.ToString()).Append(") ");
-            Debug.Log(builder.ToString());
+            Logger.Log(builder.ToString());
             
             builder = new StringBuilder();
             foreach (AbstractStatement statement in statements)
                 builder.Append("(").Append(statement is null ? "invalid statement" : statement.GetType().Name).Append(") ");
-            Debug.Log(builder.ToString());
+            Logger.Log(builder.ToString());
         }
     }
 }

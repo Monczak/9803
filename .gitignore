@@ -14,6 +14,10 @@
 !/[Pp]ackages/manifest.json
 !/[Pp]ackages/packages-lock.json
 
+# Log files
+[Aa]ssets/[Ll]ogs/
+[Aa]ssets/[Ll]ogs.meta
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
 
