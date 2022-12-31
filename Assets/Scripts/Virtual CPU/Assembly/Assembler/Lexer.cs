@@ -46,7 +46,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             line = 1;
             column = 0;
             tokenStartColumn = 0;
-            
+
             this.sourceCode = sourceCode;
             
             expectedToken = null;
@@ -77,7 +77,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Content = "",
                 Line = line,
                 Literal = null,
-                Column = column + 1
+                Column = column + 1,
+                CharIndex = start
             });
             
             return tokens;
@@ -242,7 +243,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Line = line,
                 Literal = literal,
                 Type = type,
-                Column = tokenStartColumn + 1
+                Column = tokenStartColumn + 1,
+                CharIndex = start
             });
             lastToken = type;
         }

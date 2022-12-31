@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NineEightOhThree.Managers;
-using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU;
+using NineEightOhThree.VirtualCPU.Assembly;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 using UnityEngine;
 using TMPro;
-using Random = UnityEngine.Random;
+using UnityEngine.UI;
+using Token = NineEightOhThree.VirtualCPU.Assembly.Token;
 
 namespace NineEightOhThree.UI.CodeEditor
 {
@@ -21,8 +23,6 @@ namespace NineEightOhThree.UI.CodeEditor
 
         public float assemblerCooldown = 1;
 
-        private bool formatText;
-
         private void Awake()
         {
             inputField = GetComponent<TMP_InputField>();
@@ -32,15 +32,12 @@ namespace NineEightOhThree.UI.CodeEditor
             inputField.onValueChanged.AddListener(OnInputChanged);
 
             timeToAssembly = 0;
-            
-            formatText = false;
         }
 
         private void OnInputChanged(string input)
         {
             currentCode = input;
             timeToAssembly = assemblerCooldown;
-            formatText = true;
         }
 
         private void Update()
@@ -54,29 +51,39 @@ namespace NineEightOhThree.UI.CodeEditor
                 }
             }
 
-            if (formatText)
+            // Check shibboleth left by formatter
+            if (inputField.text.Length > 0 && inputField.textComponent.textInfo.characterInfo[0].character != '\xFF')
             {
                 FormatText();
-                formatText = false;
             }
         }
 
         private void FormatText()
         {
+            // TODO: Make this asyncable (wait for assembler to finish assembling using the task queue and then format)
+            var result = AssemblerInterface.Assembler.Assemble(currentCode)();
+            
             formatter.Begin(inputField.textComponent);
 
-            for (int i = 0; i < inputField.text.Length; i++)
+            foreach (Token token in result.Tokens)
             {
-                formatter.Color(i, 1,
-                    new Color32((byte)Random.Range(0, 256), (byte)Random.Range(0, 256), (byte)Random.Range(0, 256),
-                        255));
+                if (token.Type is TokenType.Newline or TokenType.EndOfFile) continue;
+                
+                Color32 color = new Color32(200, 200, 200, 255);
+                if (SyntaxColors.ContainsKey(token.Type))
+                {
+                    color = SyntaxColors[token.Type];
+                }
+                formatter.Color(token.CharIndex, token.Content.Length, color);
             }
 
-            if (inputField.text.Length > 2)
-                formatter.Underline(0, 2);
-
-            if (inputField.text.Length > 10)
-                formatter.Underline(10, inputField.text.Length - 10);
+            foreach (AssemblerError error in result.Errors)
+            {
+                if (error.Token.HasValue)
+                {
+                    formatter.Underline(error.Token.Value.CharIndex, error.Token.Value.Content.Length);
+                }
+            }
             
             formatter.Flush();
         }
@@ -86,6 +93,21 @@ namespace NineEightOhThree.UI.CodeEditor
         {
             AssemblerInterface.ScheduleAssembly(currentCode, CPU.Instance.WriteCode);
         }
+
+        public Dictionary<TokenType, Color32> SyntaxColors => new()
+        {
+            { TokenType.Identifier, new Color32(245, 144, 66, 255) },
+            { TokenType.Number, new Color32(132, 245, 66, 255) },
+            { TokenType.LeftParen, new Color32(66, 149, 245, 255) },
+            { TokenType.RightParen, new Color32(66, 149, 245, 255) },
+            { TokenType.Comma, new Color32(66, 149, 245, 255) },
+            { TokenType.ImmediateOp, new Color32(122, 225, 56, 255) },
+            { TokenType.LabelDecl, new Color32(245, 81, 66, 255) },
+            { TokenType.RegisterA, new Color32(155, 66, 245, 255) },
+            { TokenType.RegisterX, new Color32(245, 66, 209, 255) },
+            { TokenType.RegisterY, new Color32(245, 66, 129, 255) },
+            { TokenType.Directive, new Color32(245, 239, 66, 255) },
+        };
     }
 }
 

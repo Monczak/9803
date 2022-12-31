@@ -12,18 +12,25 @@ namespace NineEightOhThree.Managers
 
         private static Queue<Task<Assembler.AssemblerResult>> assemblerTaskQueue;
 
+        private static Assembler assembler;
+        public static Assembler Assembler
+        {
+            get => assembler ??= new Assembler(ErrorHandler, LogHandler);
+            private set => assembler = value;
+        }
+
         // TODO: Implement task queue functionality
         public static void ScheduleAssembly(string code, Action<Assembler.AssemblerResult> onFinish)
         {
             assemblerTaskQueue ??= new Queue<Task<Assembler.AssemblerResult>>();
 
-            Assembler assembler = new Assembler(ErrorHandler, LogHandler);
-            var assemble = assembler.Assemble(code);
+            Assembler = new Assembler(ErrorHandler, LogHandler);
+            var assemble = Assembler.Assemble(code);
 
             Task<Assembler.AssemblerResult>.Factory.StartNew(assemble)
                 .ContinueWith(t =>
                 {
-                    Assembler.AssemblerResult result = assembler.OnAssemblerFinished(t);
+                    Assembler.AssemblerResult result = Assembler.OnAssemblerFinished(t);
                     onFinish(result);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
         }

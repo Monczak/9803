@@ -15,9 +15,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     
     public class Assembler
     {
-        private readonly Lexer lexer;
-        private readonly Parser parser;
-        private readonly CodeGenerator codeGenerator;
+        public Lexer Lexer { get; }
+        public Parser Parser { get; }
+        public CodeGenerator CodeGenerator { get; }
 
         private List<Token> tokens;
         private List<AbstractStatement> statements;
@@ -31,21 +31,26 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             public bool[] CodeMask { get; }
             public List<string> Logs { get; }
             public List<AssemblerError?> Errors { get; }
+            
+            public List<Token> Tokens { get; }
+            public List<AbstractStatement> Statements { get; }
 
-            public AssemblerResult(byte[] code, bool[] codeMask, List<string> logs, List<AssemblerError?> errors)
+            public AssemblerResult(byte[] code, bool[] codeMask, List<string> logs, List<AssemblerError?> errors, List<Token> tokens, List<AbstractStatement> statements)
             {
                 Code = code;
                 CodeMask = codeMask;
                 Logs = logs;
                 Errors = errors;
+                Tokens = tokens;
+                Statements = statements;
             }
         }
 
         public Assembler(ErrorHandler errorHandler, LogHandler logHandler)
         {
-            lexer = new Lexer();
-            parser = new Parser();
-            codeGenerator = new CodeGenerator();
+            Lexer = new Lexer();
+            Parser = new Parser();
+            CodeGenerator = new CodeGenerator();
 
             this.errorHandler = errorHandler;
             this.logHandler = logHandler;
@@ -64,27 +69,27 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 void AddError(AssemblerError? e) => errors.Add(e);
                 void AddLog(string log) => logs.Add(log);
 
-                lexer.RegisterErrorHandler(AddError);
-                lexer.RegisterLogHandler(AddLog);
-                parser.RegisterErrorHandler(AddError);
-                parser.RegisterLogHandler(AddLog);
-                codeGenerator.RegisterErrorHandler(AddError);
-                codeGenerator.RegisterLogHandler(AddLog);
+                Lexer.RegisterErrorHandler(AddError);
+                Lexer.RegisterLogHandler(AddLog);
+                Parser.RegisterErrorHandler(AddError);
+                Parser.RegisterLogHandler(AddLog);
+                CodeGenerator.RegisterErrorHandler(AddError);
+                CodeGenerator.RegisterLogHandler(AddLog);
 
                 byte[] code = null;
                 bool[] codeMask = null;
                 try
                 {
-                    tokens = lexer.Lex(input);
-                    statements = parser.Parse(tokens);
-                    (code, codeMask) = codeGenerator.GenerateCode(statements);
+                    tokens = Lexer.Lex(input);
+                    statements = Parser.Parse(tokens);
+                    (code, codeMask) = CodeGenerator.GenerateCode(statements);
                 }
                 catch (Exception e)
                 {
                     errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message + e.StackTrace, null));
                 }
 
-                return new AssemblerResult(code, codeMask, logs, errors);
+                return new AssemblerResult(code, codeMask, logs, errors, tokens, statements);
             };
         }
 

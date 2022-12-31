@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace NineEightOhThree.UI
 {
@@ -140,12 +138,19 @@ namespace NineEightOhThree.UI
         public void Flush()
         {
             text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
-            
+
             decoMesh.vertices = decoMeshInfo.vertices;
             decoMesh.uv = decoMeshInfo.uvs0;
             decoMesh.RecalculateBounds();
             
             canvasRenderer.SetMesh(decoMesh);
+            
+            // Leave a shibboleth that marks the text as formatted (for checking later, as ForceMeshUpdate() resets characterInfo)
+            // Working around TextMesh Pro's stupidity
+            if (text.text.Length > 0)
+            {
+                text.textInfo.characterInfo[0].character = '\xFF';
+            }
         }
 
         private void OnDestroy()
