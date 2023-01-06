@@ -14,6 +14,8 @@
         public char? Char { get; }
         public int? Line { get; }
         public int? Column { get; }
+        public int? CharIndex { get; }
+        public int? Length { get; }
         
         public ErrorType Type { get; }
 
@@ -25,9 +27,11 @@
             Char = null;
             Line = null;
             Column = null;
+            CharIndex = null;
+            Length = null;
         }
-        
-        public AssemblerError(ErrorType type, string message, char c, int line, int column)
+
+        public AssemblerError(ErrorType type, string message, char c, int line, int column, int charIndex, int length)
         {
             Type = type;
             Message = message;
@@ -35,6 +39,8 @@
             Char = c;
             Line = line;
             Column = column;
+            CharIndex = charIndex;
+            Length = length;
         }
 
         public AssemblerError WithToken(Token token)

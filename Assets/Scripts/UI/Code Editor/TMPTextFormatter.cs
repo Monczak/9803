@@ -135,7 +135,7 @@ namespace NineEightOhThree.UI
             return this;
         }
 
-        public void Flush()
+        public void Apply()
         {
             text.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
 

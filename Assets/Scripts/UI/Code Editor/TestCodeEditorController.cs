@@ -51,24 +51,33 @@ namespace NineEightOhThree.UI.CodeEditor
                 }
             }
 
-            // Check shibboleth left by formatter
-            if (inputField.text.Length > 0 && inputField.textComponent.textInfo.characterInfo[0].character != '\xFF')
+            if (inputField.text.Length == 0)
+            {
+                ClearFormatting();
+            }
+            else if (inputField.text.Length > 0 && inputField.textComponent.textInfo.characterInfo[0].character != '\xFF')  // Check shibboleth left by formatter
             {
                 FormatText();
             }
         }
 
+        private void ClearFormatting()
+        {
+            formatter.Begin(inputField.textComponent);
+            formatter.Apply();
+        }
+
         private void FormatText()
         {
+            formatter.Begin(inputField.textComponent);
+
             // TODO: Make this asyncable (wait for assembler to finish assembling using the task queue and then format)
             var result = AssemblerInterface.Assembler.Assemble(currentCode)();
-            
-            formatter.Begin(inputField.textComponent);
 
             foreach (Token token in result.Tokens)
             {
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile) continue;
-                
+            
                 Color32 color = new Color32(200, 200, 200, 255);
                 if (SyntaxColors.ContainsKey(token.Type))
                 {
@@ -79,13 +88,33 @@ namespace NineEightOhThree.UI.CodeEditor
 
             foreach (AssemblerError error in result.Errors)
             {
-                if (error.Token.HasValue)
+                switch (error.Type)
                 {
-                    formatter.Underline(error.Token.Value.CharIndex, error.Token.Value.Content.Length);
+                    case AssemblerError.ErrorType.Syntax:
+                        if (error.Token is null)
+                        {
+                            Logger.LogError("Token is null");
+                            break;
+                        }
+                        formatter.Underline(error.Token.Value.CharIndex, error.Token.Value.Content.Length);
+                        break;
+                    case AssemblerError.ErrorType.Lexical:
+                        if (error.CharIndex is null || error.Length is null)
+                        {
+                            Logger.LogError("Error char index or length is null");
+                            break;
+                        }
+                        formatter.Underline(error.CharIndex.Value, error.Length.Value);
+                        break;
+                    case AssemblerError.ErrorType.Internal:
+                        Logger.LogError(error.Message);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
-            
-            formatter.Flush();
+
+            formatter.Apply();
         }
         
         
