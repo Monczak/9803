@@ -121,14 +121,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 case var _ when IsAlpha(c): LexIdentifier(); break;
                 
-                default: return OperationResult.Error(LexicalErrors.UnexpectedCharacter(c, line, column, current - 1, current - start));
+                default: return OperationResult.Error(LexicalErrors.UnexpectedCharacter(c, line, column, start, current - start));
             }
 
             switch (expectingToken)
             {
                 case true when expectedToken is not null && expectedToken != lastToken:
                     if (lastToken != null)
-                        return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, current - 1, current - start, expectedToken.Value,
+                        return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, start, current - start, expectedToken.Value,
                             lastToken.Value));
                     throw new InternalErrorException("Last token was null");
 
@@ -172,8 +172,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             };
 
             while (IsDigit(Peek(), numberBase)) Advance();
-
-            // TODO: Maybe do this without exceptions?
+            
             try
             {
                 // ReSharper disable once HeapView.BoxingAllocation
@@ -190,7 +189,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 while (IsDigit(Peek(), numberBase)) Advance();
                 expectedToken = null;
                 expectingToken = false;
-                return OperationResult.Error(LexicalErrors.InvalidNumber(sourceCode[start], line, column, current - 1, current - start));
+                return OperationResult.Error(LexicalErrors.InvalidNumber(sourceCode[start], line, column, start, current - start));
             }
             
             return OperationResult.Success();

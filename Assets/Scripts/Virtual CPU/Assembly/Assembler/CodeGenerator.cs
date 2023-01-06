@@ -29,6 +29,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             labels = new Dictionary<string, Label>();
             programCounter = 0;
 
+            HadError = false; 
+
             // Pass 1: Find labels
             foreach (AbstractStatement stmt in statements)
             {
