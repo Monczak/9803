@@ -12,6 +12,8 @@ namespace NineEightOhThree.Objects
         private Vector2 truePosition;
         private bool truePositionDirty;
 
+        public Vector3 Offset { get; set; }
+        
         public Vector2 TruePosition
         {
             get => truePosition;
@@ -54,7 +56,7 @@ namespace NineEightOhThree.Objects
         {
             base.Awake();
 
-            truePosition = transform.position;
+            truePosition = transform.position - Offset;
             pixelPos.SetValue((Vector2Byte)truePosition);
         }
 
@@ -101,13 +103,13 @@ namespace NineEightOhThree.Objects
         private void SyncTransformWithPixelPos()
         {
             Vector2Byte pos = pixelPos.GetValue<Vector2Byte>();
-            transform.position = new Vector3((float)pos.x / pixelsPerUnit, (float)pos.y / pixelsPerUnit, zPosition);
+            transform.position = new Vector3((float)pos.x / pixelsPerUnit, (float)pos.y / pixelsPerUnit, zPosition) + Offset;
             Physics2D.SyncTransforms();
         }
 
         public void SyncWithTransform()
         {
-            truePosition = transform.position * pixelsPerUnit;
+            truePosition = (transform.position - Offset) * pixelsPerUnit;
         }
 
         public void SyncTransform()
