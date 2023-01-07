@@ -58,6 +58,8 @@ namespace NineEightOhThree.VirtualCPU
 
         public int stackSize = 256;
         public ushort StackPointer { get; protected internal set; }
+        
+        private ushort ResetVector => (ushort)BitUtils.FromLittleEndian<ushort>(Memory.ReadBlock(0xFFFC, 2));
 
         public bool showDebugInfo;
 
@@ -110,32 +112,46 @@ namespace NineEightOhThree.VirtualCPU
 
         private void StartCPUThread()
         {
-            cpuThread = new Thread(CycleAndWait);
+            cpuThread = new Thread(StartCPU);
             cpuThread.Start();
         }
 
-        private void CycleAndWait()
+        private void StartCPU()
         {
+            Reset();
             while (true)
             {
                 if (running)
                 {
-                    Stopwatch stopwatch = Stopwatch.StartNew();
-
-                    Cycle();
-                    
-                    double delayMs = 1 / cyclesPerSecond * 1000;
-                    while (stopwatch.Elapsed.TotalMilliseconds < delayMs)
-                    {
-                        // Spin
-                    }
-
-                    double time = stopwatch.Elapsed.TotalMilliseconds;
-                    executionTimes[executionTimeIndex] = time;
-                    executionTimeIndex = (executionTimeIndex + 1) % executionTimes.Length;
+                    CycleAndWait();
                 }
             }
-            
+        }
+
+        public void Reset()
+        {
+            InitProcessor();
+            ProgramCounter = ResetVector;
+            RegisterA = 0;
+            RegisterX = 0;
+            RegisterY = 0;
+        }
+
+        private void CycleAndWait()
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            Cycle();
+                    
+            double delayMs = 1 / cyclesPerSecond * 1000;
+            while (stopwatch.Elapsed.TotalMilliseconds < delayMs)
+            {
+                // Spin
+            }
+
+            double time = stopwatch.Elapsed.TotalMilliseconds;
+            executionTimes[executionTimeIndex] = time;
+            executionTimeIndex = (executionTimeIndex + 1) % executionTimes.Length;
         }
 
         public void InitProcessor()
@@ -159,9 +175,8 @@ namespace NineEightOhThree.VirtualCPU
                 }
             }
             Logger.Log($"{byteCount} bytes written");
-            
 
-            ProgramCounter = 0; // TODO: Read from reset vector
+            ProgramCounter = ResetVector;
         }
 
         

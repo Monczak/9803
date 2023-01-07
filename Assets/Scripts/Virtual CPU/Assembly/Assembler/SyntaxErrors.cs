@@ -77,6 +77,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             new(AssemblerError.ErrorType.Syntax, $"Use of undeclared label \"{label.Name}\"", token);
 
         public static AssemblerError OverlappingCode(Token token, ushort address) =>
-            new(AssemblerError.ErrorType.Syntax, $"Overlapping code (at address ${address:X4})", token);
+            new(AssemblerError.ErrorType.Syntax, $"Overlapping code (at address {address:X4})", token);
+        
+        public static AssemblerError DuplicateBeginDirective(Token token, ushort entryPoint) =>
+            new(AssemblerError.ErrorType.Syntax, $"The .begin directive is already present (entry point at address {entryPoint:X4})", token);
     }
 }

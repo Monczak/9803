@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
@@ -14,6 +15,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private byte[] code;
         private bool[] codeMask;
+
+        private ushort resetVector;
+        private bool resetVectorSet;
+        private ushort firstInstructionAddress;
+        private bool firstInstructionFound;
         
         private const int MemorySize = 65536;
         
@@ -29,6 +35,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             labels = new Dictionary<string, Label>();
             programCounter = 0;
 
+            resetVector = 0;
+            resetVectorSet = false;
+
+            firstInstructionAddress = 0;
+            firstInstructionFound = false;
+            
             HadError = false; 
 
             // Pass 1: Find labels
@@ -71,6 +83,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     if (result.Failed) ThrowError(result.TheError);
                 }
             }
+            
+            // Put reset vector at addresses FFFC and FFFD, like in the real 6502
+            // TODO: Warn if code overlaps with reset vector or otherwise disallow this
+
+            if (!resetVectorSet && firstInstructionFound)
+                resetVector = firstInstructionAddress;
+            
+            code[0xFFFC] = (byte)(resetVector & 0xFF);
+            code[0xFFFD] = (byte)((resetVector >> 8) & 0xFF);
+            codeMask[0xFFFC] = codeMask[0xFFFD] = true;
 
             return HadError ? (null, null) : (code, codeMask);
         }
@@ -156,6 +178,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     if (result.Failed)
                         return OperationResult<CompiledStatement>.Error(result.TheError);
                     cStmt = result.Result;
+
+                    if (!firstInstructionFound)
+                    {
+                        firstInstructionAddress = programCounter;
+                        firstInstructionFound = true;
+                    }
+                    
                     break;
                 }
             }
@@ -189,6 +218,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             var evalResult = EvaluateDirective(result.Result);
             if (evalResult.Failed)
                 return OperationResult<CompiledStatement>.Error(evalResult.TheError);
+            
+            // Special handling for the .begin directive
+            if (stmt.Directive is BeginDirective)
+            {
+                if (resetVectorSet)
+                    return OperationResult<CompiledStatement>.Error(SyntaxErrors.DuplicateBeginDirective(stmt.Tokens[0], resetVector));
+                
+                resetVector = programCounter;
+                resetVectorSet = true;
+            }
             
             return OperationResult<CompiledStatement>.Success(new CompiledStatement(stmt, programCounter, null, evalResult.Result));
         }
