@@ -15,7 +15,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private string sourceCode;
 
         private TokenType? expectedToken;
-        private TokenType? lastToken;
+        private TokenType? previousTokenType;
+
+        private Token previousToken;
 
         private bool expectingToken;
 
@@ -52,6 +54,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             expectedToken = null;
             expectingToken = false;
             HadError = false;
+
+            previousToken = null;
             
             while (!IsAtEnd())
             {
@@ -80,6 +84,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Column = column + 1,
                 CharIndex = start,
                 MetaType = TokenMetaType.Invalid,
+                Previous = previousToken,
             });
             
             return tokens;
@@ -127,10 +132,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             switch (expectingToken)
             {
-                case true when expectedToken is not null && expectedToken != lastToken:
-                    if (lastToken != null)
+                case true when expectedToken is not null && expectedToken != previousTokenType:
+                    if (previousTokenType != null)
                         return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, start, current - start, expectedToken.Value,
-                            lastToken.Value));
+                            previousTokenType.Value));
                     throw new InternalErrorException("Last token was null");
 
                 case false when expectedToken is not null:
@@ -237,7 +242,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private void AddToken(TokenType type, object literal = null)
         {
             string text = sourceCode[start..current];
-            tokens.Add(new Token
+
+            Token token = new Token
             {
                 Content = text,
                 Line = line,
@@ -246,8 +252,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Column = tokenStartColumn + 1,
                 CharIndex = start,
                 MetaType = TokenMetaType.Invalid,
-            });
-            lastToken = type;
+                Previous = previousToken
+            };
+            tokens.Add(token);
+            
+            previousTokenType = type;
+            previousToken = token;
         }
 
         private bool IsAtEnd() => current >= sourceCode.Length;

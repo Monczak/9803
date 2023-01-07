@@ -44,7 +44,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 (_, TokenType.Newline or TokenType.EndOfFile) =>
                     $"Unterminated statement, expected {expectedTypeMask.ToString()}",
                 _ => $"Expected {expectedTypeMask.ToString()}, got {gotType.ToString()}"
-            }, token);
+            }, (expectedTypeMask, gotType) switch
+            {
+                (_, TokenType.Newline or TokenType.EndOfFile) => token.Previous,
+                _ => token
+            });
 
         public static AssemblerError Expected(Token token, TokenType expectedTypeMask) =>
             new(AssemblerError.ErrorType.Syntax, expectedTypeMask switch

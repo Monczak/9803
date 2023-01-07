@@ -9,6 +9,8 @@
         public int Line { get; init; }
         public int Column { get; init; }
         public int CharIndex { get; init; }
+        
+        public Token Previous { get; init; }
 
         public void SetMetaType(TokenMetaType metaType)
         {
