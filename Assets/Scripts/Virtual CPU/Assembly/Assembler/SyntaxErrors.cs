@@ -8,8 +8,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private static readonly Dictionary<AddressingMode, string> AddressingModeNames = new()
         {
             { AddressingMode.Absolute, "absolute" },
-            { AddressingMode.AbsoluteX, "absolute indexed" },
-            { AddressingMode.AbsoluteY, "absolute indexed" },
+            { AddressingMode.AbsoluteX, "absolute X-indexed" },
+            { AddressingMode.AbsoluteY, "absolute Y-indexed" },
             { AddressingMode.Accumulator, "accumulator" },
             { AddressingMode.Immediate, "immediate" },
             { AddressingMode.Implied, "implied" },
@@ -17,8 +17,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { AddressingMode.Indirect, "indirect" },
             { AddressingMode.IndirectIndexed, "indirect indexed" },
             { AddressingMode.ZeroPage, "zero page" },
-            { AddressingMode.ZeroPageX, "zero page indexed" },
-            { AddressingMode.ZeroPageY, "zero page indexed" },
+            { AddressingMode.ZeroPageX, "zero page X-indexed" },
+            { AddressingMode.ZeroPageY, "zero page Y-indexed" },
             { AddressingMode.Relative, "relative" },
         };
 

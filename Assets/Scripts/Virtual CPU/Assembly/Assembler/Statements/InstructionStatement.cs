@@ -47,15 +47,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             if (candidateResult.Failed)
                 return candidateResult;
             
-            MatchInstructionFromFound(AddressingMode);
-            
-            return OperationResult.Success();
+            return MatchInstructionFromFound(AddressingMode);
         }
 
-        protected void MatchInstructionFromFound(AddressingMode addressingMode)
+        protected OperationResult MatchInstructionFromFound(AddressingMode addressingMode)
         {
+            if (!IsSupported(addressingMode)) return OperationResult.Error(SyntaxErrors.AddressingModeNotSupported(instructionToken, addressingMode));
             CPUInstruction = InstructionCandidates.First(info => info.addressingMode == addressingMode).instruction;
             AddressingMode = addressingMode;
+            return OperationResult.Success();
         }
 
         protected bool IsSupported(AddressingMode addressingMode) =>
@@ -135,20 +135,16 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
                 if (isBranch)
                 {
-                    MatchInstructionFromFound(AddressingMode.Relative);
+                    return MatchInstructionFromFound(AddressingMode.Relative);
                 }
-                else if (Operand.IsDefined && Operand.Number < 256)
+                if (Operand.IsDefined && Operand.Number < 256)
                 {
-                    MatchInstructionFromFound(IsSupported(AddressingMode.ZeroPage)
+                    return MatchInstructionFromFound(IsSupported(AddressingMode.ZeroPage)
                         ? AddressingMode.ZeroPage
                         : AddressingMode.Absolute);
                 }
-                else
-                {
-                    MatchInstructionFromFound(AddressingMode.Absolute);
-                }
-                
-                return OperationResult.Success();
+
+                return MatchInstructionFromFound(AddressingMode.Absolute);
             })
         };
         
@@ -188,13 +184,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             {
                 switch (Operand.IsDefined, Operand.IsDefined && Operand.Number < 256, token.Type)
                 {
-                    case (_, false, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.AbsoluteX); break;
-                    case (_, false, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.AbsoluteY); break;
-                    case (true, true, TokenType.RegisterX): MatchInstructionFromFound(AddressingMode.ZeroPageX); break;
-                    case (true, true, TokenType.RegisterY): MatchInstructionFromFound(AddressingMode.ZeroPageY); break;
+                    case (_, false, TokenType.RegisterX): return MatchInstructionFromFound(AddressingMode.AbsoluteX);
+                    case (_, false, TokenType.RegisterY): return MatchInstructionFromFound(AddressingMode.AbsoluteY);
+                    case (true, true, TokenType.RegisterX): return MatchInstructionFromFound(AddressingMode.ZeroPageX);
+                    case (true, true, TokenType.RegisterY): return MatchInstructionFromFound(AddressingMode.ZeroPageY);
                     default: return OperationResult.Error(SyntaxErrors.RegisterNotXY(token));
                 }
-                return OperationResult.Success();
             })
         };
 
