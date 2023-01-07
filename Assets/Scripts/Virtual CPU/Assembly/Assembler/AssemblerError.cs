@@ -10,7 +10,7 @@
         }
         
         public string Message { get; }
-        public Token? Token { get; private set; }
+        public Token Token { get; private set; }
         public char? Char { get; }
         public int? Line { get; }
         public int? Column { get; }
@@ -19,7 +19,7 @@
         
         public ErrorType Type { get; }
 
-        public AssemblerError(ErrorType type, string message, Token? token)
+        public AssemblerError(ErrorType type, string message, Token token)
         {
             Type = type;
             Message = message;

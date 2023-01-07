@@ -50,7 +50,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
                 catch (Exception e)
                 {
-                    throw new InternalErrorException("Parser error", e);
+                    throw new InternalErrorException($"Parser error: {e}", e);
                 }
             }
         }

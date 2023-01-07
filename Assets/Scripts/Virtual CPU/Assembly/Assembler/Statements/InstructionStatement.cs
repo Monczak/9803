@@ -9,6 +9,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         public CPUInstruction CPUInstruction { get; protected set; }
         public AddressingMode AddressingMode { get; protected set; }
         public CPUInstructionMetadata Metadata => CPUInstruction.Metadata[AddressingMode];
+
+        private Token instructionToken;
         
         protected InstructionStatement(List<Token> tokens) : base(tokens)
         {
@@ -23,8 +25,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         
         protected OperationResult FindCandidates(Token token, AddressingMode modeFlags)
         {
+            instructionToken = token;
+            
             if (!CPUInstructionRegistry.TryGetInstructions(token.Content, out var candidates))
                 return OperationResult.Error(SyntaxErrors.UnknownInstruction(token));
+            
+            instructionToken.SetMetaType(TokenMetaType.Instruction);
             
             InstructionCandidates = candidates.Where(info => (info.addressingMode & modeFlags) != 0);
             
@@ -42,6 +48,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 return candidateResult;
             
             MatchInstructionFromFound(AddressingMode);
+            
             return OperationResult.Success();
         }
 
@@ -50,6 +57,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             CPUInstruction = InstructionCandidates.First(info => info.addressingMode == addressingMode).instruction;
             AddressingMode = addressingMode;
         }
+
+        protected bool IsSupported(AddressingMode addressingMode) =>
+            InstructionCandidates.Any(info => info.addressingMode == addressingMode);
     }
 
     public abstract class InstructionStatementOperand : InstructionStatement
@@ -129,7 +139,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
                 }
                 else if (Operand.IsDefined && Operand.Number < 256)
                 {
-                    MatchInstructionFromFound(AddressingMode.ZeroPage);
+                    MatchInstructionFromFound(IsSupported(AddressingMode.ZeroPage)
+                        ? AddressingMode.ZeroPage
+                        : AddressingMode.Absolute);
                 }
                 else
                 {

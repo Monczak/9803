@@ -78,7 +78,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Line = line,
                 Literal = null,
                 Column = column + 1,
-                CharIndex = start
+                CharIndex = start,
+                MetaType = TokenMetaType.Invalid,
             });
             
             return tokens;
@@ -243,7 +244,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Literal = literal,
                 Type = type,
                 Column = tokenStartColumn + 1,
-                CharIndex = start
+                CharIndex = start,
+                MetaType = TokenMetaType.Invalid,
             });
             lastToken = type;
         }

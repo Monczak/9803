@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using NineEightOhThree.Managers;
 using NineEightOhThree.VirtualCPU;
 using NineEightOhThree.VirtualCPU.Assembly;
@@ -79,10 +81,28 @@ namespace NineEightOhThree.UI.CodeEditor
                 if (token.Type is TokenType.Newline or TokenType.EndOfFile) continue;
             
                 Color32 color = new Color32(200, 200, 200, 255);
-                if (SyntaxColors.ContainsKey(token.Type))
+                if (token.MetaType is TokenMetaType.None)
+                    color = SyntaxColors.First(item => item.pattern == (token.Type, TokenMetaType.All)).color;
+                else
                 {
-                    color = SyntaxColors[token.Type];
+                    foreach (var pair in SyntaxColors)
+                    {
+                        if ((pair.pattern.type & token.Type) != 0)
+                        {
+                            if (pair.pattern.metaType == TokenMetaType.All)
+                            {
+                                color = SyntaxColors.First(item => item.pattern == (token.Type, TokenMetaType.All)).color;
+                                break;
+                            }
+                            if (pair.pattern.metaType == token.MetaType)
+                            {
+                                color = SyntaxColors.First(item => item.pattern == (token.Type, token.MetaType)).color;
+                                break;
+                            }
+                        }
+                    }
                 }
+                
                 formatter.Color(token.CharIndex, token.Content.Length, color);
             }
 
@@ -96,7 +116,7 @@ namespace NineEightOhThree.UI.CodeEditor
                             Logger.LogError("Token is null");
                             break;
                         }
-                        formatter.Underline(error.Token.Value.CharIndex, error.Token.Value.Content.Length);
+                        formatter.Underline(error.Token.CharIndex, error.Token.Content.Length);
                         break;
                     case AssemblerError.ErrorType.Lexical:
                         if (error.CharIndex is null || error.Length is null)
@@ -123,7 +143,7 @@ namespace NineEightOhThree.UI.CodeEditor
             AssemblerInterface.ScheduleAssembly(currentCode, CPU.Instance.WriteCode);
         }
 
-        public Dictionary<TokenType, Color32> SyntaxColors => new()
+        /*public Dictionary<TokenType, Color32> SyntaxColors => new()
         {
             { TokenType.Identifier, new Color32(245, 144, 66, 255) },
             { TokenType.Number, new Color32(132, 245, 66, 255) },
@@ -136,6 +156,24 @@ namespace NineEightOhThree.UI.CodeEditor
             { TokenType.RegisterX, new Color32(245, 66, 209, 255) },
             { TokenType.RegisterY, new Color32(245, 66, 129, 255) },
             { TokenType.Directive, new Color32(245, 239, 66, 255) },
+        };*/
+        
+        // TODO: Extract this to a config file
+        public List<((TokenType type, TokenMetaType metaType) pattern, Color32 color)> SyntaxColors => new()
+        {
+            ((TokenType.Identifier, TokenMetaType.Label), new Color32(245, 81, 66, 255)),
+            ((TokenType.Identifier, TokenMetaType.Instruction), new Color32(245, 144, 66, 255)),
+            ((TokenType.Identifier, TokenMetaType.AllValid), new Color32(245, 144, 66, 255)),
+            ((TokenType.Number, TokenMetaType.All), new Color32(132, 245, 66, 255)),
+            ((TokenType.LeftParen, TokenMetaType.All), new Color32(66, 149, 245, 255)),
+            ((TokenType.RightParen, TokenMetaType.All), new Color32(66, 149, 245, 255)),
+            ((TokenType.Comma, TokenMetaType.All), new Color32(66, 149, 245, 255)),
+            ((TokenType.ImmediateOp, TokenMetaType.All), new Color32(122, 225, 56, 255)),
+            ((TokenType.LabelDecl, TokenMetaType.All), new Color32(245, 81, 66, 255)),
+            ((TokenType.RegisterA, TokenMetaType.All), new Color32(155, 66, 245, 255)),
+            ((TokenType.RegisterX, TokenMetaType.All), new Color32(245, 66, 209, 255)),
+            ((TokenType.RegisterY, TokenMetaType.All), new Color32(245, 66, 129, 255)),
+            ((TokenType.Directive, TokenMetaType.All), new Color32(245, 239, 66, 255)),
         };
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace NineEightOhThree.VirtualCPU.Assembly
 {
-    public struct Token
+    public class Token
     {
         public TokenType Type { get; init; }
-        public TokenMetaType MetaType { get; private set; }
+        public TokenMetaType MetaType { get; set; }
         public string Content { get; init; }
         public object Literal { get; init; }
         public int Line { get; init; }

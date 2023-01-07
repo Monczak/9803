@@ -22,6 +22,8 @@
             Token = token;
             Number = number;
             LabelRef = null;
+
+            Token.SetMetaType(TokenMetaType.None);
         }
 
         public Operand(Token token, string labelRef)
@@ -29,6 +31,8 @@
             Token = token;
             Number = null;
             LabelRef = labelRef;
+            
+            Token.SetMetaType(TokenMetaType.Label);
         }
 
         public Operand(Token token, ushort number, bool isByte) : this(token, number)

@@ -39,10 +39,7 @@ namespace NineEightOhThree.Objects
         public Vector2 QuantizedPosition
         {
             get => MathExtensions.Quantize(UnitPosition, pixelsPerUnit);
-            set
-            {
-                UnitPosition = MathExtensions.Quantize(value, pixelsPerUnit);
-            }
+            set => UnitPosition = MathExtensions.Quantize(value, pixelsPerUnit);
         }
         
         private Vector2 PosDelta => (Vector2)pixelPos.GetValue<Vector2Byte>() - truePosition;
@@ -74,7 +71,7 @@ namespace NineEightOhThree.Objects
             SyncPositions();
         }
 
-        public void SyncPositions()
+        private void SyncPositions()
         {
             if (PosDelta.sqrMagnitude >= 1)
             {
@@ -107,12 +104,12 @@ namespace NineEightOhThree.Objects
             Physics2D.SyncTransforms();
         }
 
-        public void SyncWithTransform()
+        private void SyncWithTransform()
         {
             truePosition = (transform.position - Offset) * pixelsPerUnit;
         }
 
-        public void SyncTransform()
+        private void SyncTransform()
         {
             pixelPos.SetValue((Vector2Byte)TruePosition);
             SyncTransformWithPixelPos();
