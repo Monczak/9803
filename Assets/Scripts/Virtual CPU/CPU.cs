@@ -89,6 +89,7 @@ namespace NineEightOhThree.VirtualCPU
 
             Instance = this;
 
+            Memory.Setup();
             InitProcessor();
 
             executionTimes = new double[500];

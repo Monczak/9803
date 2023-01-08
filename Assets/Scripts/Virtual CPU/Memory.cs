@@ -18,6 +18,11 @@ namespace NineEightOhThree.VirtualCPU
 
         private void Awake()
         {
+            
+        }
+
+        public void Setup()
+        {
             Clear();
             writeProtectedAddresses = new HashSet<ushort>();
 
