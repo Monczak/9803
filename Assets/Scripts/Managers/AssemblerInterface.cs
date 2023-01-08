@@ -37,17 +37,17 @@ namespace NineEightOhThree.Managers
 
         private static void LexicalErrorHandler(AssemblerError? error)
         {
-            if (error != null) Debug.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line}, col {error.Value.Column})");
+            if (error != null) Logger.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line}, col {error.Value.Column})");
         }
 
         private static void SyntaxErrorHandler(AssemblerError? error)
         {
-            if (error != null) Debug.LogError($"Syntax error: {error.Value.Message} ({error.Value.Token})");
+            if (error != null) Logger.LogError($"Syntax error: {error.Value.Message} ({error.Value.Token})");
         }
         
         private static void InternalErrorHandler(AssemblerError? error)
         {
-            if (error != null) Debug.LogError($"Internal error: {error.Value.Message}");
+            if (error != null) Logger.LogError($"Internal error: {error.Value.Message}");
         }
 
         private static void ErrorHandler(AssemblerError? error)
