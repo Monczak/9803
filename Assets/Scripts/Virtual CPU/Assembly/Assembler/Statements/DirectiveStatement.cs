@@ -15,6 +15,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         {
             if (!DirectiveRegistry.TryGetDirective(token.Content[1..], out Directive directive))
                 return OperationResult.Error(SyntaxErrors.UnknownDirective(token));
+            
+            token.SetMetaType(TokenMetaType.Directive);
 
             Directive = directive;
             return OperationResult.Success();

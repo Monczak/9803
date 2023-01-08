@@ -94,9 +94,14 @@ namespace NineEightOhThree.UI.CodeEditor
                                 color = SyntaxColors.First(item => item.pattern == (token.Type, TokenMetaType.All)).color;
                                 break;
                             }
-                            if (pair.pattern.metaType == token.MetaType)
+                            if ((pair.pattern.metaType & token.MetaType) != 0)
                             {
-                                color = SyntaxColors.First(item => item.pattern == (token.Type, token.MetaType)).color;
+                                if (SyntaxColors.Any(item => item.pattern == (token.Type, token.MetaType)))
+                                    color = SyntaxColors.First(item => item.pattern == (token.Type, token.MetaType)).color;
+                                else if (SyntaxColors.Any(item => item.pattern == (token.Type, TokenMetaType.AllValid)))
+                                    color = SyntaxColors.First(item => item.pattern == (token.Type, TokenMetaType.AllValid)).color;
+                                else
+                                    color = SyntaxColors.First(item => item.pattern == (token.Type, TokenMetaType.All)).color;
                                 break;
                             }
                         }
@@ -173,7 +178,7 @@ namespace NineEightOhThree.UI.CodeEditor
             ((TokenType.RegisterA, TokenMetaType.All), new Color32(155, 66, 245, 255)),
             ((TokenType.RegisterX, TokenMetaType.All), new Color32(245, 66, 209, 255)),
             ((TokenType.RegisterY, TokenMetaType.All), new Color32(245, 66, 129, 255)),
-            ((TokenType.Directive, TokenMetaType.All), new Color32(245, 239, 66, 255)),
+            ((TokenType.Directive, TokenMetaType.AllValid), new Color32(245, 239, 66, 255)),
         };
     }
 }
