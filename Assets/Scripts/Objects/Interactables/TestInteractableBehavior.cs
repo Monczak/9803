@@ -1,4 +1,5 @@
 ﻿using System;
+using NineEightOhThree.Audio;
 using NineEightOhThree.Inventories;
 using UnityEngine;
 
@@ -25,6 +26,8 @@ namespace NineEightOhThree.Objects.Interactables
             Debug.Log($"Hello {origin.gameObject.name}");
 
             inventory.AddItemStack(ItemStack.Of(ItemRegistry.GetItem(1), 10));
+            
+            SpeechManager.Instance.Speak("Hello, my name is SAM.");
         }
     }
 }
