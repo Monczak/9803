@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace SamSharp.Renderer
 {
@@ -26,7 +28,7 @@ namespace SamSharp.Renderer
          *
          * <returns>A FramesData object with pitches, frequencies, amplitudes and sampled consonant flags.</returns>
          */
-        private FramesData CreateFrames(byte pitch, Parser.Parser.PhonemeData[] phonemes,
+        private FramesData CreateFrames(byte pitch, AnimationCurve pitchModifier, Parser.Parser.PhonemeData[] phonemes,
             Formants frequencies)
         {
             // Create a rising or falling inflection 30 frames prior to index X
@@ -61,6 +63,7 @@ namespace SamSharp.Renderer
 
             FramesData framesData = new FramesData();
             int x = 0;
+            int totalFrames = phonemes.Sum(data => data.Length!.Value);
 
             foreach (var data in phonemes)
             {
@@ -88,7 +91,7 @@ namespace SamSharp.Renderer
                     framesData.Amplitudes.Formant3[x] = (amplitudeData[phoneme!.Value] >> 16) & 0xFF;   // F3 amplitude
 
                     framesData.SampledConsonantFlags[x] = sampledConsonantFlags[phoneme!.Value];        // Phoneme data for sampled consonants
-                    framesData.Pitches[x] = (pitch + phase1) & 0xFF;                                    // Pitch
+                    framesData.Pitches[x] = ((byte)(pitch * pitchModifier.Evaluate((float)x / totalFrames)) + phase1) & 0xFF;  // Pitch
 
                     x++;
                 }

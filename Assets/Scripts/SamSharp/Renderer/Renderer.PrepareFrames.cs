@@ -26,7 +26,7 @@ namespace SamSharp.Renderer
         private FramesData PrepareFrames(Parser.Parser.PhonemeData[] phonemes, Options options)
         {
             var freqData = SetMouthThroat(options.Mouth, options.Throat);
-            var frameData = CreateFrames(options.Pitch, phonemes, freqData);
+            var frameData = CreateFrames(options.Pitch, options.PitchModifier, phonemes, freqData);
             var t = CreateTransitions(frameData, phonemes);
 
             if (!options.SingMode)

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
+using UnityEngine;
+using Debug = System.Diagnostics.Debug;
 
 namespace SamSharp.Renderer
 {
@@ -88,12 +89,17 @@ namespace SamSharp.Renderer
          * <param name="speed">The speed input.</param>
          * <param name="framesData">The frame data.</param>
          */
-        private void ProcessFrames(OutputBuffer output, int frameCount, int speed, FramesData framesData)
+        private void ProcessFrames(OutputBuffer output, int frameCount, int speed, AnimationCurve speedModifier, FramesData framesData)
         {
-            int speedCounter = speed;
+            int totalLength = frameCount;
+            int pos = 0;
+
+            float SpeedModifier() => speedModifier.Evaluate((float)pos / totalLength);
+            int Speed() => (int)(speed * SpeedModifier());
+            
+            int speedCounter = Speed();
             int phase1 = 0, phase2 = 0, phase3 = 0;
             int lastSampleOffset = 0;
-            int pos = 0;
             int glottalPulse = framesData.Pitches[0];
             int mem38 = (int)(glottalPulse * .75f);
 
@@ -108,7 +114,7 @@ namespace SamSharp.Renderer
                     // Skip ahead 2 in the phoneme buffer
                     pos += 2;
                     frameCount -= 2;
-                    speedCounter = speed;
+                    speedCounter = Speed();
                 }
                 else
                 {
@@ -151,7 +157,7 @@ namespace SamSharp.Renderer
                         frameCount--;
                         if (frameCount == 0) return;
 
-                        speedCounter = speed;
+                        speedCounter = Speed();
                     }
 
                     glottalPulse--;

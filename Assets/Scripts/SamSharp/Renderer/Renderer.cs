@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NineEightOhThree.Utilities;
 
 namespace SamSharp.Renderer
 {
@@ -52,12 +53,12 @@ namespace SamSharp.Renderer
             var output = new OutputBuffer(
                 (int)(176.4f  // 22050 / 125
                 * phonemes.Sum(data => data.Length!.Value)
-                * options.Speed)
+                * options.Speed * CurveUtils.Integrate(options.SpeedModifier, 0, 1, 1000))
             );
             
             PrintOutput(sentences);
             
-            ProcessFrames(output, sentences.T, options.Speed, sentences);
+            ProcessFrames(output, sentences.T, options.Speed, options.SpeedModifier, sentences);
 
             return output.Get();
         }

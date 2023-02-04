@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NineEightOhThree.Dialogues;
 using UnityEngine;
 using SamSharp;
 using UnityEditor;
@@ -25,13 +26,23 @@ namespace NineEightOhThree.Audio
 
         public void Speak(string text)
         {
-            sam.SpeakAsync(text).ContinueWith(t => OnSpeechSynthesized(t.Result), TaskScheduler.FromCurrentSynchronizationContext());
+            sam.SpeakAsync(text).ContinueWith(t => OnSpeechSynthesized(t.Result),
+                TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        public void SpeakDialogueLine(DialogueLine line)
+        {
+            sam.Options = line.Options;
+            Speak(line.Text);
         }
 
         private void OnSpeechSynthesized(byte[] theAudio)
         {
             AudioClip clip = AudioClip.Create($"speech", theAudio.Length, 1, 22050, false);
-            clip.SetData(ByteArrayToFloatArray(theAudio), 0);
+
+            float[] data = ByteArrayToFloatArray(theAudio);
+            AddFadeout(data);
+            clip.SetData(data, 0);
             
             source.PlayOneShot(clip);
         }
@@ -45,6 +56,13 @@ namespace NineEightOhThree.Audio
             }
 
             return arr;
+        }
+
+        private void AddFadeout(float[] data, int samples = 1000)
+        {
+            float x = 0;
+            for (int i = data.Length - samples - 1; i < data.Length; i++)
+                data[i] *= 1 - x++ / data.Length;
         }
     }
 }

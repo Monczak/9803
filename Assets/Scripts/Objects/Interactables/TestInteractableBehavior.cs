@@ -1,5 +1,6 @@
 ﻿using System;
 using NineEightOhThree.Audio;
+using NineEightOhThree.Dialogues;
 using NineEightOhThree.Inventories;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ namespace NineEightOhThree.Objects.Interactables
     public class TestInteractableBehavior : InteractableBehavior
     {
         private Inventory inventory;
+
+        public Dialogue dialogue;
         
         private void Awake()
         {
@@ -27,7 +30,7 @@ namespace NineEightOhThree.Objects.Interactables
 
             inventory.AddItemStack(ItemStack.Of(ItemRegistry.GetItem(1), 10));
             
-            SpeechManager.Instance.Speak("Hello, my name is SAM.");
+            SpeechManager.Instance.SpeakDialogueLine(dialogue.Lines[0]);
         }
     }
 }
