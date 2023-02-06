@@ -44,6 +44,7 @@ namespace NineEightOhThree.Audio
             AddFadeout(data);
             clip.SetData(data, 0);
             
+            // TODO: Destroy the clip when it's done playing! (Memory leak)
             source.PlayOneShot(clip);
         }
 

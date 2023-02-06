@@ -13,73 +13,50 @@ MonoBehaviour:
   m_Name: Test Dialogue
   m_EditorClassIdentifier: 
   <Lines>k__BackingField:
-  - <Text>k__BackingField: Yes, I have turned British now. Blimey, this don't sound
-      much like British dunnit?
+  - <Text>k__BackingField: ghostbusters, they're back in town, you need to pee, that
+      is so crazy.
     <PhoneticText>k__BackingField: 
     <Options>k__BackingField:
-      <Pitch>k__BackingField: 69
+      <Pitch>k__BackingField: 64
+      <Mouth>k__BackingField: 128
+      <Throat>k__BackingField: 128
+      <Speed>k__BackingField: 72
+      <SingMode>k__BackingField: 0
       <PitchModifier>k__BackingField:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
           time: 0
           value: 1
-          inSlope: -1.6683717
-          outSlope: -1.6683717
+          inSlope: 0.009540449
+          outSlope: 0.009540449
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.24030171
-          value: 0.5990874
-          inSlope: -0.038818687
-          outSlope: -0.038818687
+          time: 0.49850628
+          value: 1.004756
+          inSlope: -0.065165505
+          outSlope: -0.065165505
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.11666
-        - serializedVersion: 3
-          time: 0.32179934
-          value: 1.420018
-          inSlope: -0.0851205
-          outSlope: -0.0851205
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.2540597
+          inWeight: 0.14537588
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.70792687
-          value: 1.1155651
-          inSlope: 0.027864309
-          outSlope: 0.027864309
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.5113489
-        - serializedVersion: 3
-          time: 0.8750786
-          value: 0.97897804
-          inSlope: 0.4666295
-          outSlope: 0.4666295
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 0.8983669
-          value: 1.2292612
-          inSlope: 1.1267468
-          outSlope: 1.1267468
-          tangentMode: 0
+          time: 0.7928733
+          value: 1.7943938
+          inSlope: 0.052286327
+          outSlope: 0.052286327
+          tangentMode: 136
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
           time: 1
-          value: 1
-          inSlope: -2.2557733
-          outSlope: -2.2557733
+          value: 1.8009491
+          inSlope: 0.03164884
+          outSlope: 0.03164884
           tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
@@ -87,7 +64,45 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-      <Mouth>k__BackingField: 103
-      <Throat>k__BackingField: 133
-      <Speed>k__BackingField: 72
-      <SingMode>k__BackingField: 1
+      <SpeedModifier>k__BackingField:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0.007367681
+          outSlope: 0.007367681
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.64202356
+          value: 1.0047302
+          inSlope: 0.026867818
+          outSlope: 0.026867818
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.70422167
+          value: 1.9952556
+          inSlope: 0.053013626
+          outSlope: 0.053013626
+          tangentMode: 136
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 2
+          inSlope: 0.016040426
+          outSlope: 0.13929725
+          tangentMode: 5
+          weightedMode: 0
+          inWeight: 0.68700296
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4

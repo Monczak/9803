@@ -90,23 +90,39 @@ namespace SamSharp.Parser
             public int? Phoneme { get; }
             public int? Length { get; }
             public int? Stress { get; }
+            
+            public string PhonemeName { get; }
+            
+            public bool WordStart { get; }
 
             public PhonemeData(int? phoneme, int? length, int? stress)
             {
                 Phoneme = phoneme;
                 Length = length;
                 Stress = stress;
+                PhonemeName = "";
+                WordStart = false;
+            }
+
+            public PhonemeData(int? phoneme, string phonemeName, int? length, int? stress, bool wordStart)
+            {
+                Phoneme = phoneme;
+                PhonemeName = phonemeName;
+                Length = length;
+                Stress = stress;
+                WordStart = wordStart;
             }
         }
 
         /// <summary>
         /// Parses speech data.
-        ///
+        /// 
         /// Returns array of (phoneme, length, stress).
         /// </summary>
         /// <param name="input">The data to parse.</param>
+        /// <param name="skipEmpty">Skip empty phonemes (spaces).</param>
         /// <returns>The parsed data.</returns>
-        public PhonemeData[] Parse(string input)
+        public PhonemeData[] Parse(string input, bool skipEmpty = true)
         {
             if (input is null)
                 return null;
@@ -136,15 +152,21 @@ namespace SamSharp.Parser
             SetPhonemeLength(GetPhoneme, GetStress, SetLength);
             AdjustLengths(GetPhoneme, SetLength, GetLength);
             ProlongPlosiveStopConsonantsCode41240(GetPhoneme, InsertPhoneme, GetStress);
-            
+
             PrintPhonemes();
 
             List<PhonemeData> result = new List<PhonemeData>();
 
             for (int i = 0; i < phonemeIndexes.Count; i++)
             {
-                if (phonemeIndexes[i] != null && phonemeIndexes[i] != 0)
-                    result.Add(new PhonemeData(phonemeIndexes[i], phonemeLengths[i], stresses[i]));
+                if (!skipEmpty || (phonemeIndexes[i] != null && phonemeIndexes[i] != 0))
+                    result.Add(new PhonemeData(
+                        phonemeIndexes[i], 
+                        GetPhonemeNamePos(i), 
+                        phonemeLengths[i], 
+                        stresses[i],
+                        i > 0 && (phonemeIndexes[i - 1] == null || phonemeIndexes[i - 1] == 0)
+                    ));
             }
 
             return result.ToArray();

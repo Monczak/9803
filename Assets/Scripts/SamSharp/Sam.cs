@@ -40,5 +40,10 @@ namespace SamSharp
         {
             return Task<byte[]>.Factory.StartNew(() => SpeakPhonetic(phoneticInput));
         }
+
+        public Parser.Parser.PhonemeData[] GetPhonemeData(string input) => new Parser.Parser().Parse(new Reciter.Reciter().TextToPhonemes(input));
+
+        public Task<Parser.Parser.PhonemeData[]> GetPhonemeDataAsync(string input) =>
+            Task<Parser.Parser.PhonemeData[]>.Factory.StartNew(() => GetPhonemeData(input));
     }
 }
