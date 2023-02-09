@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using NineEightOhThree.Utilities;
+using SamSharp.Parser;
 
 namespace SamSharp.Renderer
 {
@@ -46,7 +47,7 @@ namespace SamSharp.Renderer
         /// <param name="phonemes">The phoneme data output by the parser.</param>
         /// <param name="options">Speech options such as pitch, mouth/throat, speed and sing mode.</param>
         /// <returns>A byte buffer with audio data.</returns>
-        public byte[] Render(Parser.Parser.PhonemeData[] phonemes, Options options)
+        public byte[] Render(PhonemeData[] phonemes, Options options)
         {
             var sentences = PrepareFrames(phonemes, options);
 

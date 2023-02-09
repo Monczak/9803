@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NineEightOhThree.Dialogues;
 using UnityEngine;
 using SamSharp;
+using SamSharp.Parser;
 using UnityEditor;
 
 namespace NineEightOhThree.Audio
@@ -32,9 +33,21 @@ namespace NineEightOhThree.Audio
 
         public void SpeakDialogueLine(DialogueLine line)
         {
-            sam.Options = line.Options;
+            SetSamOptions(line.Options);
             Speak(line.Text);
         }
+
+        public PhonemeData[] GetPhonemeData(string text)
+        {
+            return sam.GetPhonemeData(text);
+        }
+
+        public Task<PhonemeData[]> GetPhonemeDataAsync(string text)
+        {
+            return sam.GetPhonemeDataAsync(text);
+        }
+
+        public void SetSamOptions(Options options) => sam.Options = options;
 
         private void OnSpeechSynthesized(byte[] theAudio)
         {

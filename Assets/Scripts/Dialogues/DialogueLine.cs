@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SamSharp;
 using UnityEngine;
 
@@ -11,5 +12,8 @@ namespace NineEightOhThree.Dialogues
         [field: SerializeField] public string PhoneticText { get; set; }
         
         [field: SerializeField] public Options Options { get; set; }
+        
+        [field: SerializeField] public List<float> Keyframes { get; set; }
+        [field: SerializeField] public List<float> WordBoundaryKeyframes { get; set; }
     }
 }

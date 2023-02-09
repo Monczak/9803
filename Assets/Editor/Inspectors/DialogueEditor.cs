@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NineEightOhThree.Dialogues;
 using SamSharp;
 using SamSharp.Parser;
-using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace NineEightOhThree.Editor.Inspectors
@@ -19,17 +18,21 @@ namespace NineEightOhThree.Editor.Inspectors
 
         private Sam sam;
         
-        private Dictionary<DialogueLine, Parser.PhonemeData[]> phonemeData;
+        private Dictionary<DialogueLine, PhonemeData[]> phonemeData;
         private Dictionary<DialogueLine, bool> showPhonemes;
         private Dictionary<DialogueLine, Dictionary<int, bool>> keyframeEnabled;
+        private Dictionary<DialogueLine, List<int>> wordBoundaries;
+        private Dictionary<DialogueLine, string> cachedText;
 
         private void OnEnable()
         {
             dialogue = target as Dialogue;
             foldOuts ??= new Dictionary<DialogueLine, bool>();
-            phonemeData ??= new Dictionary<DialogueLine, Parser.PhonemeData[]>();
+            phonemeData ??= new Dictionary<DialogueLine, PhonemeData[]>();
             showPhonemes = new Dictionary<DialogueLine, bool>();
             keyframeEnabled ??= new Dictionary<DialogueLine, Dictionary<int, bool>>();
+            wordBoundaries ??= new Dictionary<DialogueLine, List<int>>();
+            cachedText ??= new Dictionary<DialogueLine, string>();
 
             if (dialogue is not null)
             {
@@ -41,6 +44,7 @@ namespace NineEightOhThree.Editor.Inspectors
                         phonemeData[line] = null;
                         showPhonemes[line] = false;
                         keyframeEnabled[line] = new Dictionary<int, bool>();
+                        wordBoundaries[line] = new List<int>();
                     }
                 }
                 
@@ -78,15 +82,31 @@ namespace NineEightOhThree.Editor.Inspectors
                     
                     EditorGUILayout.Separator();
 
+                    EditorGUILayout.BeginHorizontal();
                     if (GUILayout.Button("Get Phoneme Data"))
                     {
-                        sam.Options = line.Options;
                         sam.GetPhonemeDataAsync(line.Text).ContinueWith(t =>
                         {
                             phonemeData[line] = t.Result;
+                            showPhonemes[line] = true;
+                            keyframeEnabled[line] = new Dictionary<int, bool>();
+                            cachedText[line] = line.Text;
                             Repaint();
                         });
                     }
+
+                    int keyframeCount = keyframeEnabled[line].Count(k => k.Value);
+                    GUI.enabled = keyframeCount > 0;
+                    if (GUILayout.Button($"Insert {keyframeCount} Keyframes"))
+                    {
+                        InsertKeyframes(line);
+                    }
+                    if (GUILayout.Button("Prepare Curves"))
+                    {
+                        PrepareCurves(line);
+                    }
+                    GUI.enabled = true;
+                    EditorGUILayout.EndHorizontal();
 
                     showPhonemes[line] = EditorGUILayout.Foldout(showPhonemes[line], "Phoneme Data");
                     if (showPhonemes[line])
@@ -94,6 +114,8 @@ namespace NineEightOhThree.Editor.Inspectors
                         if (phonemeData[line] is not null)
                         {
                             DrawPhonemeTable(line);
+                            SetKeyframes(line);
+                            SetWordBoundaries(line);
                         }
                         else
                         {
@@ -106,6 +128,68 @@ namespace NineEightOhThree.Editor.Inspectors
             }
         }
 
+        private void SetWordBoundaries(DialogueLine line)
+        {
+            line.WordBoundaryKeyframes = new List<float>();
+            int totalLength = phonemeData[line].Sum(p => p.Length)!.Value;
+            int cumulativeLength = 0;
+            int boundaryIndex = 0;
+            for (int i = 0; i < phonemeData[line].Length; i++)
+            {
+                if (boundaryIndex < wordBoundaries[line].Count && wordBoundaries[line][boundaryIndex] == i)
+                {
+                    line.WordBoundaryKeyframes.Add((float)cumulativeLength / totalLength);
+                    boundaryIndex++;
+                }
+                cumulativeLength += phonemeData[line][i].Length!.Value;
+            }
+        }
+
+        private void SetKeyframes(DialogueLine line)
+        {
+            line.Keyframes = new List<float>();
+            int totalLength = phonemeData[line].Sum(p => p.Length)!.Value;
+            int cumulativeLength = 0;
+            for (int i = 0; i < keyframeEnabled[line].Count; i++)
+            {
+                if (keyframeEnabled[line][i]) line.Keyframes.Add((float)cumulativeLength / totalLength);
+                cumulativeLength += phonemeData[line][i].Length!.Value;
+            }
+        }
+
+        private void PrepareCurves(DialogueLine line)
+        {
+            line.Options.PitchModifier = new AnimationCurve();
+            line.Options.PitchModifier.AddKey(0, 1);
+            line.Options.PitchModifier.AddKey(1, 1);
+            line.Options.SpeedModifier = new AnimationCurve();
+            line.Options.SpeedModifier.AddKey(0, 1);
+            line.Options.SpeedModifier.AddKey(1, 1);
+            InsertKeyframes(line);
+        }
+
+        private void InsertKeyframes(DialogueLine line)
+        {
+            int totalLength = phonemeData[line].Sum(p => p.Length)!.Value;
+            int[] cumulativeLengths = new int[phonemeData[line].Length];
+            int l = 0;
+            for (int i = 0; i < phonemeData[line].Length; i++)
+            {
+                cumulativeLengths[i] = l;
+                l += phonemeData[line][i].Length!.Value;
+            }
+
+            for (int i = 0; i < keyframeEnabled[line].Count; i++)
+            { 
+                if (keyframeEnabled[line][i])
+                {
+                    float time = (float)cumulativeLengths[i] / totalLength;
+                    line.Options.PitchModifier.AddKey(time, line.Options.PitchModifier.Evaluate(time));
+                    line.Options.SpeedModifier.AddKey(time, line.Options.SpeedModifier.Evaluate(time));
+                }
+            }
+        }
+        
         private void DrawPhonemeTable(DialogueLine line)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
@@ -115,26 +199,35 @@ namespace NineEightOhThree.Editor.Inspectors
             EditorGUIUtility.labelWidth = 40;
             EditorGUILayout.LabelField("Phoneme", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Length", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Stress", EditorStyles.boldLabel);
             EditorGUILayout.LabelField("Keyframe", EditorStyles.boldLabel);
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
+            int wordIndex = 0;
+            string[] words = Regex.Replace(cachedText[line], @"\s+", " ").Split(" ");
             for (int i = 0; i < phonemeData[line].Length; i++)
             {
-                Parser.PhonemeData data = phonemeData[line][i];
+                PhonemeData data = phonemeData[line][i];
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.Space();
-
-                EditorGUIUtility.labelWidth = 40;
+                
                 EditorGUILayout.LabelField(data.PhonemeName);
                 EditorGUILayout.LabelField(data.Length.ToString());
+                EditorGUILayout.LabelField(data.Stress.ToString());
 
                 if (data.WordStart && !keyframeEnabled[line].ContainsKey(i))
+                {
                     keyframeEnabled[line][i] = true;
+                    wordBoundaries[line] ??= new List<int>();
+                    wordBoundaries[line].Add(i);
+                }
                 
                 keyframeEnabled[line].TryGetValue(i, out bool enabled);
                 keyframeEnabled[line][i] = EditorGUILayout.Toggle(enabled);
+
+                EditorGUILayout.LabelField(data.WordStart ? words[wordIndex++] : "");
 
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();

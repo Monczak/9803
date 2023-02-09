@@ -1,4 +1,5 @@
 ﻿using System.IO.IsolatedStorage;
+using SamSharp.Parser;
 
 namespace SamSharp.Renderer
 {
@@ -23,7 +24,7 @@ namespace SamSharp.Renderer
          * <param name="phonemes">The phoneme data.</param>
          * <param name="options">The input options.</param>
          */
-        private FramesData PrepareFrames(Parser.Parser.PhonemeData[] phonemes, Options options)
+        private FramesData PrepareFrames(PhonemeData[] phonemes, Options options)
         {
             var freqData = SetMouthThroat(options.Mouth, options.Throat);
             var frameData = CreateFrames(options.Pitch, options.PitchModifier, phonemes, freqData);

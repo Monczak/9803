@@ -1,4 +1,5 @@
 ﻿using System;
+using SamSharp.Parser;
 
 namespace SamSharp.Renderer
 {
@@ -43,7 +44,7 @@ namespace SamSharp.Renderer
          * <param name="phonemes">The phoneme data.</param>
          * <returns>The length of the transition.</returns>
          */
-        private int CreateTransitions(FramesData framesData, Parser.Parser.PhonemeData[] phonemes)
+        private int CreateTransitions(FramesData framesData, PhonemeData[] phonemes)
         {
             // Tables:
             // 0  pitches

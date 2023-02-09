@@ -10,8 +10,7 @@ namespace SamSharp.Parser
         private Dictionary<int, int?> stresses;        // Numbers from 0 to 8
         private Dictionary<int, int?> phonemeLengths;
         private Dictionary<int, int?> phonemeIndexes;
-        
-        
+
         private string GetPhonemeNamePos(int? pos) => pos is null || phonemeIndexes[pos.Value] is null ? null : phonemeNameTable[phonemeIndexes[pos.Value]!.Value];
         private string GetPhonemeName(int? phoneme) => phoneme is null ? null : phonemeNameTable[phoneme.Value];
         
@@ -84,35 +83,6 @@ namespace SamSharp.Parser
 
         private bool PhonemeHasFlag(int? phoneme, PhonemeFlags flag) =>
             phoneme is { } && Utils.MatchesBitmask((int)phonemeFlags[phoneme.Value], (int)flag);
-
-        public struct PhonemeData
-        {
-            public int? Phoneme { get; }
-            public int? Length { get; }
-            public int? Stress { get; }
-            
-            public string PhonemeName { get; }
-            
-            public bool WordStart { get; }
-
-            public PhonemeData(int? phoneme, int? length, int? stress)
-            {
-                Phoneme = phoneme;
-                Length = length;
-                Stress = stress;
-                PhonemeName = "";
-                WordStart = false;
-            }
-
-            public PhonemeData(int? phoneme, string phonemeName, int? length, int? stress, bool wordStart)
-            {
-                Phoneme = phoneme;
-                PhonemeName = phonemeName;
-                Length = length;
-                Stress = stress;
-                WordStart = wordStart;
-            }
-        }
 
         /// <summary>
         /// Parses speech data.
@@ -191,6 +161,35 @@ namespace SamSharp.Parser
             }
             
             Debug.WriteLine("==================================");
+        }
+    }
+
+    public struct PhonemeData
+    {
+        public int? Phoneme { get; }
+        public int? Length { get; }
+        public int? Stress { get; }
+            
+        public string PhonemeName { get; }
+            
+        public bool WordStart { get; }
+
+        public PhonemeData(int? phoneme, int? length, int? stress)
+        {
+            Phoneme = phoneme;
+            Length = length;
+            Stress = stress;
+            PhonemeName = "";
+            WordStart = false;
+        }
+
+        public PhonemeData(int? phoneme, string phonemeName, int? length, int? stress, bool wordStart)
+        {
+            Phoneme = phoneme;
+            PhonemeName = phonemeName;
+            Length = length;
+            Stress = stress;
+            WordStart = wordStart;
         }
     }
 }

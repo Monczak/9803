@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SamSharp.Parser;
 using UnityEngine;
 
 namespace SamSharp.Renderer
@@ -28,7 +29,7 @@ namespace SamSharp.Renderer
          *
          * <returns>A FramesData object with pitches, frequencies, amplitudes and sampled consonant flags.</returns>
          */
-        private FramesData CreateFrames(byte pitch, AnimationCurve pitchModifier, Parser.Parser.PhonemeData[] phonemes,
+        private FramesData CreateFrames(byte pitch, AnimationCurve pitchModifier, PhonemeData[] phonemes,
             Formants frequencies)
         {
             // Create a rising or falling inflection 30 frames prior to index X
