@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using NineEightOhThree.Dialogues;
+using NineEightOhThree.Utilities;
 using SamSharp;
 using SamSharp.Parser;
 using UnityEditor;
@@ -206,7 +207,8 @@ namespace NineEightOhThree.Editor.Inspectors
             EditorGUILayout.EndHorizontal();
 
             int wordIndex = 0;
-            string[] words = Regex.Replace(cachedText[line], @"\s+", " ").Split(" ");
+            string cleanedInput = SamUtils.CleanInput(cachedText[line]);
+            string[] words = SamUtils.SplitWords(cleanedInput).ToArray();
             for (int i = 0; i < phonemeData[line].Length; i++)
             {
                 PhonemeData data = phonemeData[line][i];

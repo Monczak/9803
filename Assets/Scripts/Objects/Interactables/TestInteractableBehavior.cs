@@ -31,7 +31,6 @@ namespace NineEightOhThree.Objects.Interactables
 
             inventory.AddItemStack(ItemStack.Of(ItemRegistry.GetItem(1), 10));
             
-            SpeechManager.Instance.SpeakDialogueLine(dialogue.Lines[0]);
             DialogueManager.Instance.StartDialogueLine(dialogue.Lines[0]);
         }
     }

@@ -11,6 +11,8 @@ namespace NineEightOhThree.UI.Dialogue
     {
         public TMP_Text text;
         
+        public SpeechInfo SpeechInfo { get; set; }
+        
         // Start is called before the first frame update
         void Start()
         {
@@ -23,12 +25,17 @@ namespace NineEightOhThree.UI.Dialogue
         
         }
 
+        // TODO: Show text character by character, interpolating between words and syncing to speech
         public void StartDialogueLine(DialogueLine line)
         {
+            Logger.Log($"Preparing speech for \"{line.Text}\"");
+            
+            
             Debug.Log($"{line.WordBoundaryKeyframes.Count} word boundaries");
-            foreach (float keyframe in line.WordBoundaryKeyframes)
+            for (int i = 0; i < line.WordBoundaryKeyframes.Count; i++)
             {
-                Debug.Log(keyframe);
+                float keyframe = line.WordBoundaryKeyframes[i];
+                Debug.Log($"{keyframe} {line.Words[i]} {line.WordIndexes[i]} - {keyframe * SpeechInfo.LengthSeconds} secs");
             }
         }
     }

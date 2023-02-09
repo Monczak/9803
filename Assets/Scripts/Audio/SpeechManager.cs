@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NineEightOhThree.Dialogues;
+using NineEightOhThree.Threading;
 using UnityEngine;
 using SamSharp;
 using SamSharp.Parser;
-using UnityEditor;
 
 namespace NineEightOhThree.Audio
 {
@@ -16,6 +16,10 @@ namespace NineEightOhThree.Audio
         private AudioSource source;
         private Sam sam;
 
+        private AudioClip clip;
+
+        public event EventHandler<SpeechInfo> OnSpeechSynthesized; 
+
         private void Awake()
         {
             Instance ??= this;
@@ -25,16 +29,16 @@ namespace NineEightOhThree.Audio
             sam = new Sam();
         }
 
-        public void Speak(string text)
+        public async Task SpeakAsync(string text)
         {
-            sam.SpeakAsync(text).ContinueWith(t => OnSpeechSynthesized(t.Result),
-                TaskScheduler.FromCurrentSynchronizationContext());
+            byte[] audio = await sam.SpeakAsync(text);
+            await UnityDispatcher.Instance.Execute(() => OnSamDone(audio));
         }
 
-        public void SpeakDialogueLine(DialogueLine line)
+        public async Task SpeakDialogueLineAsync(DialogueLine line)
         {
             SetSamOptions(line.Options);
-            Speak(line.Text);
+            await SpeakAsync(line.Text);
         }
 
         public PhonemeData[] GetPhonemeData(string text)
@@ -49,15 +53,17 @@ namespace NineEightOhThree.Audio
 
         public void SetSamOptions(Options options) => sam.Options = options;
 
-        private void OnSpeechSynthesized(byte[] theAudio)
+        private void OnSamDone(byte[] theAudio)
         {
-            AudioClip clip = AudioClip.Create($"speech", theAudio.Length, 1, 22050, false);
+            if (clip is not null) Destroy(clip);
+            clip = AudioClip.Create("speech", theAudio.Length, 1, 22050, false);
 
             float[] data = ByteArrayToFloatArray(theAudio);
             AddFadeout(data);
             clip.SetData(data, 0);
             
-            // TODO: Destroy the clip when it's done playing! (Memory leak)
+            OnSpeechSynthesized?.Invoke(this, new SpeechInfo {LengthSeconds = clip.length});
+            
             source.PlayOneShot(clip);
         }
 

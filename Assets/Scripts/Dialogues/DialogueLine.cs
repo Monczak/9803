@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using NineEightOhThree.Utilities;
 using SamSharp;
 using UnityEngine;
 
@@ -15,5 +18,8 @@ namespace NineEightOhThree.Dialogues
         
         [field: SerializeField] public List<float> Keyframes { get; set; }
         [field: SerializeField] public List<float> WordBoundaryKeyframes { get; set; }
+
+        public List<int> WordIndexes => SamUtils.GetWordIndexes(SamUtils.CleanInput(Text)).ToList();
+        public List<string> Words => SamUtils.SplitWords(SamUtils.CleanInput(Text)).ToList();
     }
 }
