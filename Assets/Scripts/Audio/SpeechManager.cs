@@ -68,7 +68,7 @@ namespace NineEightOhThree.Audio
                 LengthSeconds = clip.length, 
                 SampleRate = 22050,
                 NumSamples = data.Length,
-                WordBoundaries = result.WordBoundaries
+                WordTimings = result.WordBoundaries
             });
             
             source.PlayOneShot(clip);

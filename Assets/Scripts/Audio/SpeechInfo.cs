@@ -8,6 +8,6 @@ namespace NineEightOhThree.Audio
         public int SampleRate { get; init; }
         public int NumSamples { get; init; }
         
-        public List<(int start, int end)> WordBoundaries { get; init; } 
+        public List<(int start, int end)> WordTimings { get; init; } 
     }
 }

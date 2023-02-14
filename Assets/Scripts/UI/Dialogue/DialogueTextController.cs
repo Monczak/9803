@@ -40,13 +40,13 @@ namespace NineEightOhThree.UI.Dialogue
         // TODO: Show text character by character, interpolating between words and syncing to speech
         public void StartDialogueLine(DialogueLine line)
         {
-            Debug.Log($"{SpeechInfo.WordBoundaries.Count} word boundaries");
+            Debug.Log($"{SpeechInfo.WordTimings.Count} words");
 
             Debug.Log($"{SpeechInfo.LengthSeconds} {SpeechInfo.NumSamples}");
 
-            for (int i = 0; i < SpeechInfo.WordBoundaries.Count; i++)
+            for (int i = 0; i < SpeechInfo.WordTimings.Count; i++)
             {
-                Debug.Log($"{line.Words[i]} {(float)SpeechInfo.WordBoundaries[i].start / SpeechInfo.SampleRate} {(float)SpeechInfo.WordBoundaries[i].end / SpeechInfo.SampleRate}");
+                Debug.Log($"{line.Words[i]} {(float)SpeechInfo.WordTimings[i].start / SpeechInfo.SampleRate} {(float)SpeechInfo.WordTimings[i].end / SpeechInfo.SampleRate}");
             }
             
             Debug.Log($"Timings: {string.Join(", ", wordTimings.Select(t => t.ToString("F3")))}");

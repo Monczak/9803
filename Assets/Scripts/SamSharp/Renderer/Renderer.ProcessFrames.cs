@@ -123,14 +123,11 @@ namespace SamSharp.Renderer
                     wordStarts.Add(output.BufferPos / 50);
                     wordStartPoses.Add(pos);
                 }
-
-                int prePos = pos;
                 
-                bool isWordEnd = framesData.WordEnds.Contains(prePos);
-                if (isWordEnd && !wordEndPoses.Contains(prePos))
+                if (framesData.WordEnds.Contains(pos) && !wordEndPoses.Contains(pos))
                 {
                     wordEnds.Add(output.BufferPos / 50);
-                    wordEndPoses.Add(prePos);
+                    wordEndPoses.Add(pos);
                 }
 
                 // Unvoiced sampled phoneme?
@@ -224,7 +221,7 @@ namespace SamSharp.Renderer
                 phase2 = 0;
                 phase3 = 0;
             }
-
+            
             wordEnds.Add(output.BufferPos / 50);
             wordEndPoses.Add(pos);
             return GetWordBoundaries();
