@@ -79,6 +79,9 @@ namespace SamSharp.Renderer
                 // Get the stress amount (more stress = higher pitch)
                 var phase1 = stressPitch_tab47492[data.Stress!.Value];
                 
+                framesData.PhonemeStarts.Add(x);
+                if (data.WordStart) framesData.WordStarts.Add(x);
+
                 // Get number of frames to write
                 // Copy from the source to the frames list
                 for (int frames = data.Length!.Value; frames > 0; frames--)
@@ -96,6 +99,8 @@ namespace SamSharp.Renderer
 
                     x++;
                 }
+                                
+                if (data.WordEnd) framesData.WordEnds.Add(x);
             }
             return framesData;
         }

@@ -5,6 +5,7 @@ using NineEightOhThree.Threading;
 using UnityEngine;
 using SamSharp;
 using SamSharp.Parser;
+using SamSharp.Renderer;
 
 namespace NineEightOhThree.Audio
 {
@@ -31,8 +32,8 @@ namespace NineEightOhThree.Audio
 
         public async Task SpeakAsync(string text)
         {
-            byte[] audio = await sam.SpeakAsync(text);
-            await UnityDispatcher.Instance.Execute(() => OnSamDone(audio));
+            RenderResult result = await sam.SpeakAsync(text);
+            await UnityDispatcher.Instance.Execute(() => OnSamDone(result));
         }
 
         public async Task SpeakDialogueLineAsync(DialogueLine line)
@@ -53,16 +54,22 @@ namespace NineEightOhThree.Audio
 
         public void SetSamOptions(Options options) => sam.Options = options;
 
-        private void OnSamDone(byte[] theAudio)
+        private void OnSamDone(RenderResult result)
         {
             if (clip is not null) Destroy(clip);
-            clip = AudioClip.Create("speech", theAudio.Length, 1, 22050, false);
+            clip = AudioClip.Create("speech", result.Audio.Length, 1, 22050, false);
 
-            float[] data = ByteArrayToFloatArray(theAudio);
+            float[] data = ByteArrayToFloatArray(result.Audio);
             AddFadeout(data);
             clip.SetData(data, 0);
             
-            OnSpeechSynthesized?.Invoke(this, new SpeechInfo {LengthSeconds = clip.length});
+            OnSpeechSynthesized?.Invoke(this, new SpeechInfo
+            {
+                LengthSeconds = clip.length, 
+                SampleRate = 22050,
+                NumSamples = data.Length,
+                WordBoundaries = result.WordBoundaries
+            });
             
             source.PlayOneShot(clip);
         }

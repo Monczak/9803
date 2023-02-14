@@ -4,7 +4,7 @@ namespace SamSharp.Reciter
 {
     public partial class Reciter
     {
-        private readonly Dictionary<char, CharFlags> charFlags = new Dictionary<char, CharFlags>
+        private readonly Dictionary<char, CharFlags> charFlags = new()
         {
             { ' ', 0 },
             { '!', CharFlags.Ruleset2 },

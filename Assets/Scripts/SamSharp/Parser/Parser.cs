@@ -135,7 +135,8 @@ namespace SamSharp.Parser
                         GetPhonemeNamePos(i), 
                         phonemeLengths[i], 
                         stresses[i],
-                        i > 0 && (phonemeIndexes[i - 1] == null || phonemeIndexes[i - 1] == 0)
+                        i > 0 && (phonemeIndexes[i - 1] == null || phonemeIndexes[i - 1] == 0),
+                        phonemeIndexes[i] > 3 && (!phonemeIndexes.ContainsKey(i + 1) || phonemeIndexes[i + 1] <= 3)
                     ));
             }
 
@@ -173,6 +174,7 @@ namespace SamSharp.Parser
         public string PhonemeName { get; }
             
         public bool WordStart { get; }
+        public bool WordEnd { get; }
 
         public PhonemeData(int? phoneme, int? length, int? stress)
         {
@@ -181,15 +183,17 @@ namespace SamSharp.Parser
             Stress = stress;
             PhonemeName = "";
             WordStart = false;
+            WordEnd = false;
         }
 
-        public PhonemeData(int? phoneme, string phonemeName, int? length, int? stress, bool wordStart)
+        public PhonemeData(int? phoneme, string phonemeName, int? length, int? stress, bool wordStart, bool wordEnd)
         {
             Phoneme = phoneme;
             PhonemeName = phonemeName;
             Length = length;
             Stress = stress;
             WordStart = wordStart;
+            WordEnd = wordEnd;
         }
     }
 }

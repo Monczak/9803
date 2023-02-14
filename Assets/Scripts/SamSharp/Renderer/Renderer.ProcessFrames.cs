@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 using Debug = System.Diagnostics.Debug;
 
@@ -88,13 +90,14 @@ namespace SamSharp.Renderer
          * <param name="frameCount">The frame count.</param>
          * <param name="speed">The speed input.</param>
          * <param name="framesData">The frame data.</param>
+         * <returns>A list with tuples containing the starting and ending sample indexes for spoken words.</returns>
          */
-        private void ProcessFrames(OutputBuffer output, int frameCount, int speed, AnimationCurve speedModifier, FramesData framesData)
+        private List<(int start, int end)> ProcessFrames(OutputBuffer output, int frameCount, int speed, AnimationCurve speedModifier, FramesData framesData)
         {
             int totalLength = frameCount;
             int pos = 0;
 
-            float SpeedModifier() => speedModifier.Evaluate((float)pos / totalLength);
+            float SpeedModifier() => speedModifier?.Evaluate((float)pos / totalLength) ?? 1;
             int Speed() => (int)(speed * SpeedModifier());
             
             int speedCounter = Speed();
@@ -103,14 +106,38 @@ namespace SamSharp.Renderer
             int glottalPulse = framesData.Pitches[0];
             int mem38 = (int)(glottalPulse * .75f);
 
+            List<int> wordStarts = new();
+            List<int> wordEnds = new();
+
+            HashSet<int> wordStartPoses = new(); 
+            HashSet<int> wordEndPoses = new(); 
+
+            List<(int start, int end)> GetWordBoundaries() => wordStarts.Select((t, i) => (t, wordEnds[i])).ToList();
+
             while (frameCount > 0)
             {
                 var flags = framesData.SampledConsonantFlags[pos];
+
+                if (framesData.WordStarts.Contains(pos) && !wordStartPoses.Contains(pos))
+                {
+                    wordStarts.Add(output.BufferPos / 50);
+                    wordStartPoses.Add(pos);
+                }
+
+                int prePos = pos;
                 
+                bool isWordEnd = framesData.WordEnds.Contains(prePos);
+                if (isWordEnd && !wordEndPoses.Contains(prePos))
+                {
+                    wordEnds.Add(output.BufferPos / 50);
+                    wordEndPoses.Add(prePos);
+                }
+
                 // Unvoiced sampled phoneme?
                 if ((flags & 248) != 0)
                 {
                     lastSampleOffset = RenderSample(output, lastSampleOffset, flags, framesData.Pitches[pos & 0xFF]);
+
                     // Skip ahead 2 in the phoneme buffer
                     pos += 2;
                     frameCount -= 2;
@@ -153,9 +180,14 @@ namespace SamSharp.Renderer
                     speedCounter--;
                     if (speedCounter == 0)
                     {
-                        pos++;          // Go to next amplitude
+                        pos++;  // Go to next amplitude
                         frameCount--;
-                        if (frameCount == 0) return;
+                        if (frameCount == 0)
+                        {
+                            wordEnds.Add(output.BufferPos / 50);
+                            wordEndPoses.Add(pos);
+                            return GetWordBoundaries();
+                        }
 
                         speedCounter = Speed();
                     }
@@ -175,6 +207,7 @@ namespace SamSharp.Renderer
                             phase1 = phase1 + framesData.Frequencies.Mouth[pos]; // & 0xFF;
                             phase2 = phase2 + framesData.Frequencies.Throat[pos]; // & 0xFF;
                             phase3 = phase3 + framesData.Frequencies.Formant3[pos]; // & 0xFF;
+
                             continue;
                         }
                     
@@ -191,6 +224,10 @@ namespace SamSharp.Renderer
                 phase2 = 0;
                 phase3 = 0;
             }
+
+            wordEnds.Add(output.BufferPos / 50);
+            wordEndPoses.Add(pos);
+            return GetWordBoundaries();
         }
     }
 }

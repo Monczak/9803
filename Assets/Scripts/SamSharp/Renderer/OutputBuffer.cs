@@ -6,13 +6,21 @@ namespace SamSharp.Renderer
     {
         // TODO: Can allocate HUGE amounts of memory with long inputs, use streams instead?
         private byte[] buffer;
+        private int bufferSize;
 
         private int bufferPos = 0;
         private int oldTimeTableIndex = 0;
 
-        public OutputBuffer(int bufferSize)
+        public int BufferPos => bufferPos;
+
+        private readonly bool dry;
+
+        public OutputBuffer(int bufferSize, bool dry = false)
         {
-            buffer = new byte[bufferSize];
+            this.bufferSize = bufferSize;
+            this.dry = dry;
+            if (!dry)
+                buffer = new byte[bufferSize];
         }
 
         public void Write(int index, int a)
@@ -35,18 +43,23 @@ namespace SamSharp.Renderer
 
             bufferPos += timetable[oldTimeTableIndex][index];
 
-            if (bufferPos / 50 > buffer.Length)
+            if (bufferPos / 50 > bufferSize)
                 throw new Exception($"Buffer overflow, want {bufferPos / 50} but buffer size is {buffer.Length}");
 
             oldTimeTableIndex = index;
-            
-            // Write a little bit in advance
-            for (int k = 0; k < 5; k++)
-                buffer[bufferPos / 50 + k] = (byte)array[k];
+
+            if (!dry)
+            {
+                // Write a little bit in advance
+                for (int k = 0; k < 5; k++)
+                    buffer[bufferPos / 50 + k] = (byte)array[k];
+            }
         }
 
         public byte[] Get()
         {
+            if (dry) return null;
+            
             byte[] bytes = new byte[bufferPos / 50];
             for (int i = 0; i < bufferPos / 50; i++)
                 bytes[i] = (byte)(buffer[i]);

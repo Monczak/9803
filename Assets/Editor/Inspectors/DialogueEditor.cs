@@ -92,6 +92,8 @@ namespace NineEightOhThree.Editor.Inspectors
                             showPhonemes[line] = true;
                             keyframeEnabled[line] = new Dictionary<int, bool>();
                             cachedText[line] = line.Text;
+                            wordBoundaries[line] = new List<int>();
+                            line.PhonemeData = new List<PhonemeData>(phonemeData[line]);
                             Repaint();
                         });
                     }
@@ -229,7 +231,9 @@ namespace NineEightOhThree.Editor.Inspectors
                 keyframeEnabled[line].TryGetValue(i, out bool enabled);
                 keyframeEnabled[line][i] = EditorGUILayout.Toggle(enabled);
 
-                EditorGUILayout.LabelField(data.WordStart ? words[wordIndex++] : "");
+                EditorGUILayout.LabelField(data.WordStart ? words[wordIndex] : "");
+                EditorGUILayout.LabelField(data.WordEnd ? $"-- {words[wordIndex]}" : "");
+                if (data.WordEnd && wordIndex < words.Length - 1) wordIndex++;
 
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();

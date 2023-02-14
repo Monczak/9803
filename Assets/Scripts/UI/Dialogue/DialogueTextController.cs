@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NineEightOhThree.Audio;
 using NineEightOhThree.Dialogues;
+using NineEightOhThree.Utilities;
 using TMPro;
 using UnityEngine;
 
@@ -13,6 +15,9 @@ namespace NineEightOhThree.UI.Dialogue
         
         public SpeechInfo SpeechInfo { get; set; }
         
+        private float letterTimer;
+        private float[] wordTimings;
+        
         // Start is called before the first frame update
         void Start()
         {
@@ -22,21 +27,29 @@ namespace NineEightOhThree.UI.Dialogue
         // Update is called once per frame
         void Update()
         {
-        
+            if (letterTimer > 0)
+            {
+                letterTimer -= Time.deltaTime;
+            }
+            else
+            {
+                
+            }
         }
 
         // TODO: Show text character by character, interpolating between words and syncing to speech
         public void StartDialogueLine(DialogueLine line)
         {
-            Logger.Log($"Preparing speech for \"{line.Text}\"");
-            
-            
-            Debug.Log($"{line.WordBoundaryKeyframes.Count} word boundaries");
-            for (int i = 0; i < line.WordBoundaryKeyframes.Count; i++)
+            Debug.Log($"{SpeechInfo.WordBoundaries.Count} word boundaries");
+
+            Debug.Log($"{SpeechInfo.LengthSeconds} {SpeechInfo.NumSamples}");
+
+            for (int i = 0; i < SpeechInfo.WordBoundaries.Count; i++)
             {
-                float keyframe = line.WordBoundaryKeyframes[i];
-                Debug.Log($"{keyframe} {line.Words[i]} {line.WordIndexes[i]} - {keyframe * SpeechInfo.LengthSeconds} secs");
+                Debug.Log($"{line.Words[i]} {(float)SpeechInfo.WordBoundaries[i].start / SpeechInfo.SampleRate} {(float)SpeechInfo.WordBoundaries[i].end / SpeechInfo.SampleRate}");
             }
+            
+            Debug.Log($"Timings: {string.Join(", ", wordTimings.Select(t => t.ToString("F3")))}");
         }
     }
 }

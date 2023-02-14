@@ -17,13 +17,13 @@ namespace SamSharp
         {
         }
 
-        public byte[] Speak(string input)
+        public RenderResult Speak(string input)
         {
             Reciter.Reciter reciter = new Reciter.Reciter();
             return SpeakPhonetic(reciter.TextToPhonemes(input));
         }
 
-        public byte[] SpeakPhonetic(string phoneticInput)
+        public RenderResult SpeakPhonetic(string phoneticInput)
         {
             Parser.Parser parser = new Parser.Parser();
             Renderer.Renderer renderer = new Renderer.Renderer();
@@ -32,14 +32,14 @@ namespace SamSharp
             return renderer.Render(data, Options);
         }
 
-        public Task<byte[]> SpeakAsync(string input)
+        public Task<RenderResult> SpeakAsync(string input)
         {
-            return Task<byte[]>.Factory.StartNew(() => Speak(input));
+            return Task<RenderResult>.Factory.StartNew(() => Speak(input));
         }
 
-        public Task<byte[]> SpeakPhoneticAsync(string phoneticInput)
+        public Task<RenderResult> SpeakPhoneticAsync(string phoneticInput)
         {
-            return Task<byte[]>.Factory.StartNew(() => SpeakPhonetic(phoneticInput));
+            return Task<RenderResult>.Factory.StartNew(() => SpeakPhonetic(phoneticInput));
         }
 
         public PhonemeData[] GetPhonemeData(string input)
