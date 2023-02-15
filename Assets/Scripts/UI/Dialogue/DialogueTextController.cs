@@ -119,6 +119,7 @@ namespace NineEightOhThree.UI.Dialogue
                     }
                 }
             }
+            shownCharCount[^1] = currentlyShownChars;
 
             if (inRange)
             {

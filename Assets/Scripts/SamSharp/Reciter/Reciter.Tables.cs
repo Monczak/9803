@@ -537,7 +537,7 @@ namespace SamSharp.Reciter
             "(4)= FOH4R|"+
             " (5TH)=FIH4FTH|"+
             "(5)= FAY4V|"+
-            " (64) =SIH4KSTIY FOHR|"+
+            " (64) = SIH4KSTIY FOHR|"+
             "(6)= SIH4KS|"+
             "(7)= SEH4VUN|"+
             " (8TH)=EY4TH|"+
