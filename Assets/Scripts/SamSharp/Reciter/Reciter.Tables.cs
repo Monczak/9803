@@ -514,10 +514,10 @@ namespace SamSharp.Reciter
             "(!)=.|"+
             "(\") =-AH5NKWOWT-|"+
             "(\")=KWOW4T-|"+
-            "(#)= NAH4MBER|"+
-            "($)= DAA4LER|"+
-            "(%)= PERSEH4NT|"+
-            "(&)= AEND|"+
+            "(#)= NAH4MBER |"+
+            "($)= DAA4LER |"+
+            "(%)= PERSEH4NT |"+
+            "(&)= AEND |"+
             "(\')=|"+
             "(*)= AE4STERIHSK|"+
             "(+)= PLAH4S|"+
@@ -525,7 +525,7 @@ namespace SamSharp.Reciter
             " (-) =-|"+
             "(-)=|"+
             "(.)= POYNT|"+
-            "(/)= SLAE4SH|"+
+            "(/)= SLAE4SH |"+
             "(0)= ZIY4ROW|"+
             " (1ST)=FER4ST|"+
             " (10TH)=TEH4NTH|"+
@@ -545,12 +545,12 @@ namespace SamSharp.Reciter
             "(9)= NAY4N|"+
             "(:)=.|"+
             "(;)=.|"+
-            "(<)= LEH4S DHAEN|"+
-            "(=)= IY4KWULZ|"+
-            "(>)= GREY4TER DHAEN|"+
+            "(<)= LEH4S DHAEN |"+
+            "(=)= IY4KWULZ |"+
+            "(>)= GREY4TER DHAEN |"+
             "(?)=?|"+
-            "(@)= AE6T|"+
-            "(^)= KAE4RIXT";
+            "(@)= AE6T |"+
+            "(^)= KAE4RIXT ";
             
     }
 }

@@ -233,7 +233,17 @@ namespace NineEightOhThree.Editor.Inspectors
 
                 EditorGUILayout.LabelField(data.WordStart ? words[wordIndex] : "");
                 EditorGUILayout.LabelField(data.WordEnd ? $"-- {words[wordIndex]}" : "");
-                if (data.WordEnd) wordIndex++;
+                if (data.WordEnd)
+                {
+                    if (wordIndex >= words.Length)
+                    {
+                        Debug.LogWarning($"Word index {wordIndex} exceeds word count ({words.Length})");
+                        wordIndex = words.Length - 1;
+                    }
+                    else
+                        wordIndex++;
+                    
+                }
 
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();

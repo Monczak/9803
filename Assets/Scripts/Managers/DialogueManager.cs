@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NineEightOhThree.Audio;
 using NineEightOhThree.Dialogues;
+using NineEightOhThree.Threading;
 using NineEightOhThree.UI.Dialogue;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ namespace NineEightOhThree.Managers
             dialogueTextController.SpeechInfo = e;
         }
 
-        public async void StartDialogueLineAsync(DialogueLine line)
+        public async Task StartDialogueLineAsync(DialogueLine line)
         {
             await SpeechManager.Instance.SpeakDialogueLineAsync(line);
             dialogueTextController.StartDialogueLine(line);
@@ -34,7 +35,7 @@ namespace NineEightOhThree.Managers
 
         public void StartDialogueLine(DialogueLine line)
         {
-            Task.Run(() => StartDialogueLineAsync(line));
+            UnityDispatcher.Instance.Run(() => StartDialogueLineAsync(line));
         }
     }
 }

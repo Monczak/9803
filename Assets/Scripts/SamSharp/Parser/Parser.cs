@@ -135,8 +135,8 @@ namespace SamSharp.Parser
                         GetPhonemeNamePos(i), 
                         phonemeLengths[i], 
                         stresses[i],
-                        i > 0 && (phonemeIndexes[i - 1] == null || phonemeIndexes[i - 1] == 0),
-                        phonemeIndexes[i] > 3 && (!phonemeIndexes.ContainsKey(i + 1) || phonemeIndexes[i + 1] <= 3)
+                        i > 0 && (phonemeIndexes[i - 1] == null || phonemeIndexes[i - 1] == 0 || phonemeIndexes[i - 1] == 4),
+                        phonemeIndexes[i] > 4 && (!phonemeIndexes.ContainsKey(i + 1) || phonemeIndexes[i + 1] <= 4)
                     ));
             }
 

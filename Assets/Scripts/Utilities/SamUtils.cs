@@ -6,7 +6,8 @@ namespace NineEightOhThree.Utilities
 {
     public static class SamUtils
     {
-        private static readonly Regex WordPattern = new(@"1st|2nd|3rd|\dth|\.(?=\d)|\d|[a-zA-Z'.,]+|[@!\\/_=*()""+#$%&]");
+        // FIXME: Parentheses don't work properly (should be a part of a word), periods after numbers aren't part of the word
+        private static readonly Regex WordPattern = new(@"1st|2nd|3rd|\dth|\.(?=\d)|\d|[a-zA-Z']+[.,!?]?|[.,!?@\/_=*()""+#$%&^]");
 
         public static string CleanInput(string input)
         {
@@ -23,6 +24,12 @@ namespace NineEightOhThree.Utilities
         {
             MatchCollection wordMatches = WordPattern.Matches(input);
             return wordMatches.Select(match => match.Index);
+        }
+        
+        public static IEnumerable<Match> GetWordMatches(string input)
+        {
+            MatchCollection wordMatches = WordPattern.Matches(input);
+            return wordMatches;
         }
     }
 }
