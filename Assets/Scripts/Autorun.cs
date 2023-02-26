@@ -3,6 +3,7 @@ using UnityEditor;
 
 namespace NineEightOhThree
 {
+    #if UNITY_EDITOR
     [InitializeOnLoad]
     public class Autorun
     {
@@ -12,4 +13,5 @@ namespace NineEightOhThree
                 ItemRegistry.RegisterItems();
         }
     }
+    #endif
 }
