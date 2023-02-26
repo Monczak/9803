@@ -56,6 +56,8 @@ namespace NineEightOhThree.Editor.Inspectors
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+            
             foreach (DialogueLine line in dialogue.Lines)
             {
                 foldOuts[line] = EditorGUILayout.BeginFoldoutHeaderGroup(foldOuts[line], line.Text);
@@ -129,6 +131,10 @@ namespace NineEightOhThree.Editor.Inspectors
                 }
                 EditorGUILayout.EndFoldoutHeaderGroup();
             }
+            
+            serializedObject.ApplyModifiedProperties();
+            
+            EditorUtility.SetDirty(dialogue);
         }
 
         private void SetWordBoundaries(DialogueLine line)
