@@ -29,7 +29,7 @@ namespace NineEightOhThree.Managers
 
         public async Task StartDialogueLineAsync(DialogueLine line)
         {
-            await SpeechManager.Instance.SpeakDialogueLineAsync(line);
+            await Task.Run(() => SpeechManager.Instance.SpeakDialogueLineAsync(line));
             dialogueTextController.StartDialogueLine(line);
         }
 

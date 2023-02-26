@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using SamSharp.Parser;
 using SamSharp.Renderer;
 
@@ -39,7 +40,7 @@ namespace SamSharp
 
         public Task<RenderResult> SpeakPhoneticAsync(string phoneticInput)
         {
-            return Task<RenderResult>.Factory.StartNew(() => SpeakPhonetic(phoneticInput));
+            return Task<RenderResult>.Factory.StartNew(() => SpeakPhonetic(phoneticInput), CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
         }
 
         public PhonemeData[] GetPhonemeData(string input)
@@ -48,11 +49,11 @@ namespace SamSharp
         }
 
         public Task<PhonemeData[]> GetPhonemeDataAsync(string input) =>
-            Task<PhonemeData[]>.Factory.StartNew(() => GetPhonemeData(input));
+            Task<PhonemeData[]>.Factory.StartNew(() => GetPhonemeData(input), CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
 
         public PhonemeData[] GetPhonemeDataPhonetic(string phoneticInput) => new Parser.Parser().Parse(phoneticInput);
 
         public Task<PhonemeData[]> GetPhonemeDataPhoneticAsync(string phoneticInput) =>
-            Task<PhonemeData[]>.Factory.StartNew(() => GetPhonemeDataPhonetic(phoneticInput));
+            Task<PhonemeData[]>.Factory.StartNew(() => GetPhonemeDataPhonetic(phoneticInput), CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
     }
 }

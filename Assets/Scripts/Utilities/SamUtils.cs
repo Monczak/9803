@@ -6,7 +6,7 @@ namespace NineEightOhThree.Utilities
 {
     public static class SamUtils
     {
-        private static readonly Regex WordPattern = new(@"\(?(?:1st|2nd|3rd|\dth|[.,!?](?=\d)|\d[.,!?]?(?!\d)|\d|[a-zA-Z']+[.,!?]?|[.,!?@\/_=*""+#$%&^])\)?");
+        private static readonly Regex WordPattern = new(@"\(?(?:1st|2nd|3rd|\dth|[.,!?](?=\d)|\d[.,!?]?(?!\d)|\d|[a-zA-Z'-]+[.,!?]?|[.,!?@\/_=*""+#$%&^])\)?");
 
         public static string CleanInput(string input)
         {

@@ -15,6 +15,8 @@ namespace NineEightOhThree.UI.Dialogue
     public class DialogueTextController : MonoBehaviour
     {
         public TMP_Text text;
+
+        private TMPTextFormatter formatter;
         
         public SpeechInfo SpeechInfo { get; set; }
         
@@ -28,6 +30,11 @@ namespace NineEightOhThree.UI.Dialogue
         private int tickIndex;
         private bool showing;
 
+        private void Awake()
+        {
+            formatter = text.GetComponent<TMPTextFormatter>();
+        }
+
         // Start is called before the first frame update
         private void Start()
         {
@@ -39,7 +46,7 @@ namespace NineEightOhThree.UI.Dialogue
         {
             if (showing)
             {
-                text.maxVisibleCharacters = shownCharCount[tickIndex];
+                SetupFormatting();
 
                 letterTimer += Time.deltaTime;
                 tickIndex = (int)(letterTimer * TicksPerSecond);
@@ -53,7 +60,15 @@ namespace NineEightOhThree.UI.Dialogue
             }
         }
 
-        // TODO: Show text character by character, interpolating between words and syncing to speech
+        // TODO: Formatting, layout etc.
+        private void SetupFormatting()
+        {
+            formatter.Begin(text)
+                .Color(0, text.text.Length, new Color32(255, 255, 255, 0))
+                .Color(0, shownCharCount[tickIndex], new Color32(255, 255, 255, 255))
+                .Apply();
+        }
+        
         public void StartDialogueLine(DialogueLine line)
         {
             PrepareCharCountArray(line);
@@ -61,12 +76,8 @@ namespace NineEightOhThree.UI.Dialogue
 
             tickIndex = 0;
 
-            // TODO: Formatting, layout etc.
             text.text = line.Text;
-            text.maxVisibleCharacters = 0;
             showing = true;
-
-            Debug.Log(string.Join("\n", shownCharCount.Select(n => line.Text[..n])));
         }
 
         private void PrepareCharCountArray(DialogueLine line)
@@ -87,12 +98,12 @@ namespace NineEightOhThree.UI.Dialogue
 
                 if (currentTime < SpeechInfo.WordTimings[wordIndex].start)
                 {
-                    Debug.Log($"{i} Waiting for word: {words[wordIndex].Value}");
+                    // Debug.Log($"{i} Waiting for word: {words[wordIndex].Value}");
                 }
                 else if (currentTime >= SpeechInfo.WordTimings[wordIndex].start &&
                          currentTime <= SpeechInfo.WordTimings[wordIndex].end)
                 {
-                    Debug.Log($"{i} In range of word: {words[wordIndex].Value}");
+                    // Debug.Log($"{i} In range of word: {words[wordIndex].Value}");
 
                     if (!inRange)
                     {
@@ -104,7 +115,7 @@ namespace NineEightOhThree.UI.Dialogue
                 }
                 else if (currentTime > SpeechInfo.WordTimings[wordIndex].end)
                 {
-                    Debug.Log($"{i} Reached end of word: {words[wordIndex].Value}");
+                    // Debug.Log($"{i} Reached end of word: {words[wordIndex].Value}");
 
                     inRange = false;
                     wordIndex++;
