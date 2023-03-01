@@ -104,5 +104,14 @@ namespace NineEightOhThree.Math
             float angle = Quantize(Vector2.Angle(Vector2.right, v) / (Mathf.PI * 2), steps) * Mathf.PI * 2;
             return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * v.magnitude;
         }
+
+        public static T Constrain<T>(this T x, T min, T max) where T : IComparable
+        {
+            if (x.CompareTo(min) < 0)
+                return min;
+            if (x.CompareTo(max) > 0)
+                return max;
+            return x;
+        }
     }
 }

@@ -16,6 +16,7 @@ namespace NineEightOhThree.UI.Dialogue
     public class DialogueTextController : MonoBehaviour
     {
         public TMP_Text text;
+        public NextLineIconController nextLineIconController;
 
         private TMPTextFormatter formatter;
         
@@ -88,6 +89,7 @@ namespace NineEightOhThree.UI.Dialogue
                     {
                         showingLine = false;
                         OnDialogueLineFinished?.Invoke(this, EventArgs.Empty);
+                        nextLineIconController.Show();
                     }
                 }
                 else
@@ -97,6 +99,7 @@ namespace NineEightOhThree.UI.Dialogue
                     if (skipDialogue)
                     {
                         OnNextDialogueLine?.Invoke(this, EventArgs.Empty);
+                        nextLineIconController.Hide();
                     }
                 }
             }
