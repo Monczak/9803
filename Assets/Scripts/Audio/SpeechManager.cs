@@ -65,7 +65,9 @@ namespace NineEightOhThree.Audio
             clip = AudioClip.Create("speech", result.Audio.Length, 1, 22050, false);
 
             float[] data = ByteArrayToFloatArray(result.Audio);
+            data[0] = 0;    // Works around a bug in Unity that produces a small crackle when the clip stops playing
             AddFadeout(data);
+
             clip.SetData(data, 0);
             
             OnSpeechSynthesized?.Invoke(this, new SpeechInfo

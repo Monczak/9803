@@ -1,4 +1,5 @@
 using System;
+using NineEightOhThree.Controllers;
 using UnityEngine;
 
 namespace NineEightOhThree.Managers
@@ -8,6 +9,10 @@ namespace NineEightOhThree.Managers
         public static GameManager Instance { get; private set; }
 
         public bool debug;
+        
+        public Camera GameCamera { get; private set; }
+        public Camera UICamera { get; private set; }
+        public PlayerController Player { get; private set; }
 
         private void Awake()
         {
@@ -33,13 +38,21 @@ namespace NineEightOhThree.Managers
         // Start is called before the first frame update
         void Start()
         {
-
+            FindObjects();
         }
 
         // Update is called once per frame
         void Update()
         {
 
+        }
+
+        private void FindObjects()
+        {
+            GameCamera = GameObject.FindWithTag("GameCamera").GetComponent<Camera>();
+            UICamera = GameObject.FindWithTag("UICamera").GetComponent<Camera>();
+            
+            Player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         }
 
         private void LoadEverything()

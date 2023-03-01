@@ -18,6 +18,11 @@ public class NextLineIconController : MonoBehaviour
 
     private void Awake()
     {
+        Setup();
+    }
+
+    public void Setup()
+    {
         text = GetComponent<TMP_Text>();
         animator = GetComponent<Animator>();
     }
@@ -31,9 +36,15 @@ public class NextLineIconController : MonoBehaviour
     {
         animator.SetBool(AnimShow, false);
     }
+    
+    public void HideImmediate()
+    {
+        text.text = " ";
+        if (gameObject.activeInHierarchy) animator.Play("Hidden");
+    }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (visible)
         {

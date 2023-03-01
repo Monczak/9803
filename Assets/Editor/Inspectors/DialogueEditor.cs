@@ -63,6 +63,12 @@ namespace NineEightOhThree.Editor.Inspectors
         {
             serializedObject.Update();
 
+            EditorGUILayout.LabelField("Options", EditorStyles.boldLabel);
+
+            dialogue.LockPlayerControls = EditorGUILayout.Toggle("Lock Player Controls", dialogue.LockPlayerControls);
+            
+            EditorGUILayout.Separator();
+
             EditorGUILayout.BeginHorizontal();
             bool createLineButton = GUILayout.Button("New Line");
             bool deleteLineButton = GUILayout.Button("Delete Last Line");

@@ -336,6 +336,16 @@ namespace NineEightOhThree.Controllers
             else
                 relativeAngle = 0;
         }
+
+        public void EnableControls()
+        {
+            controls.Enable();
+        }
+
+        public void DisableControls()
+        {
+            controls.Disable();
+        }
     }
 }
 

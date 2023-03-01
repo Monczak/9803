@@ -1,25 +1,35 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using NineEightOhThree.Audio;
 using NineEightOhThree.Dialogues;
+using NineEightOhThree.Managers;
 using NineEightOhThree.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.PlayerLoop;
 
 namespace NineEightOhThree.UI.Dialogue
 {
     public class DialogueTextController : MonoBehaviour
     {
+        [Header("Components")]
+        public GameObject container;
         public TMP_Text text;
         public NextLineIconController nextLineIconController;
 
-        private TMPTextFormatter formatter;
+        [Header("Anchoring")]
+        public bool anchorUp;
+        public bool autoAnchorUp;
+        public float playerYThreshold;
         
+
+        private RectTransform rectTransform;
+        private TMPTextFormatter formatter;
+
+        private Transform playerTransform;
+
         public SpeechInfo SpeechInfo { get; set; }
         
         private float letterTimer;
@@ -44,11 +54,15 @@ namespace NineEightOhThree.UI.Dialogue
 
         private void Awake()
         {
+            rectTransform = GetComponent<RectTransform>();
+            
             formatter = text.GetComponent<TMPTextFormatter>();
             controls = new UIControls();
             
             controls.Game.SkipDialogue.performed += OnSkipDialoguePerformed;
 
+            playerTransform = GameObject.FindWithTag("Player").transform;
+            
             controls.Enable();
         }
 
@@ -69,6 +83,14 @@ namespace NineEightOhThree.UI.Dialogue
         // Update is called once per frame
         private void Update()
         {
+            if (autoAnchorUp)
+            {
+                anchorUp = GameManager.Instance.GameCamera.WorldToViewportPoint(playerTransform.position).y <
+                           playerYThreshold;
+            }
+            
+            SetPosition();
+            
             if (showingDialogue)
             {
                 if (showingLine)
@@ -84,6 +106,7 @@ namespace NineEightOhThree.UI.Dialogue
                     }
 
                     SetupFormatting();
+                    RevealText();
 
                     if (tickIndex >= shownCharCount.Length - 1)
                     {
@@ -107,6 +130,32 @@ namespace NineEightOhThree.UI.Dialogue
             skipDialogue = false;
         }
 
+        public void Enable()
+        {
+            container.SetActive(true);
+        }
+
+        public void Disable()
+        {
+            container.SetActive(false);
+        }
+        
+        private void SetPosition()
+        {
+            rectTransform.anchorMin = new Vector2(0.5f, anchorUp ? 1f : 0f);
+            rectTransform.anchorMax = new Vector2(0.5f, anchorUp ? 1f : 0f);
+            
+            rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, anchorUp ? -rectTransform.rect.height : 0f);
+        }
+
+        private void RevealText()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append("<color=#ffffffff>").Append(currentLine.Text[..shownCharCount[tickIndex]]).Append("</color>");
+            builder.Append("<color=#ffffff00>").Append(currentLine.Text[shownCharCount[tickIndex]..]).Append("</color>");
+            text.text = builder.ToString();
+        }
+
         public void EndDialogue()
         {
             showingDialogue = false;
@@ -115,10 +164,17 @@ namespace NineEightOhThree.UI.Dialogue
         // TODO: Formatting, layout etc.
         private void SetupFormatting()
         {
-            formatter.Begin(text)
+            /*formatter.Begin(text)
                 .Color(0, text.text.Length, new Color32(255, 255, 255, 0))
                 .Color(0, shownCharCount[tickIndex], new Color32(255, 255, 255, 255))
-                .Apply();
+                .Apply();*/
+        }
+
+        public void Setup()
+        {
+            text.text = "";
+            nextLineIconController.Setup();
+            nextLineIconController.HideImmediate();
         }
 
         public void StartDialogueLine(DialogueLine line)
@@ -129,8 +185,7 @@ namespace NineEightOhThree.UI.Dialogue
             InterpolateCharCounts();
 
             tickIndex = 0;
-
-            text.text = line.Text;
+            
             SetupFormatting();
             
             showingDialogue = true;

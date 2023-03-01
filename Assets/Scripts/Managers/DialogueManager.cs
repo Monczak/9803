@@ -40,8 +40,19 @@ namespace NineEightOhThree.Managers
             }
             else
             {
-                Debug.Log("Dialogue ended!");
-                dialogueTextController.EndDialogue();
+                EndDialogue();
+            }
+        }
+
+        private void EndDialogue()
+        {
+            dialogueTextController.EndDialogue();
+            SpeechManager.Instance.StopSpeech();
+            dialogueTextController.Disable();
+            
+            if (currentDialogue.LockPlayerControls)
+            {
+                GameManager.Instance.Player.EnableControls();
             }
         }
 
@@ -53,7 +64,15 @@ namespace NineEightOhThree.Managers
         public void StartDialogue(Dialogue dialogue)
         {
             currentDialogue = dialogue;
-            lineQueue = new Queue<DialogueLine>(dialogue.Lines);
+            
+            lineQueue = new Queue<DialogueLine>(currentDialogue.Lines);
+            
+            dialogueTextController.Setup();
+
+            if (currentDialogue.LockPlayerControls)
+            {
+                GameManager.Instance.Player.DisableControls();
+            }
             
             ShowNextLine();
         }
@@ -62,6 +81,8 @@ namespace NineEightOhThree.Managers
         {
             SpeechManager.Instance.StopSpeech();
             await Task.Run(() => SpeechManager.Instance.SpeakDialogueLineAsync(line));
+
+            dialogueTextController.Enable();
             dialogueTextController.StartDialogueLine(line);
         }
 
