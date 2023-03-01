@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NineEightOhThree.Audio;
 using NineEightOhThree.Dialogues;
@@ -14,12 +15,34 @@ namespace NineEightOhThree.Managers
         
         public DialogueTextController dialogueTextController;
 
+        private Dialogue currentDialogue;
+        private Queue<DialogueLine> lineQueue;
+
         private void Awake()
         {
             Instance ??= this;
             if (Instance != this) Destroy(gameObject);
             
             SpeechManager.Instance.OnSpeechSynthesized += OnSpeechSynthesized;
+            dialogueTextController.OnNextDialogueLine += OnNextDialogueLine;
+        }
+
+        private void OnNextDialogueLine(object sender, EventArgs e)
+        {
+            ShowNextLine();
+        }
+
+        private void ShowNextLine()
+        {
+            if (lineQueue.TryDequeue(out DialogueLine line))
+            {
+                StartDialogueLine(line);
+            }
+            else
+            {
+                Debug.Log("Dialogue ended!");
+                dialogueTextController.EndDialogue();
+            }
         }
 
         private void OnSpeechSynthesized(object sender, SpeechInfo e)
@@ -27,8 +50,17 @@ namespace NineEightOhThree.Managers
             dialogueTextController.SpeechInfo = e;
         }
 
+        public void StartDialogue(Dialogue dialogue)
+        {
+            currentDialogue = dialogue;
+            lineQueue = new Queue<DialogueLine>(dialogue.Lines);
+            
+            ShowNextLine();
+        }
+
         public async Task StartDialogueLineAsync(DialogueLine line)
         {
+            SpeechManager.Instance.StopSpeech();
             await Task.Run(() => SpeechManager.Instance.SpeakDialogueLineAsync(line));
             dialogueTextController.StartDialogueLine(line);
         }

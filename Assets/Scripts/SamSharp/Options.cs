@@ -26,6 +26,12 @@ namespace SamSharp
 
             PitchModifier = new AnimationCurve();
             SpeedModifier = new AnimationCurve();
+
+            PitchModifier.AddKey(0, 1);
+            PitchModifier.AddKey(1, 1);
+            
+            SpeedModifier.AddKey(0, 1);
+            SpeedModifier.AddKey(1, 1);
         }
     }
 }

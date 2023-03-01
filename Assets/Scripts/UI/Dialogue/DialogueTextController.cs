@@ -8,6 +8,7 @@ using NineEightOhThree.Dialogues;
 using NineEightOhThree.Utilities;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.PlayerLoop;
 
 namespace NineEightOhThree.UI.Dialogue
@@ -28,11 +29,34 @@ namespace NineEightOhThree.UI.Dialogue
         private const int TicksPerSecond = 30;
 
         private int tickIndex;
-        private bool showing;
+        private bool showingLine;
+        private bool showingDialogue;
+
+        private Dialogues.Dialogue currentDialogue;
+        private DialogueLine currentLine;
+
+        private UIControls controls;
+        private bool skipDialogue;
+
+        public event EventHandler OnDialogueLineFinished;
+        public event EventHandler OnNextDialogueLine;
 
         private void Awake()
         {
             formatter = text.GetComponent<TMPTextFormatter>();
+            controls = new UIControls();
+            
+            controls.Game.SkipDialogue.performed += OnSkipDialoguePerformed;
+
+            controls.Enable();
+        }
+
+        private void OnSkipDialoguePerformed(InputAction.CallbackContext obj)
+        {
+            if (showingDialogue)
+            {
+                skipDialogue = obj.ReadValue<float>() > 0;
+            }
         }
 
         // Start is called before the first frame update
@@ -44,20 +68,45 @@ namespace NineEightOhThree.UI.Dialogue
         // Update is called once per frame
         private void Update()
         {
-            if (showing)
+            if (showingDialogue)
             {
-                SetupFormatting();
+                if (showingLine)
+                {
+                    if (currentLine.Skippable && skipDialogue && tickIndex > 2)
+                    {
+                        tickIndex = shownCharCount.Length - 1;
+                    }
+                    else
+                    {
+                        letterTimer += Time.deltaTime;
+                        tickIndex = (int)(letterTimer * TicksPerSecond);
+                    }
 
-                letterTimer += Time.deltaTime;
-                tickIndex = (int)(letterTimer * TicksPerSecond);
-                
-                if (tickIndex >= shownCharCount.Length)
-                    showing = false;
+                    SetupFormatting();
+
+                    if (tickIndex >= shownCharCount.Length - 1)
+                    {
+                        showingLine = false;
+                        OnDialogueLineFinished?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+                else
+                {
+                    letterTimer = 0;
+
+                    if (skipDialogue)
+                    {
+                        OnNextDialogueLine?.Invoke(this, EventArgs.Empty);
+                    }
+                }
             }
-            else
-            {
-                letterTimer = 0;
-            }
+            
+            skipDialogue = false;
+        }
+
+        public void EndDialogue()
+        {
+            showingDialogue = false;
         }
 
         // TODO: Formatting, layout etc.
@@ -68,16 +117,21 @@ namespace NineEightOhThree.UI.Dialogue
                 .Color(0, shownCharCount[tickIndex], new Color32(255, 255, 255, 255))
                 .Apply();
         }
-        
+
         public void StartDialogueLine(DialogueLine line)
         {
+            currentLine = line;
+            
             PrepareCharCountArray(line);
             InterpolateCharCounts();
 
             tickIndex = 0;
 
             text.text = line.Text;
-            showing = true;
+            SetupFormatting();
+            
+            showingDialogue = true;
+            showingLine = true;
         }
 
         private void PrepareCharCountArray(DialogueLine line)

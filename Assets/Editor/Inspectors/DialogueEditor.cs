@@ -41,11 +41,7 @@ namespace NineEightOhThree.Editor.Inspectors
                 {
                     foreach (DialogueLine line in dialogue.Lines)
                     {
-                        foldOuts[line] = false;
-                        phonemeData[line] = null;
-                        showPhonemes[line] = false;
-                        keyframeEnabled[line] = new Dictionary<int, bool>();
-                        wordBoundaries[line] = new List<int>();
+                        PrepareLine(line);
                     }
                 }
                 
@@ -54,87 +50,136 @@ namespace NineEightOhThree.Editor.Inspectors
             sam = new Sam();
         }
 
+        private void PrepareLine(DialogueLine line)
+        {
+            foldOuts[line] = false;
+            phonemeData[line] = null;
+            showPhonemes[line] = false;
+            keyframeEnabled[line] = new Dictionary<int, bool>();
+            wordBoundaries[line] = new List<int>();
+        }
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+
+            EditorGUILayout.BeginHorizontal();
+            bool createLineButton = GUILayout.Button("New Line");
+            bool deleteLineButton = GUILayout.Button("Delete Last Line");
+            EditorGUILayout.EndHorizontal();
             
+            if (createLineButton)
+            {
+                DialogueLine newLine = new();
+                
+                newLine.Text = "New Line";
+                
+                dialogue.Lines.Add(newLine);
+                PrepareLine(newLine);
+            }
+
+            if (deleteLineButton)
+            {
+                dialogue.Lines.RemoveAt(dialogue.Lines.Count - 1);
+            }
+
             foreach (DialogueLine line in dialogue.Lines)
             {
-                foldOuts[line] = EditorGUILayout.BeginFoldoutHeaderGroup(foldOuts[line], line.Text);
-                if (foldOuts[line])
-                {
-                    EditorGUILayout.PrefixLabel("Text");
-                    line.Text = EditorGUILayout.TextArea(line.Text);
-                    
-                    EditorGUILayout.Separator();
-                    
-                    EditorGUILayout.LabelField("SAM Parameters", EditorStyles.boldLabel);
-                    line.Options.Pitch = (byte)EditorGUILayout.IntSlider("Pitch", line.Options.Pitch, 0, 255);
-                    line.Options.Mouth = (byte)EditorGUILayout.IntSlider("Mouth", line.Options.Mouth, 0, 255);
-                    line.Options.Throat = (byte)EditorGUILayout.IntSlider("Throat", line.Options.Throat, 0, 255);
-                    line.Options.Speed = (byte)EditorGUILayout.IntSlider("Speed", line.Options.Speed, 1, 255);
-                    line.Options.SingMode = EditorGUILayout.Toggle("Sing Mode", line.Options.SingMode);
-                    
-                    EditorGUILayout.Separator();
-                    
-                    EditorGUILayout.LabelField("Modifiers", EditorStyles.boldLabel);
-                    line.Options.PitchModifier ??= new AnimationCurve();
-                    line.Options.PitchModifier = EditorGUILayout.CurveField("Pitch", line.Options.PitchModifier, Color.red, new Rect(0, 0, 1, 2));
-                    line.Options.SpeedModifier ??= new AnimationCurve();
-                    line.Options.SpeedModifier = EditorGUILayout.CurveField("Speed", line.Options.SpeedModifier, Color.cyan, new Rect(0, 0, 1, 2));
-                    
-                    EditorGUILayout.Separator();
-
-                    EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button("Get Phoneme Data"))
-                    {
-                        sam.GetPhonemeDataAsync(line.Text).ContinueWith(t =>
-                        {
-                            phonemeData[line] = t.Result;
-                            showPhonemes[line] = true;
-                            keyframeEnabled[line] = new Dictionary<int, bool>();
-                            cachedText[line] = line.Text;
-                            wordBoundaries[line] = new List<int>();
-                            line.PhonemeData = new List<PhonemeData>(phonemeData[line]);
-                            Repaint();
-                        });
-                    }
-
-                    int keyframeCount = keyframeEnabled[line].Count(k => k.Value);
-                    GUI.enabled = keyframeCount > 0;
-                    if (GUILayout.Button($"Insert {keyframeCount} Keyframes"))
-                    {
-                        InsertKeyframes(line);
-                    }
-                    if (GUILayout.Button("Prepare Curves"))
-                    {
-                        PrepareCurves(line);
-                    }
-                    GUI.enabled = true;
-                    EditorGUILayout.EndHorizontal();
-
-                    showPhonemes[line] = EditorGUILayout.Foldout(showPhonemes[line], "Phoneme Data");
-                    if (showPhonemes[line])
-                    {
-                        if (phonemeData[line] is not null)
-                        {
-                            DrawPhonemeTable(line);
-                            SetKeyframes(line);
-                            SetWordBoundaries(line);
-                        }
-                        else
-                        {
-                            EditorGUILayout.LabelField("No phoneme data exists yet.");
-                        }
-                    }
-                    EditorGUILayout.EndFoldoutHeaderGroup();
-                }
-                EditorGUILayout.EndFoldoutHeaderGroup();
+                DrawDialogueLineEditor(line);
             }
             
             serializedObject.ApplyModifiedProperties();
-            
             EditorUtility.SetDirty(dialogue);
+            
+            Undo.RecordObject(dialogue, "Edit Dialogue");
+        }
+
+        private void DrawDialogueLineEditor(DialogueLine line)
+        {
+            foldOuts[line] = EditorGUILayout.BeginFoldoutHeaderGroup(foldOuts[line], line.Text);
+            if (foldOuts[line])
+            {
+                EditorGUILayout.PrefixLabel("Text");
+                line.Text = EditorGUILayout.TextArea(line.Text);
+
+                EditorGUILayout.Separator();
+
+                EditorGUILayout.LabelField("SAM Parameters", EditorStyles.boldLabel);
+                line.SamOptions.Pitch = (byte)EditorGUILayout.IntSlider("Pitch", line.SamOptions.Pitch, 0, 255);
+                line.SamOptions.Mouth = (byte)EditorGUILayout.IntSlider("Mouth", line.SamOptions.Mouth, 0, 255);
+                line.SamOptions.Throat = (byte)EditorGUILayout.IntSlider("Throat", line.SamOptions.Throat, 0, 255);
+                line.SamOptions.Speed = (byte)EditorGUILayout.IntSlider("Speed", line.SamOptions.Speed, 1, 255);
+                line.SamOptions.SingMode = EditorGUILayout.Toggle("Sing Mode", line.SamOptions.SingMode);
+
+                EditorGUILayout.Separator();
+
+                EditorGUILayout.LabelField("Modifiers", EditorStyles.boldLabel);
+                line.SamOptions.PitchModifier ??= new AnimationCurve();
+                line.SamOptions.PitchModifier =
+                    EditorGUILayout.CurveField("Pitch", line.SamOptions.PitchModifier, Color.red, new Rect(0, 0, 1, 2));
+                line.SamOptions.SpeedModifier ??= new AnimationCurve();
+                line.SamOptions.SpeedModifier =
+                    EditorGUILayout.CurveField("Speed", line.SamOptions.SpeedModifier, Color.cyan, new Rect(0, 0, 1, 2));
+
+                EditorGUILayout.Separator();
+
+                line.Skippable = EditorGUILayout.Toggle("Skippable", line.Skippable);
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Get Phoneme Data"))
+                {
+                    sam.GetPhonemeDataAsync(line.Text).ContinueWith(t =>
+                    {
+                        phonemeData[line] = t.Result;
+                        showPhonemes[line] = true;
+                        keyframeEnabled[line] = new Dictionary<int, bool>();
+                        cachedText[line] = line.Text;
+                        wordBoundaries[line] = new List<int>();
+                        line.PhonemeData = new List<PhonemeData>(phonemeData[line]);
+                        Repaint();
+                    });
+                }
+
+                int keyframeCount = keyframeEnabled[line].Count(k => k.Value);
+                GUI.enabled = keyframeCount > 0;
+                if (GUILayout.Button($"Insert {keyframeCount} Keyframes"))
+                {
+                    InsertKeyframes(line);
+                }
+
+                if (GUILayout.Button("Prepare Curves"))
+                {
+                    PrepareCurves(line);
+                }
+
+                GUI.enabled = true;
+                EditorGUILayout.EndHorizontal();
+
+                using (new GUILayout.HorizontalScope())
+                {
+                    GUILayout.Space(10);
+                    using (new GUILayout.VerticalScope())
+                    {
+                        showPhonemes[line] = EditorGUILayout.Foldout(showPhonemes[line], "Phoneme Data");
+                        if (showPhonemes[line])
+                        {
+                            if (phonemeData[line] is not null)
+                            {
+                                DrawPhonemeTable(line);
+                                SetKeyframes(line);
+                                SetWordBoundaries(line);
+                            }
+                            else
+                            {
+                                EditorGUILayout.LabelField("No phoneme data exists yet.");
+                            }
+                        }
+                        EditorGUILayout.EndFoldoutHeaderGroup();
+                    }
+                }
+            }
+
+            EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
         private void SetWordBoundaries(DialogueLine line)
@@ -168,12 +213,12 @@ namespace NineEightOhThree.Editor.Inspectors
 
         private void PrepareCurves(DialogueLine line)
         {
-            line.Options.PitchModifier = new AnimationCurve();
-            line.Options.PitchModifier.AddKey(0, 1);
-            line.Options.PitchModifier.AddKey(1, 1);
-            line.Options.SpeedModifier = new AnimationCurve();
-            line.Options.SpeedModifier.AddKey(0, 1);
-            line.Options.SpeedModifier.AddKey(1, 1);
+            line.SamOptions.PitchModifier = new AnimationCurve();
+            line.SamOptions.PitchModifier.AddKey(0, 1);
+            line.SamOptions.PitchModifier.AddKey(1, 1);
+            line.SamOptions.SpeedModifier = new AnimationCurve();
+            line.SamOptions.SpeedModifier.AddKey(0, 1);
+            line.SamOptions.SpeedModifier.AddKey(1, 1);
             InsertKeyframes(line);
         }
 
@@ -193,8 +238,8 @@ namespace NineEightOhThree.Editor.Inspectors
                 if (keyframeEnabled[line][i])
                 {
                     float time = (float)cumulativeLengths[i] / totalLength;
-                    line.Options.PitchModifier.AddKey(time, line.Options.PitchModifier.Evaluate(time));
-                    line.Options.SpeedModifier.AddKey(time, line.Options.SpeedModifier.Evaluate(time));
+                    line.SamOptions.PitchModifier.AddKey(time, line.SamOptions.PitchModifier.Evaluate(time));
+                    line.SamOptions.SpeedModifier.AddKey(time, line.SamOptions.SpeedModifier.Evaluate(time));
                 }
             }
         }

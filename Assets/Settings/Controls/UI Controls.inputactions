@@ -516,6 +516,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Game",
+            "id": "fb75f39a-6017-42a2-b256-c2b3b2029a45",
+            "actions": [
+                {
+                    "name": "Skip Dialogue",
+                    "type": "Button",
+                    "id": "2709d118-9d7b-4830-9071-72506341adf0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f564fc8e-4436-4b92-acd2-1a37f19c01fb",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Skip Dialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

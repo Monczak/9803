@@ -30,6 +30,11 @@ namespace NineEightOhThree.Audio
             sam = new Sam();
         }
 
+        public void StopSpeech()
+        {
+            source.Stop();
+        }
+
         public async Task SpeakAsync(string text)
         {
             RenderResult result = await sam.SpeakAsync(text);
@@ -38,7 +43,7 @@ namespace NineEightOhThree.Audio
 
         public async Task SpeakDialogueLineAsync(DialogueLine line)
         {
-            SetSamOptions(line.Options);
+            SetSamOptions(line.SamOptions);
             await SpeakAsync(line.Text);
         }
 
