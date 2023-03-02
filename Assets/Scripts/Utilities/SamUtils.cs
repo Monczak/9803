@@ -10,7 +10,8 @@ namespace NineEightOhThree.Utilities
 
         public static string CleanInput(string input)
         {
-            return Regex.Replace(input, @"\s+", " ");
+            string str = Regex.Replace(input, @"[-]+", " ");
+            return Regex.Replace(str, @"\s+", " ");
         }
         
         public static IEnumerable<string> SplitWords(string input)

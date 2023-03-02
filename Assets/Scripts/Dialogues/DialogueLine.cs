@@ -24,6 +24,8 @@ namespace NineEightOhThree.Dialogues
         
         [field: SerializeField] public bool Skippable { get; set; }
 
+        public string CleanedText => SamUtils.CleanInput(Text);
+
         public List<int> WordIndexes => SamUtils.GetWordIndexes(SamUtils.CleanInput(Text)).ToList();
         public List<string> Words => SamUtils.SplitWords(SamUtils.CleanInput(Text)).ToList();
 

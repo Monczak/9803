@@ -107,6 +107,7 @@ namespace NineEightOhThree.Editor.Inspectors
             {
                 EditorGUILayout.PrefixLabel("Text");
                 line.Text = EditorGUILayout.TextArea(line.Text);
+                EditorGUILayout.LabelField($"Cleaned: \"{SamUtils.CleanInput(line.Text)}\"");
 
                 EditorGUILayout.Separator();
 
