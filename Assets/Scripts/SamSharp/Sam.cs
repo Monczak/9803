@@ -9,26 +9,35 @@ namespace SamSharp
     {
         public Options Options { get; set; }
 
+        private readonly Reciter.Reciter reciter;
+        private readonly Parser.Parser parser;
+        private readonly Renderer.Renderer renderer;
+
         public Sam(Options options)
         {
             Options = options;
+            
+            reciter = new Reciter.Reciter();
+            parser = new Parser.Parser();
+            renderer = new Renderer.Renderer();
         }
 
         public Sam() : this(new Options())
         {
         }
 
+        public string TextToPhonemes(string input)
+        {
+            return reciter.TextToPhonemes(input);
+        }
+
         public RenderResult Speak(string input)
         {
-            Reciter.Reciter reciter = new Reciter.Reciter();
             return SpeakPhonetic(reciter.TextToPhonemes(input));
         }
 
         public RenderResult SpeakPhonetic(string phoneticInput)
         {
-            Parser.Parser parser = new Parser.Parser();
-            Renderer.Renderer renderer = new Renderer.Renderer();
-
             var data = parser.Parse(phoneticInput);
             return renderer.Render(data, Options);
         }

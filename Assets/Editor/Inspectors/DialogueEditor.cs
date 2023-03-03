@@ -106,8 +106,9 @@ namespace NineEightOhThree.Editor.Inspectors
             if (foldOuts[line])
             {
                 EditorGUILayout.PrefixLabel("Text");
-                line.Text = EditorGUILayout.TextArea(line.Text);
-                EditorGUILayout.LabelField($"Cleaned: \"{SamUtils.CleanInput(line.Text)}\"");
+                line.Text = EditorGUILayout.TextArea(line.Text, new GUIStyle(EditorStyles.textArea) {wordWrap = true});
+                EditorGUILayout.LabelField($"Cleaned: \"{SamUtils.CleanInput(line.Text)}\"", EditorStyles.wordWrappedLabel);
+                EditorGUILayout.LabelField($"Phonetic: \"{sam.TextToPhonemes(line.Text)}\"", EditorStyles.wordWrappedLabel);
 
                 EditorGUILayout.Separator();
 

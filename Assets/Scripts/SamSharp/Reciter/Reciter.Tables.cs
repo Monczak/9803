@@ -285,6 +285,7 @@ namespace SamSharp.Reciter
             " (MR.) =MIH4STER|"+
             " (MS.)=MIH5Z|"+
             " (MRS.) =MIH4SIXZ|"+
+            " (MC)=MUHK|"+
             "(MOV)=MUW4V|"+
             "(MACHIN)=MAHSHIY5N|"+
             "M(M)=|"+
@@ -310,11 +311,13 @@ namespace SamSharp.Reciter
             "#:(ORS) =ERZ|"+
             "(OR)=AOR|"+
             " (ONE)=WAHN|"+
+            "#(ONE)=WAHN|"+
             "#(ONE) =WAHN|"+
             "(OW)=OW|"+
             " (OVER)=OW5VER|"+
             "PR(O)V=UW4|"+
             "(OV)=AH4V|"+
+            "+S(O)N=IX|"+
             "(O)^%=OW5|"+
             "(O)^EN=OW|"+
             "(O)^I#=OW5|"+
@@ -472,6 +475,7 @@ namespace SamSharp.Reciter
             "(WA)T=WAA|"+
             "(WHERE)=WHEHR|"+
             "(WHAT)=WHAHT|"+
+            "(WHOOPS)=WUHPS|"+  // Custom rule (whoops)
             "(WHOL)=/HOWL|"+
             "(WHO)=/HUW|"+
             "(WH)=WH|"+
@@ -496,6 +500,7 @@ namespace SamSharp.Reciter
             " (YOU)=YUW|"+
             " (YES)=YEHS|"+
             " (Y)=Y|"+
+            "PL(Y)=AY5|"+    // Custom rule (apply, supply)
             "F(Y)=AY|"+
             "PS(YCH)=AYK|"+
             "#:^(Y)=IY|"+
