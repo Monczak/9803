@@ -41,7 +41,7 @@ namespace NineEightOhThree.Audio
             await UnityDispatcher.Instance.Execute(() => OnSamDone(result));
         }
 
-        public async Task SpeakDialogueLineAsync(DialogueLine line)
+        public async Task SpeakDialogueLineAsync(LineEvent line)
         {
             SetSamOptions(line.SamOptions);
             await SpeakAsync(line.Text);

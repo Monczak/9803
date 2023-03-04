@@ -56,7 +56,7 @@ namespace SamSharp.Reciter
         /// <returns>Whether the char at pos matches against the flags.</returns>
         private bool FlagsAt(string text, int pos, CharFlags flags) => MatchesFlags(CharAt(text, pos), flags); // JS is stupid (text[pos] will return undefined if pos is out of range)
 
-        private char? CharAt(string text, int pos) => pos >= text.Length ? (char?)null : text[pos];
+        private char? CharAt(string text, int pos) => pos >= text.Length ? null : text[pos];
         
         private bool IsOneOf<T>(T text, params T[] arr) => arr.Contains(text);
 
@@ -104,7 +104,7 @@ namespace SamSharp.Reciter
                                 '.' => () => FlagsAt(text, --pos, CharFlags._0x08),
                                 // '&' - Previous char must be a diphthong or previous chars must be 'CH' or 'SH'
                                 '&' => () => FlagsAt(text, --pos, CharFlags.Diphthong) ||
-                                             IsOneOf(text.Substring(--pos, 2), "CH", "SH"),
+                                             IsOneOf(text.JsSubstring(--pos, 2), "CH", "SH"),
                                 // '@' - Previous char must be voiced and not 'H'
                                 '@' => () =>
                                 {

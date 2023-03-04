@@ -12,182 +12,197 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f3d367975c0429db701ff9701356251, type: 3}
   m_Name: Test Dialogue
   m_EditorClassIdentifier: 
-  <Lines>k__BackingField:
-  - <Text>k__BackingField: I poisoned the water supply.
-    <PhoneticText>k__BackingField: 
-    <SamOptions>k__BackingField:
-      <Pitch>k__BackingField: 64
-      <Mouth>k__BackingField: 128
-      <Throat>k__BackingField: 128
-      <Speed>k__BackingField: 72
-      <SingMode>k__BackingField: 0
-      <PitchModifier>k__BackingField:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      <SpeedModifier>k__BackingField:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-    <Keyframes>k__BackingField: []
-    <WordBoundaryKeyframes>k__BackingField: []
-    <Skippable>k__BackingField: 1
-  - <Text>k__BackingField: Now everyone's dead.
-    <PhoneticText>k__BackingField: 
-    <SamOptions>k__BackingField:
-      <Pitch>k__BackingField: 64
-      <Mouth>k__BackingField: 128
-      <Throat>k__BackingField: 128
-      <Speed>k__BackingField: 72
-      <SingMode>k__BackingField: 0
-      <PitchModifier>k__BackingField:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      <SpeedModifier>k__BackingField:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-    <Keyframes>k__BackingField: []
-    <WordBoundaryKeyframes>k__BackingField: []
-    <Skippable>k__BackingField: 1
-  - <Text>k__BackingField: Whoops.
-    <PhoneticText>k__BackingField: 
-    <SamOptions>k__BackingField:
-      <Pitch>k__BackingField: 64
-      <Mouth>k__BackingField: 128
-      <Throat>k__BackingField: 128
-      <Speed>k__BackingField: 72
-      <SingMode>k__BackingField: 0
-      <PitchModifier>k__BackingField:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      <SpeedModifier>k__BackingField:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.33333334
-          outWeight: 0.33333334
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-    <Keyframes>k__BackingField: []
-    <WordBoundaryKeyframes>k__BackingField: []
-    <Skippable>k__BackingField: 1
+  <Events>k__BackingField:
+  - rid: 3228110152829763597
+  - rid: 3228110152829763598
+  - rid: 3228110152829763599
   <LockPlayerControls>k__BackingField: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 3228110152829763597
+      type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
+      data:
+        <Text>k__BackingField: I poisoned the water supply.
+        <PhoneticText>k__BackingField: 
+        <SamOptions>k__BackingField:
+          <Pitch>k__BackingField: 64
+          <Mouth>k__BackingField: 128
+          <Throat>k__BackingField: 128
+          <Speed>k__BackingField: 72
+          <SingMode>k__BackingField: 0
+          <PitchModifier>k__BackingField:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          <SpeedModifier>k__BackingField:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        <Keyframes>k__BackingField: []
+        <WordBoundaryKeyframes>k__BackingField: []
+        <Skippable>k__BackingField: 1
+    - rid: 3228110152829763598
+      type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
+      data:
+        <Text>k__BackingField: Now everyone's dead.
+        <PhoneticText>k__BackingField: 
+        <SamOptions>k__BackingField:
+          <Pitch>k__BackingField: 64
+          <Mouth>k__BackingField: 128
+          <Throat>k__BackingField: 128
+          <Speed>k__BackingField: 72
+          <SingMode>k__BackingField: 0
+          <PitchModifier>k__BackingField:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          <SpeedModifier>k__BackingField:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        <Keyframes>k__BackingField: []
+        <WordBoundaryKeyframes>k__BackingField: []
+        <Skippable>k__BackingField: 1
+    - rid: 3228110152829763599
+      type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
+      data:
+        <Text>k__BackingField: Whoops.
+        <PhoneticText>k__BackingField: 
+        <SamOptions>k__BackingField:
+          <Pitch>k__BackingField: 64
+          <Mouth>k__BackingField: 128
+          <Throat>k__BackingField: 128
+          <Speed>k__BackingField: 72
+          <SingMode>k__BackingField: 0
+          <PitchModifier>k__BackingField:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+          <SpeedModifier>k__BackingField:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 4
+        <Keyframes>k__BackingField: []
+        <WordBoundaryKeyframes>k__BackingField: []
+        <Skippable>k__BackingField: 1

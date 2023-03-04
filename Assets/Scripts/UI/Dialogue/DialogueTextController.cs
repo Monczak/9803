@@ -44,7 +44,7 @@ namespace NineEightOhThree.UI.Dialogue
         private bool showingDialogue;
 
         private Dialogues.Dialogue currentDialogue;
-        private DialogueLine currentLine;
+        private LineEvent currentLine;
 
         private UIControls controls;
         private bool skipDialogue;
@@ -177,7 +177,7 @@ namespace NineEightOhThree.UI.Dialogue
             nextLineIconController.HideImmediate();
         }
 
-        public void StartDialogueLine(DialogueLine line)
+        public void StartDialogueLine(LineEvent line)
         {
             currentLine = line;
             
@@ -192,7 +192,7 @@ namespace NineEightOhThree.UI.Dialogue
             showingLine = true;
         }
 
-        private void PrepareCharCountArray(DialogueLine line)
+        private void PrepareCharCountArray(LineEvent line)
         {
             shownCharCount = new int[(int)(SpeechInfo.LengthSeconds * TicksPerSecond)];
             interpolationKeyframes = new List<int>();

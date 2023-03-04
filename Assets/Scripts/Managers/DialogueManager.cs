@@ -16,7 +16,7 @@ namespace NineEightOhThree.Managers
         public DialogueTextController dialogueTextController;
 
         private Dialogue currentDialogue;
-        private Queue<DialogueLine> lineQueue;
+        private Queue<DialogueEvent> eventQueue;
 
         private void Awake()
         {
@@ -29,18 +29,24 @@ namespace NineEightOhThree.Managers
 
         private void OnNextDialogueLine(object sender, EventArgs e)
         {
-            ShowNextLine();
+            HandleNextEvent();
         }
 
-        private void ShowNextLine()
+        private void HandleNextEvent()
         {
-            if (lineQueue.TryDequeue(out DialogueLine line))
+            while (true)
             {
-                StartDialogueLine(line);
-            }
-            else
-            {
-                EndDialogue();
+                if (eventQueue.TryDequeue(out DialogueEvent theEvent))
+                {
+                    theEvent.Handle();
+                    if (!Attribute.IsDefined(theEvent.GetType(), typeof(NotifyCompleteAttribute))) continue;
+                }
+                else
+                {
+                    EndDialogue();
+                }
+
+                break;
             }
         }
 
@@ -65,7 +71,7 @@ namespace NineEightOhThree.Managers
         {
             currentDialogue = dialogue;
             
-            lineQueue = new Queue<DialogueLine>(currentDialogue.Lines);
+            eventQueue = new Queue<DialogueEvent>(currentDialogue.Events);
             
             dialogueTextController.Setup();
 
@@ -74,10 +80,10 @@ namespace NineEightOhThree.Managers
                 GameManager.Instance.Player.DisableControls();
             }
             
-            ShowNextLine();
+            HandleNextEvent();
         }
 
-        public async Task StartDialogueLineAsync(DialogueLine line)
+        public async Task StartDialogueLineAsync(LineEvent line)
         {
             SpeechManager.Instance.StopSpeech();
             await Task.Run(() => SpeechManager.Instance.SpeakDialogueLineAsync(line));
@@ -86,7 +92,7 @@ namespace NineEightOhThree.Managers
             dialogueTextController.StartDialogueLine(line);
         }
 
-        public void StartDialogueLine(DialogueLine line)
+        public void StartDialogueLine(LineEvent line)
         {
             UnityDispatcher.Instance.Run(() => StartDialogueLineAsync(line));
         }

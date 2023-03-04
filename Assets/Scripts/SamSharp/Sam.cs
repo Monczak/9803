@@ -28,7 +28,7 @@ namespace SamSharp
 
         public string TextToPhonemes(string input)
         {
-            return reciter.TextToPhonemes(input);
+            return reciter.TextToPhonemes(" " + input)[1..];
         }
 
         public RenderResult Speak(string input)
