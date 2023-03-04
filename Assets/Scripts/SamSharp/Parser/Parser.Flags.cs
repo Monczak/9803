@@ -13,7 +13,7 @@ namespace SamSharp.Parser
             Liquid = 0x1000,
             Nasal = 0x0800,
             Alveolar = 0x0400,
-            _0x0200 = 0x0200,
+            _0x0200_Custom = 0x0200,
             Punctuation = 0x0100,
             Vowel = 0x0080,
             Consonant = 0x0040,

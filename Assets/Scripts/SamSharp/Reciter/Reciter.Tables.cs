@@ -71,6 +71,9 @@ namespace SamSharp.Reciter
             { '^', CharFlags.Ruleset2 },
             { '_', 0 },
             { '`', CharFlags.Consonant },
+            
+            // Custom stuff
+            { '\x80', CharFlags.Ruleset2 },
         };
 
         private const string Rules = 
@@ -513,49 +516,52 @@ namespace SamSharp.Reciter
 
             " (Z) =ZIY4|"+
             "(Z)=Z";
-        
-        private const string Rules2 = 
-            "(A)=|"+
-            "(!)=.|"+
-            "(\") =-AH5NKWOWT-|"+
-            "(\")=KWOW4T-|"+
-            "(#)= NAH4MBER |"+
-            "($)= DAA4LER |"+
-            "(%)= PERSEH4NT |"+
-            "(&)= AEND |"+
-            "(\')=|"+
-            "(*)= AE4STERIHSK|"+
-            "(+)= PLAH4S|"+
-            "(,)=,|"+
-            " (-) =-|"+
-            "(-)=|"+
-            "(.)= POYNT|"+
-            "(/)= SLAE4SH |"+
-            "(0)= ZIY4ROW|"+
-            " (1ST)=FER4ST|"+
-            " (10TH)=TEH4NTH|"+
-            "(1)= WAH4N|"+
-            " (2ND)=SEH4KUND|"+
-            "(2)= TUW4|"+
-            " (3RD)=THER4D|"+
-            "(3)= THRIY4|"+
-            "(4)= FOH4R|"+
-            " (5TH)=FIH4FTH|"+
-            "(5)= FAY4V|"+
-            " (64) = SIH4KSTIY FOHR|"+
-            "(6)= SIH4KS|"+
-            "(7)= SEH4VUN|"+
-            " (8TH)=EY4TH|"+
-            "(8)= EY4T|"+
-            "(9)= NAY4N|"+
-            "(:)=.|"+
-            "(;)=.|"+
-            "(<)= LEH4S DHAEN |"+
-            "(=)= IY4KWULZ |"+
-            "(>)= GREY4TER DHAEN |"+
-            "(?)=?|"+
-            "(@)= AE6T |"+
-            "(^)= KAE4RIXT ";
-            
+
+        private const string Rules2 =
+            "(A)=|" +
+            "(!)=.|" +
+            "(\") =-AH5NKWOWT-|" +
+            "(\")=KWOW4T-|" +
+            "(#)= NAH4MBER |" +
+            "($)= DAA4LER |" +
+            "(%)= PERSEH4NT |" +
+            "(&)= AEND |" +
+            "(\')=|" +
+            "(*)= AE4STERIHSK|" +
+            "(+)= PLAH4S|" +
+            "(,)=,|" +
+            " (-) =-|" +
+            "(-)=|" +
+            "(.)= POYNT|" +
+            "(/)= SLAE4SH |" +
+            "(0)= ZIY4ROW|" +
+            " (1ST)=FER4ST|" +
+            " (10TH)=TEH4NTH|" +
+            "(1)= WAH4N|" +
+            " (2ND)=SEH4KUND|" +
+            "(2)= TUW4|" +
+            " (3RD)=THER4D|" +
+            "(3)= THRIY4|" +
+            "(4)= FOH4R|" +
+            " (5TH)=FIH4FTH|" +
+            "(5)= FAY4V|" +
+            " (64) = SIH4KSTIY FOHR|" +
+            "(6)= SIH4KS|" +
+            "(7)= SEH4VUN|" +
+            " (8TH)=EY4TH|" +
+            "(8)= EY4T|" +
+            "(9)= NAY4N|" +
+            "(:)=.|" +
+            "(;)=.|" +
+            "(<)= LEH4S DHAEN |" +
+            "(=)= IY4KWULZ |" +
+            "(>)= GREY4TER DHAEN |" +
+            "(?)=?|" +
+            "(@)= AE6T |" +
+            "(^)= KAE4RIXT |" +
+
+            "(\x80)= # "+
+            "";
+
     }
 }

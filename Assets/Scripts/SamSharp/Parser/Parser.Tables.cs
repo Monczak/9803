@@ -14,6 +14,9 @@
             "/H", "/X", "Z*", "ZH", "V*", "DH", "CH", "**", "J*", "**", "**", "**", "EY", "AY", "OY", "AW", "OW", "UW",
             "B*", "**", "**", "D*", "**", "**", "G*", "**", "**", "GX", "**", "**", "P*", "**", "**", "T*", "**", "**",
             "K*", "**", "**", "KX", "**", "**", "UL", "UM", "UN",
+            
+            // Custom phonemes
+            "#*",
         };
 
         /*
@@ -27,15 +30,15 @@
          *    '.*', '?*', ',*', '-*', 'Q*'
          *  0x2000  FLAG_FRICATIVE
          *    'S*', 'SH', 'F*', 'TH', 'Z*', 'ZH', 'V*', 'DH', 'CH', '**', '**'
-         *  0x1000  FLAG_LIQUIC
+         *  0x1000  FLAG_LIQUID
          *    'R*', 'L*', 'W*', 'Y*'
          *  0x0800  FLAG_NASAL
          *    'M*', 'N*', 'NX'
          *  0x0400  FLAG_ALVEOLAR
          *    'N*', 'DX', 'S*', 'TH', 'Z*', 'DH', 'D*', '**', '**', 'T*', '**',
          *    '**'
-         *  0x0200
-         *    --- not used ---
+         *  0x0200  CUSTOM
+         *    '#*'
          *  0x0100  FLAG_PUNCT
          *    '.*', '?*', ',*', '-*'
          *  0x0080  FLAG_VOWEL
@@ -152,7 +155,10 @@
             PhonemeFlags.Consonant | PhonemeFlags.StopConsonant | PhonemeFlags.UnvoicedStopConsonant | PhonemeFlags._0x0008, // '**' 77
             PhonemeFlags.Vowel, // 'UL' 78
             PhonemeFlags.Consonant | PhonemeFlags.UnvoicedStopConsonant | PhonemeFlags.Vowel, // 'UM' 79
-            PhonemeFlags.Consonant | PhonemeFlags.UnvoicedStopConsonant | PhonemeFlags.Vowel // 'UN' 80
+            PhonemeFlags.Consonant | PhonemeFlags.UnvoicedStopConsonant | PhonemeFlags.Vowel, // 'UN' 80
+            
+            // Custom phonemes
+            PhonemeFlags._0x0200_Custom,    // '#*' 81
         };
 
         
@@ -246,7 +252,11 @@
             0x0001 | 0x0100, // '**' 76
             0x0004 | 0x0400, // '**' 77
             0x00C7 | 0x0500, // 'UL' 78
-            0x00FF | 0x0500 // 'UM' 79
+            0x00FF | 0x0500, // 'UM' 79
+            0x00FF | 0x0500, // 'UN' 80 (WTF: This length wasn't present in the original code?)
+            
+            // Custom stuff
+            0x0010 | 0x1000, // '#*' 81
         };
         
         /*
@@ -353,6 +363,10 @@
         79   |  UM     | 11000001 |
         80   |  UN     | 11000001 |
         31   |  Q*     | 01001100 |
+        
+        
+        CUSTOM PHONEMES
+        81   |  #*     | 00000000 |
 
         */
     }

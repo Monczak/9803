@@ -23,7 +23,7 @@ namespace SamSharp.Reciter
         {
             rules = new Dictionary<char, List<RuleMatcher>>();
 
-            foreach (string rule in Rules.Split("|"))
+            foreach (string rule in Rules.Split("|", StringSplitOptions.RemoveEmptyEntries))
             {
                 (RuleMatcher matcher, char c) = GenerateReciterRule(rule);
                 if (!rules.ContainsKey(c))
@@ -45,7 +45,7 @@ namespace SamSharp.Reciter
         /// <param name="c">The char to test.</param>
         /// <param name="flags">The flags to test against.</param>
         /// <returns>Whether the char matches against the flags.</returns>
-        private bool MatchesFlags(char? c, CharFlags flags) => (c is null ? 0 : charFlags[c.Value] & flags) != 0;
+        private bool MatchesFlags(char? c, CharFlags flags) => (c is null || !charFlags.ContainsKey(c.Value) ? 0 : charFlags[c.Value] & flags) != 0;
         
         /// <summary>
         /// Matches a string's char against the specified flags.
@@ -345,7 +345,7 @@ namespace SamSharp.Reciter
                     }
                     
                     // pos36630:
-                    if (charFlags[currentChar] != 0)
+                    if (charFlags.ContainsKey(currentChar) && charFlags[currentChar] != 0)
                     {
                         // pos36677:
                         if (!MatchesFlags(currentChar, CharFlags.AlphaOrQuot))

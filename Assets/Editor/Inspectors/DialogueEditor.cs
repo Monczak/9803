@@ -165,11 +165,12 @@ namespace NineEightOhThree.Editor.Inspectors
         {
             EditorGUILayout.PrefixLabel("Text");
             line.Text = EditorGUILayout.TextArea(line.Text, new GUIStyle(EditorStyles.textArea) {wordWrap = true});
-            EditorGUILayout.LabelField($"Cleaned: \"{SamUtils.CleanInput(line.Text)}\"", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField($"Cleaned (dialogue): \"{SamUtils.CleanInputForDialogue(line.Text)}\"", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField($"Cleaned (SAM): \"{SamUtils.CleanInputForSam(line.Text)}\"", EditorStyles.wordWrappedLabel);
             
             try
             {
-                string phoneticText = sam.TextToPhonemes(line.Text);
+                string phoneticText = sam.TextToPhonemes(line.CleanedSamInput);
                 EditorGUILayout.LabelField($"Phonetic: \"{phoneticText}\"", EditorStyles.wordWrappedLabel);
             }
             catch (Exception e)
@@ -204,7 +205,7 @@ namespace NineEightOhThree.Editor.Inspectors
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Get Phoneme Data"))
             {
-                sam.GetPhonemeDataAsync(line.Text).ContinueWith(t =>
+                sam.GetPhonemeDataAsync(line.CleanedSamInput).ContinueWith(t =>
                 {
                     phonemeData[line] = t.Result;
                     showPhonemes[line] = true;
@@ -333,7 +334,7 @@ namespace NineEightOhThree.Editor.Inspectors
             EditorGUILayout.EndHorizontal();
 
             int wordIndex = 0;
-            string cleanedInput = SamUtils.CleanInput(cachedText[line]);
+            string cleanedInput = SamUtils.CleanInputForSam(cachedText[line]);
             string[] words = SamUtils.SplitWords(cleanedInput).ToArray();
             for (int i = 0; i < phonemeData[line].Length; i++)
             {

@@ -151,8 +151,8 @@ namespace NineEightOhThree.UI.Dialogue
         private void RevealText()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append("<color=#ffffffff>").Append(currentLine.Text[..shownCharCount[tickIndex]]).Append("</color>");
-            builder.Append("<color=#ffffff00>").Append(currentLine.Text[shownCharCount[tickIndex]..]).Append("</color>");
+            builder.Append("<color=#ffffffff>").Append(currentLine.CleanedText[..shownCharCount[tickIndex]]).Append("</color>");
+            builder.Append("<color=#ffffff00>").Append(currentLine.CleanedText[shownCharCount[tickIndex]..]).Append("</color>");
             text.text = builder.ToString();
         }
 
@@ -200,7 +200,7 @@ namespace NineEightOhThree.UI.Dialogue
             int wordIndex = 0;
             int currentlyShownChars = 0;
             bool inRange = false;
-            var words = SamUtils.GetWordMatches(line.Text).ToList();
+            var words = SamUtils.GetWordMatches(line.CleanedText).ToList();
 
             for (int i = 0; i < shownCharCount.Length; i++)
             {

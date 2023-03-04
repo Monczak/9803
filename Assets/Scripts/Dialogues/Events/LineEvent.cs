@@ -25,10 +25,11 @@ namespace NineEightOhThree.Dialogues
         
         [field: SerializeField] public bool Skippable { get; set; }
 
-        public string CleanedText => SamUtils.CleanInput(Text);
+        public string CleanedText => SamUtils.CleanInputForDialogue(Text);
+        public string CleanedSamInput => SamUtils.CleanInputForSam(Text);
 
-        public List<int> WordIndexes => SamUtils.GetWordIndexes(SamUtils.CleanInput(Text)).ToList();
-        public List<string> Words => SamUtils.SplitWords(SamUtils.CleanInput(Text)).ToList();
+        public List<int> WordIndexes => SamUtils.GetWordIndexes(CleanedText).ToList();
+        public List<string> Words => SamUtils.SplitWords(CleanedText).ToList();
 
         public LineEvent()
         {

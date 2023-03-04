@@ -44,7 +44,7 @@ namespace NineEightOhThree.Audio
         public async Task SpeakDialogueLineAsync(LineEvent line)
         {
             SetSamOptions(line.SamOptions);
-            await SpeakAsync(line.Text);
+            await SpeakAsync(line.CleanedSamInput);
         }
 
         public PhonemeData[] GetPhonemeData(string text)
