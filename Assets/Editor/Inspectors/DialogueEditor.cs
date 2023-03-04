@@ -90,6 +90,7 @@ namespace NineEightOhThree.Editor.Inspectors
                     }
                     
                     dialogue.Events.Add(newEvent);
+                    foldOuts[newEvent] = false;
                 }
             }
             GUILayout.FlexibleSpace();
@@ -165,8 +166,8 @@ namespace NineEightOhThree.Editor.Inspectors
         {
             EditorGUILayout.PrefixLabel("Text");
             line.Text = EditorGUILayout.TextArea(line.Text, new GUIStyle(EditorStyles.textArea) {wordWrap = true});
-            EditorGUILayout.LabelField($"Cleaned (dialogue): \"{SamUtils.CleanInputForDialogue(line.Text)}\"", EditorStyles.wordWrappedLabel);
-            EditorGUILayout.LabelField($"Cleaned (SAM): \"{SamUtils.CleanInputForSam(line.Text)}\"", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField($"Cleaned (dialogue): \"{line.CleanedText}\"", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField($"Cleaned (SAM): \"{line.CleanedSamInput}\"", EditorStyles.wordWrappedLabel);
             
             try
             {

@@ -6661,7 +6661,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Some random text
+  m_text: 'Some
+
+    random text'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 14800e50cd4f8fb4198ad1fa486c5b47, type: 2}
   m_sharedMaterial: {fileID: -7976308436832280179, guid: 14800e50cd4f8fb4198ad1fa486c5b47, type: 2}

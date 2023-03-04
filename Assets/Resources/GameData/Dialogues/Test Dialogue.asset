@@ -15,6 +15,7 @@ MonoBehaviour:
   <Events>k__BackingField:
   - rid: 3228110152829763597
   - rid: 3228110152829763598
+  - rid: 3228110152829763609
   - rid: 3228110152829763599
   <LockPlayerControls>k__BackingField: 0
   references:
@@ -23,7 +24,7 @@ MonoBehaviour:
     - rid: 3228110152829763597
       type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
       data:
-        <Text>k__BackingField: I poisoned the water supply.
+        <Text>k__BackingField: '{pause4} I poisoned[newline]the water supply.'
         <PhoneticText>k__BackingField: 
         <SamOptions>k__BackingField:
           <Pitch>k__BackingField: 64
@@ -79,8 +80,18 @@ MonoBehaviour:
             m_PreInfinity: 2
             m_PostInfinity: 2
             m_RotationOrder: 4
-        <Keyframes>k__BackingField: []
-        <WordBoundaryKeyframes>k__BackingField: []
+        <Keyframes>k__BackingField:
+        - 0.38208956
+        - 0.45074627
+        - 0.64179105
+        - 0.6746269
+        - 0.77014923
+        <WordBoundaryKeyframes>k__BackingField:
+        - 0.38208956
+        - 0.45074627
+        - 0.64179105
+        - 0.6746269
+        - 0.77014923
         <Skippable>k__BackingField: 1
     - rid: 3228110152829763598
       type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
@@ -141,8 +152,14 @@ MonoBehaviour:
             m_PreInfinity: 2
             m_PostInfinity: 2
             m_RotationOrder: 4
-        <Keyframes>k__BackingField: []
-        <WordBoundaryKeyframes>k__BackingField: []
+        <Keyframes>k__BackingField:
+        - 0
+        - 0.19871795
+        - 0.6666667
+        <WordBoundaryKeyframes>k__BackingField:
+        - 0
+        - 0.19871795
+        - 0.6666667
         <Skippable>k__BackingField: 1
     - rid: 3228110152829763599
       type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
@@ -206,3 +223,5 @@ MonoBehaviour:
         <Keyframes>k__BackingField: []
         <WordBoundaryKeyframes>k__BackingField: []
         <Skippable>k__BackingField: 1
+    - rid: 3228110152829763609
+      type: {class: TestEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
