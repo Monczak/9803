@@ -3,6 +3,7 @@ using NineEightOhThree.Audio;
 using NineEightOhThree.Dialogues;
 using NineEightOhThree.Inventories;
 using NineEightOhThree.Managers;
+using NineEightOhThree.VirtualCPU;
 using UnityEngine;
 
 namespace NineEightOhThree.Objects.Interactables
@@ -32,6 +33,8 @@ namespace NineEightOhThree.Objects.Interactables
             inventory.AddItemStack(ItemStack.Of(ItemRegistry.GetItem(1), 10));
             
             DialogueManager.Instance.StartDialogue(dialogue);
+            
+            CPU.Instance.SetIrq();
         }
     }
 }

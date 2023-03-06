@@ -30,6 +30,10 @@ namespace NineEightOhThree.VirtualCPU
             get => statusRegister;
             protected internal set => statusRegister = value;
         }
+
+        private bool interruptRequest;
+        private bool nonMaskableInterrupt;
+        
         public bool NegativeFlag
         {
             get => (StatusRegister & 0b10000000) != 0;
@@ -39,6 +43,12 @@ namespace NineEightOhThree.VirtualCPU
         {
             get => (StatusRegister & 0b01000000) != 0;
             set => SetStatusRegisterBit(6, value);
+        }
+
+        public bool InterruptDisableFlag
+        {
+            get => (StatusRegister & 0b00000100) != 0;
+            set => SetStatusRegisterBit(2, value);
         }
         public bool ZeroFlag
         {
@@ -60,7 +70,10 @@ namespace NineEightOhThree.VirtualCPU
         public ushort StackPointer { get; protected internal set; }
         
         private ushort ResetVector => (ushort)BitUtils.FromLittleEndian<ushort>(Memory.ReadBlock(0xFFFC, 2));
-
+        private ushort IrqVector => (ushort)BitUtils.FromLittleEndian<ushort>(Memory.ReadBlock(0xFFFE, 2));
+        private ushort NmiVector => (ushort)BitUtils.FromLittleEndian<ushort>(Memory.ReadBlock(0xFFFA, 2));
+        
+        
         public bool showDebugInfo;
 
         private readonly object lockObj = new();
@@ -133,6 +146,7 @@ namespace NineEightOhThree.VirtualCPU
         {
             InitProcessor();
             ProgramCounter = ResetVector;
+            StatusRegister = 0b00000000;
             RegisterA = 0;
             RegisterX = 0;
             RegisterY = 0;
@@ -153,6 +167,16 @@ namespace NineEightOhThree.VirtualCPU
             double time = stopwatch.Elapsed.TotalMilliseconds;
             executionTimes[executionTimeIndex] = time;
             executionTimeIndex = (executionTimeIndex + 1) % executionTimes.Length;
+        }
+
+        public void SetIrq()
+        {
+            interruptRequest = true;
+        }
+
+        public void SetNmi()
+        {
+            nonMaskableInterrupt = true;
         }
 
         public void InitProcessor()
@@ -199,6 +223,23 @@ namespace NineEightOhThree.VirtualCPU
         public void Cycle()
         {
             preCycleProgramCounter = ProgramCounter;
+
+            if (nonMaskableInterrupt || (interruptRequest && !InterruptDisableFlag))
+            {
+                PushStack((byte)((ProgramCounter >> 8) & 0xFF));
+                PushStack((byte)(ProgramCounter & 0xFF));
+                
+                PushStack(StatusRegister);
+                
+                InterruptDisableFlag = true;
+                if (nonMaskableInterrupt)
+                    ProgramCounter = NmiVector;
+                else if (interruptRequest) 
+                    ProgramCounter = IrqVector;
+
+                interruptRequest = false;
+                nonMaskableInterrupt = false;
+            }
 
             Fetch();
             Execute();

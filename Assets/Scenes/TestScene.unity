@@ -610,7 +610,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stackSize: 256
-  showDebugInfo: 0
+  showDebugInfo: 1
   running: 0
   cyclesPerSecond: 500
 --- !u!114 &454578873
@@ -5162,7 +5162,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -175, y: 0}
+  m_AnchoredPosition: {x: -295, y: 0}
   m_SizeDelta: {x: 335, y: -50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1139591178
