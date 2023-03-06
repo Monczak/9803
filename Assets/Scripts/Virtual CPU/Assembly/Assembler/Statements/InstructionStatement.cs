@@ -36,7 +36,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             
             if (!InstructionCandidates.Any())
                 return OperationResult.Error(
-                    SyntaxErrors.AddressingModeNotSupported(token, AddressingMode));
+                    SyntaxErrors.AddressingModeNotSupported(token, modeFlags));
             
             return OperationResult.Success();
         }

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
@@ -26,7 +28,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             new(AssemblerError.ErrorType.Syntax, $"Unknown instruction \"{token.Content}\"", token);
 
         public static AssemblerError AddressingModeNotSupported(Token token, AddressingMode addressingMode) =>
-            new(AssemblerError.ErrorType.Syntax ,$"The instruction \"{token.Content}\" does not support {AddressingModeNames[addressingMode]} addressing", token);
+            new(AssemblerError.ErrorType.Syntax ,$"The instruction \"{token.Content}\" does not support {string.Join("/", EnumUtils.DeconstructFlags(addressingMode).Select(m => AddressingModeNames[m]))} addressing", token);
 
         public static AssemblerError RegisterNotXY(Token token) =>
             new(AssemblerError.ErrorType.Syntax, $"Invalid register, expected X or Y", token);
