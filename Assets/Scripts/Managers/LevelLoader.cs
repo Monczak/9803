@@ -18,24 +18,10 @@ namespace NineEightOhThree.Managers
         private bool LoadScripts()
         {
             string levelName = SceneManager.GetActiveScene().name;
-            TextAsset[] scriptAssets = Resources.LoadAll<TextAsset>($"GameData/LevelScripts/TestScene");
-
-            Dictionary<string, string> scripts = new();
-            foreach (TextAsset asset in scriptAssets)
-            {
-                string text = asset.text.Replace("\r\n", "\n");
-                scripts.Add(asset.name, text);
-            }
-
-            if (!scripts.ContainsKey("main"))
-            {
-                Logger.LogError($"Could not find main.asm for level {levelName}");
-                return false;
-            }
-            Logger.Log($"Loaded {scripts.Count} scripts");
 
             BuildQueue buildQueue = new();
-            buildQueue.Add(scripts["main"]);
+            buildQueue.Add($"GameData/LevelScripts/{levelName}/bogus");
+            buildQueue.Add($"GameData/LevelScripts/{levelName}/main");
             var result = buildQueue.Build();
 
             if (result.Failed)
@@ -43,6 +29,14 @@ namespace NineEightOhThree.Managers
                 Logger.LogError("Building level scripts failed!");
                 foreach (var error in result.BuildErrors)
                     Logger.LogError($"{error.Job.ResourceLocation} - {error.Message}");
+                foreach (var job in result.FailedJobs)
+                {
+                    if (job.Result is not null)
+                    {
+                        foreach (var error in job.Result.Errors)
+                            Logger.LogError($"Assembler: {job.ResourceLocation} - {error.Message}");
+                    } 
+                }
             }
             else
             {

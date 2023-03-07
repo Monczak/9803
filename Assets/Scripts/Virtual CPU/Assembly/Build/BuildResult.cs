@@ -8,14 +8,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
         public byte[] Code { get; }
         public bool[] CodeMask { get; }
         public List<string> Logs { get; }
-        public List<AssemblerError> Errors { get; }
+        public List<AssemblerError> AssemblerErrors { get; }
 
-        private Dictionary<int, BuildJob> codeOrigins;
+        private readonly Dictionary<int, BuildJob> codeOrigins;
 
         public List<BuildJob> FailedJobs { get; }
 
         public List<BuildError> BuildErrors { get; }
-        public bool Failed => BuildErrors.Count > 0;
+        public bool Failed => BuildErrors.Count > 0 || AssemblerErrors.Count > 0;
         
         public BuildResult()
         {
@@ -23,7 +23,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             CodeMask = new bool[65536];
 
             Logs = new List<string>();
-            Errors = new List<AssemblerError>();
+            AssemblerErrors = new List<AssemblerError>();
 
             codeOrigins = new Dictionary<int, BuildJob>();
             
@@ -31,15 +31,21 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             BuildErrors = new List<BuildError>();
         }
 
+        public void AddLogs(BuildJob job)
+        {
+            if (job.Result is not null)
+            {
+                Logs.AddRange(job.Result.Logs);
+                AssemblerErrors.AddRange(job.Result.Errors);
+            }
+        }
+
         public OperationResult TryMerge(BuildJob job)
         {
-            Logs.AddRange(job.Result.Logs);
-            Errors.AddRange(job.Result.Errors);
-            
             if (job.Failed)
             {
                 FailedJobs.Add(job);
-                return OperationResult.Error(Build.BuildErrors.JobFailed(job));
+                return OperationResult.Error(Build.BuildErrors.AssemblerFailed(job));
             }
             
             for (int i = 0; i < CodeMask.Length; i++)

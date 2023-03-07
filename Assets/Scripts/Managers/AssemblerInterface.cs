@@ -15,13 +15,19 @@ namespace NineEightOhThree.Managers
         private static Assembler assembler;
         public static Assembler Assembler
         {
-            get => assembler ??= new Assembler(ErrorHandler, LogHandler);
+            get => assembler ??= new Assembler(HandleErrors, HandleLogs);
             private set => assembler = value;
         }
 
         public static Assembler.AssemblerResult Assemble(string code)
         {
+            Assembler = new Assembler(HandleErrors, HandleLogs);
             return Assembler.Assemble(code);
+        }
+        
+        public static Assembler.AssemblerResult Assemble(string code, ErrorHandler errorHandler, LogHandler logHandler)
+        {
+            return new Assembler(errorHandler, logHandler).Assemble(code);
         }
 
         // TODO: Implement task queue functionality
@@ -29,7 +35,7 @@ namespace NineEightOhThree.Managers
         {
             assemblerTaskQueue ??= new Queue<Task<Assembler.AssemblerResult>>();
 
-            Assembler = new Assembler(ErrorHandler, LogHandler);
+            Assembler = new Assembler(HandleErrors, HandleLogs);
 
             Task<Assembler.AssemblerResult>.Factory.StartNew(() => Assembler.Assemble(code))
                 .ContinueWith(t =>
@@ -54,7 +60,7 @@ namespace NineEightOhThree.Managers
             if (error is not null) Logger.LogError($"Internal error: {error.Message}");
         }
 
-        private static void ErrorHandler(AssemblerError error)
+        private static void HandleErrors(AssemblerError error)
         {
             if (error is null) return;
                 
@@ -74,7 +80,7 @@ namespace NineEightOhThree.Managers
             }
         }
 
-        private static void LogHandler(string log)
+        private static void HandleLogs(string log)
         {
             Debug.Log(log);
         }

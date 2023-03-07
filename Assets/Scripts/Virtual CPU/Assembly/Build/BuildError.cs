@@ -1,4 +1,5 @@
-﻿using NineEightOhThree.VirtualCPU.Assembly.Assembler;
+﻿using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Build
 {
@@ -6,7 +7,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
     {
         public BuildJob Job { get; }
         public string Message { get; }
-        public AssemblerError AssemblerError { get; }
+        public List<AssemblerError> AssemblerErrors { get; }
 
         public BuildError(BuildJob job, string message)
         {
@@ -14,9 +15,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             Message = message;
         }
 
-        public BuildError(BuildJob job, string message, AssemblerError assemblerError) : this(job, message)
+        public BuildError(BuildJob job, string message, List<AssemblerError> assemblerErrors) : this(job, message)
         {
-            AssemblerError = assemblerError;
+            AssemblerErrors = assemblerErrors;
         }
+
+        public override string ToString() => $"{Job.ResourceLocation}: {Message}";
     }
 }

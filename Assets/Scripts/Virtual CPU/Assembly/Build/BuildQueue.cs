@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Build
 {
@@ -6,13 +7,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
     {
         private readonly Queue<BuildJob> jobs;
 
-        public delegate void ErrorHandler(BuildError error);
+        public delegate void ErrorHandler(Error error);
 
-        private ErrorHandler errorHandler;
+        private readonly ErrorHandler buildErrorHandler, assemblerErrorHandler;
 
-        public BuildQueue()
+        public BuildQueue(ErrorHandler buildErrorHandler = null, ErrorHandler assemblerErrorHandler = null)
         {
             jobs = new Queue<BuildJob>();
+            this.buildErrorHandler = buildErrorHandler;
+            this.assemblerErrorHandler = assemblerErrorHandler;
         }
 
         public void Add(BuildJob job)
@@ -34,16 +37,31 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             while (jobs.TryDequeue(out BuildJob job))
             { 
                 var buildResult = job.Build();
+                result.AddLogs(job);
                 if (buildResult.Failed)
                 {
-                    errorHandler((BuildError)buildResult.TheError);
+                    BuildError theError = (BuildError)buildResult.TheError;
+                    result.FailedJobs.Add(job);
+                    result.BuildErrors.Add(theError);
+
+                    buildErrorHandler?.Invoke(theError);
+
+                    if (theError?.AssemblerErrors is not null)
+                    {
+                        foreach (AssemblerError error in theError.AssemblerErrors)
+                        {
+                            assemblerErrorHandler?.Invoke(error);
+                        }
+                    }
                 }
                 else
                 {
                     var mergeResult = result.TryMerge(job);
 
                     if (mergeResult.Failed)
-                        errorHandler((BuildError)mergeResult.TheError);
+                    {
+                        buildErrorHandler?.Invoke((BuildError)mergeResult.TheError);
+                    }
                 }
             }
 
