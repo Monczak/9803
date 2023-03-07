@@ -60,6 +60,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
 
                     if (mergeResult.Failed)
                     {
+                        result.FailedJobs.Add(job);
+                        result.BuildErrors.Add((BuildError)mergeResult.TheError);
                         buildErrorHandler?.Invoke((BuildError)mergeResult.TheError);
                     }
                 }

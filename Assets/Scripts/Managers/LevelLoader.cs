@@ -21,6 +21,7 @@ namespace NineEightOhThree.Managers
 
             BuildQueue buildQueue = new();
             buildQueue.Add($"GameData/LevelScripts/{levelName}/main");
+            buildQueue.Add($"GameData/LevelScripts/{levelName}/not_main");
             var result = buildQueue.Build();
 
             if (result.Failed)
