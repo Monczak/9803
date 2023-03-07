@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public delegate void ErrorHandler(AssemblerError? ex);
+    public delegate void ErrorHandler(AssemblerError ex);
 
     public delegate void LogHandler(string message);
     
@@ -30,12 +30,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             public byte[] Code { get; }
             public bool[] CodeMask { get; }
             public List<string> Logs { get; }
-            public List<AssemblerError?> Errors { get; }
+            public List<AssemblerError> Errors { get; }
             
             public List<Token> Tokens { get; }
             public List<AbstractStatement> Statements { get; }
 
-            public AssemblerResult(byte[] code, bool[] codeMask, List<string> logs, List<AssemblerError?> errors, List<Token> tokens, List<AbstractStatement> statements)
+            public AssemblerResult(byte[] code, bool[] codeMask, List<string> logs, List<AssemblerError> errors, List<Token> tokens, List<AbstractStatement> statements)
             {
                 Code = code;
                 CodeMask = codeMask;
@@ -62,9 +62,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             statements = new List<AbstractStatement>();
 
             List<string> logs = new();
-            List<AssemblerError?> errors = new();
+            List<AssemblerError> errors = new();
 
-            void AddError(AssemblerError? e) => errors.Add(e);
+            void AddError(AssemblerError e) => errors.Add(e);
             void AddLog(string log) => logs.Add(log);
 
             Lexer.RegisterErrorHandler(AddError);

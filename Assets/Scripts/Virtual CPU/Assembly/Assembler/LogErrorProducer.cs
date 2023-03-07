@@ -35,6 +35,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public void RegisterErrorHandler(ErrorHandler handler) => OnErrorSubscribeOnce += handler;
         public void UnregisterErrorHandler(ErrorHandler handler) => OnErrorSubscribeOnce -= handler;
 
-        protected void MakeError(AssemblerError? error) => OnError?.Invoke(error);
+        protected void MakeError(AssemblerError error) => OnError?.Invoke(error);
     }
 }

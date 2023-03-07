@@ -143,13 +143,13 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult.Success();
         }
 
-        private void ThrowError(AssemblerError? error)
+        private void ThrowError(AssemblerError error)
         {
             HadError = true;
             MakeError(error);
         }
 
-        private void ThrowWarning(AssemblerError? warning)
+        private void ThrowWarning(AssemblerError warning)
         {
             OnWarning?.Invoke(warning);
         }
