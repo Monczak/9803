@@ -20,7 +20,6 @@ namespace NineEightOhThree.Managers
             string levelName = SceneManager.GetActiveScene().name;
 
             BuildQueue buildQueue = new();
-            buildQueue.Add($"GameData/LevelScripts/{levelName}/bogus");
             buildQueue.Add($"GameData/LevelScripts/{levelName}/main");
             var result = buildQueue.Build();
 
@@ -29,13 +28,10 @@ namespace NineEightOhThree.Managers
                 Logger.LogError("Building level scripts failed!");
                 foreach (var error in result.BuildErrors)
                     Logger.LogError($"{error.Job.ResourceLocation} - {error.Message}");
-                foreach (var job in result.FailedJobs)
+                foreach (var pair in result.JobAssemblerErrors)
                 {
-                    if (job.Result is not null)
-                    {
-                        foreach (var error in job.Result.Errors)
-                            Logger.LogError($"Assembler: {job.ResourceLocation} - {error.Message}");
-                    } 
+                    foreach (var error in pair.Value)
+                        Logger.LogError($"Assembler: {pair.Key.ResourceLocation} - {error.Message}");
                 }
             }
             else

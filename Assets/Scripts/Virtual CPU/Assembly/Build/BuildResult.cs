@@ -15,6 +15,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
         public List<BuildJob> FailedJobs { get; }
 
         public List<BuildError> BuildErrors { get; }
+        public Dictionary<BuildJob, List<AssemblerError>> JobAssemblerErrors { get; }
+
         public bool Failed => BuildErrors.Count > 0 || AssemblerErrors.Count > 0;
         
         public BuildResult()
@@ -29,6 +31,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             
             FailedJobs = new List<BuildJob>();
             BuildErrors = new List<BuildError>();
+
+            JobAssemblerErrors = new Dictionary<BuildJob, List<AssemblerError>>();
         }
 
         public void AddLogs(BuildJob job)
@@ -37,6 +41,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             {
                 Logs.AddRange(job.Result.Logs);
                 AssemblerErrors.AddRange(job.Result.Errors);
+
+                if (!JobAssemblerErrors.ContainsKey(job))
+                    JobAssemblerErrors[job] = new List<AssemblerError>();
+                JobAssemblerErrors[job].AddRange(job.Result.Errors);
             }
         }
 

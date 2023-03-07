@@ -30,7 +30,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             if (resource is null) return OperationResult<BuildError>.Error(BuildErrors.ResourceNotFound(this));
             
             string code = resource.text;
-            if (errorHandler is null && logHandler is null)
+            if (errorHandler is null || logHandler is null)
                 Result = AssemblerInterface.Assemble(code);
             else
                 Result = AssemblerInterface.Assemble(code, errorHandler, logHandler);
