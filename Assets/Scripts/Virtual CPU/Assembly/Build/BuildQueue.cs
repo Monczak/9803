@@ -33,11 +33,18 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             // (AssemblerInterface only uses one static Assembler, though!)
             while (jobs.TryDequeue(out BuildJob job))
             { 
-                job.Build();
-                var mergeResult = result.TryMerge(job);
+                var buildResult = job.Build();
+                if (buildResult.Failed)
+                {
+                    errorHandler((BuildError)buildResult.TheError);
+                }
+                else
+                {
+                    var mergeResult = result.TryMerge(job);
 
-                if (mergeResult.Failed)
-                    errorHandler((BuildError)mergeResult.TheError);
+                    if (mergeResult.Failed)
+                        errorHandler((BuildError)mergeResult.TheError);
+                }
             }
 
             return result;

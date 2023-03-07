@@ -4,6 +4,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
 {
     public static class BuildErrors
     {
+        public static BuildError ResourceNotFound(BuildJob job) =>
+            new(job, $"Resource {job.ResourceLocation} not found");
+        
         public static BuildError JobFailed(BuildJob job) =>
             new(job, $"Building {job.ResourceLocation} failed");
         

@@ -7,7 +7,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
     public class BuildJob
     {
         public string ResourceLocation { get; }
-        public AssemblerResult Result { get; }
+        public AssemblerResult Result { get; private set; }
         
         public bool Failed => Result.Errors.Count > 0;
 
@@ -17,10 +17,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             Result = null;
         }
 
-        public void Build()
+        public OperationResult<BuildError> Build()
         {
-            string code = Resources.Load<TextAsset>(ResourceLocation).text;
-            var assemblerResult = AssemblerInterface.Assemble(code);
+            var resource = Resources.Load<TextAsset>(ResourceLocation);
+            if (resource is null) return OperationResult<BuildError>.Error(BuildErrors.ResourceNotFound(this));
+            
+            string code = resource.text;
+            Result = AssemblerInterface.Assemble(code);
+            if (Result.Errors.Count > 0)
+                return OperationResult<BuildError>.Error(BuildErrors.JobFailed(this));
+            
+            return OperationResult<BuildError>.Success();
         }
     }
 }
