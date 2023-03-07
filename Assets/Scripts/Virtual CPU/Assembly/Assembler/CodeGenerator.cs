@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
+using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -47,7 +48,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             foreach (AbstractStatement stmt in statements)
             {
                 var result = FindLabel(stmt);
-                if (result.Failed) ThrowError(result.TheError);
+                if (result.Failed) ThrowError((AssemblerError)result.TheError);
             }
 
             StringBuilder builder = new();
@@ -60,7 +61,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             foreach (AbstractStatement stmt in statements)
             {
                 var result = CompileStatement(stmt);
-                if (result.Failed) ThrowError(result.TheError);
+                if (result.Failed) ThrowError((AssemblerError)result.TheError);
 
                 if (result.Result is not null)
                     compiledStatements.Add(result.Result);
@@ -71,7 +72,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             foreach (CompiledStatement cStmt in compiledStatements)
             {
                 var result = UpdateLabelRefs(cStmt);
-                if (result.Failed) ThrowError(result.TheError);
+                if (result.Failed) ThrowError((AssemblerError)result.TheError);
             }
             
             // Pass 4: Emit bytes
@@ -80,7 +81,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 foreach (CompiledStatement cStmt in compiledStatements)
                 {
                     var result = EmitBytes(cStmt);
-                    if (result.Failed) ThrowError(result.TheError);
+                    if (result.Failed) ThrowError((AssemblerError)result.TheError);
                 }
             }
             
@@ -105,7 +106,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             var bytesResult = cStmt.GetBytes(pc);
             if (bytesResult.Failed)
-                return OperationResult.Error(bytesResult.TheError);
+                return OperationResult.Error((AssemblerError)bytesResult.TheError);
             foreach (byte b in bytesResult.Result)
             {
                 if (codeMask[pc])
@@ -213,7 +214,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             var result = stmt.Directive.Build(stmt is DirectiveStatementOperands s ? s.Args : null);
             if (result.Failed)
-                return OperationResult<CompiledStatement>.Error(result.TheError, stmt.Tokens[0]);
+                return OperationResult<CompiledStatement>.Error((AssemblerError)result.TheError, stmt.Tokens[0]);
 
             var evalResult = EvaluateDirective(result.Result);
             if (evalResult.Failed)

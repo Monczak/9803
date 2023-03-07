@@ -25,7 +25,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private readonly ErrorHandler errorHandler;
         private readonly LogHandler logHandler;
 
-        public struct AssemblerResult
+        public class AssemblerResult
         {
             public byte[] Code { get; }
             public bool[] CodeMask { get; }
@@ -56,41 +56,38 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             this.logHandler = logHandler;
         }
         
-        public Func<AssemblerResult> Assemble(string input)
+        public AssemblerResult Assemble(string input)
         {
             tokens = new List<Token>();
             statements = new List<AbstractStatement>();
 
-            return () =>
+            List<string> logs = new();
+            List<AssemblerError?> errors = new();
+
+            void AddError(AssemblerError? e) => errors.Add(e);
+            void AddLog(string log) => logs.Add(log);
+
+            Lexer.RegisterErrorHandler(AddError);
+            Lexer.RegisterLogHandler(AddLog);
+            Parser.RegisterErrorHandler(AddError);
+            Parser.RegisterLogHandler(AddLog);
+            CodeGenerator.RegisterErrorHandler(AddError);
+            CodeGenerator.RegisterLogHandler(AddLog);
+
+            byte[] code = null;
+            bool[] codeMask = null;
+            try
             {
-                List<string> logs = new();
-                List<AssemblerError?> errors = new();
+                tokens = Lexer.Lex(input);
+                statements = Parser.Parse(tokens);
+                (code, codeMask) = CodeGenerator.GenerateCode(statements);
+            }
+            catch (Exception e)
+            {
+                errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message + e.StackTrace, null));
+            }
 
-                void AddError(AssemblerError? e) => errors.Add(e);
-                void AddLog(string log) => logs.Add(log);
-
-                Lexer.RegisterErrorHandler(AddError);
-                Lexer.RegisterLogHandler(AddLog);
-                Parser.RegisterErrorHandler(AddError);
-                Parser.RegisterLogHandler(AddLog);
-                CodeGenerator.RegisterErrorHandler(AddError);
-                CodeGenerator.RegisterLogHandler(AddLog);
-
-                byte[] code = null;
-                bool[] codeMask = null;
-                try
-                {
-                    tokens = Lexer.Lex(input);
-                    statements = Parser.Parse(tokens);
-                    (code, codeMask) = CodeGenerator.GenerateCode(statements);
-                }
-                catch (Exception e)
-                {
-                    errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message + e.StackTrace, null));
-                }
-
-                return new AssemblerResult(code, codeMask, logs, errors, tokens, statements);
-            };
+            return new AssemblerResult(code, codeMask, logs, errors, tokens, statements);
         }
 
         public AssemblerResult OnAssemblerFinished(Task<AssemblerResult> task)

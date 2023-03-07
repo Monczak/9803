@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
+using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -43,7 +44,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     OperationResult<AbstractStatement> stmt = ScanStatement();
                     if (stmt.Failed)
                     {
-                        MakeError(stmt.TheError);
+                        MakeError((AssemblerError)stmt.TheError);
                         HadError = true;
                         Synchronize();
                     }

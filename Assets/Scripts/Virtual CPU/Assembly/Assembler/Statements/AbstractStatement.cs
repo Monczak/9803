@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {

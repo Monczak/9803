@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Utilities;
+using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {

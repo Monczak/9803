@@ -19,42 +19,46 @@ namespace NineEightOhThree.Managers
             private set => assembler = value;
         }
 
+        public static Assembler.AssemblerResult Assemble(string code)
+        {
+            return Assembler.Assemble(code);
+        }
+
         // TODO: Implement task queue functionality
-        public static void ScheduleAssembly(string code, Action<Assembler.AssemblerResult> onFinish)
+        public static void ScheduleAssembly(string code, Action<byte[], bool[]> onFinish)
         {
             assemblerTaskQueue ??= new Queue<Task<Assembler.AssemblerResult>>();
 
             Assembler = new Assembler(ErrorHandler, LogHandler);
-            var assemble = Assembler.Assemble(code);
 
-            Task<Assembler.AssemblerResult>.Factory.StartNew(assemble)
+            Task<Assembler.AssemblerResult>.Factory.StartNew(() => Assembler.Assemble(code))
                 .ContinueWith(t =>
                 {
-                    Assembler.AssemblerResult result = Assembler.OnAssemblerFinished(t);
-                    onFinish(result);
+                    var result = Assembler.OnAssemblerFinished(t);
+                    onFinish(result.Code, result.CodeMask);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
-        private static void LexicalErrorHandler(AssemblerError? error)
+        private static void LexicalErrorHandler(AssemblerError error)
         {
-            if (error != null) Logger.LogError($"Lexical error: {error.Value.Message} (line {error.Value.Line}, col {error.Value.Column})");
+            if (error is not null) Logger.LogError($"Lexical error: {error.Message} (line {error.Line}, col {error.Column})");
         }
 
-        private static void SyntaxErrorHandler(AssemblerError? error)
+        private static void SyntaxErrorHandler(AssemblerError error)
         {
-            if (error != null) Logger.LogError($"Syntax error: {error.Value.Message} ({error.Value.Token})");
+            if (error is not null) Logger.LogError($"Syntax error: {error.Message} ({error.Token})");
         }
         
-        private static void InternalErrorHandler(AssemblerError? error)
+        private static void InternalErrorHandler(AssemblerError error)
         {
-            if (error != null) Logger.LogError($"Internal error: {error.Value.Message}");
+            if (error is not null) Logger.LogError($"Internal error: {error.Message}");
         }
 
-        private static void ErrorHandler(AssemblerError? error)
+        private static void ErrorHandler(AssemblerError error)
         {
-            if (error == null) return;
+            if (error is null) return;
                 
-            switch (error.Value.Type)
+            switch (error.Type)
             {
                 case AssemblerError.ErrorType.Lexical:
                     LexicalErrorHandler(error);

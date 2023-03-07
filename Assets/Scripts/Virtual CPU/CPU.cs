@@ -184,17 +184,17 @@ namespace NineEightOhThree.VirtualCPU
             StackPointer = StackTopPointer;
         }
 
-        public void WriteCode(Assembler.AssemblerResult result)
+        public void WriteCode(byte[] code, bool[] codeMask)
         {
             ushort byteCount = 0;
 
             lock (lockObj)
             {
-                for (int i = 0; i < result.Code.Length; i++)
+                for (int i = 0; i < code.Length; i++)
                 {
-                    if (result.CodeMask[i])
+                    if (codeMask[i])
                     {
-                        Memory.Write((ushort)i, result.Code[i]);
+                        Memory.Write((ushort)i, code[i]);
                         byteCount++;
                     }
                 }

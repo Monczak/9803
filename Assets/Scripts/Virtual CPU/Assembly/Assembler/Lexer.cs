@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -65,7 +66,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     OperationResult result = ScanToken();
                     if (result.Failed)
                     {
-                        MakeError(result.TheError);
+                        MakeError((AssemblerError)result.TheError);
                         HadError = true;
                     }
                 }

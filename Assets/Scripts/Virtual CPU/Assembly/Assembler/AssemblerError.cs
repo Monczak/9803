@@ -1,6 +1,6 @@
 ﻿namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public struct AssemblerError
+    public class AssemblerError : Error
     {
         public enum ErrorType
         {
