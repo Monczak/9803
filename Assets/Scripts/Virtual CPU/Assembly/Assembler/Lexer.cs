@@ -14,6 +14,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private List<Token> tokens;
 
         private string sourceCode;
+        private string fileName;
 
         private TokenType? expectedToken;
         private TokenType? previousTokenType;
@@ -41,7 +42,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { "Y", TokenType.RegisterY },
         };
 
-        public List<Token> Lex(string sourceCode)
+        public List<Token> Lex(string sourceCode, string fileName)
         {
             tokens = new List<Token>(); 
             start = 0;
@@ -51,6 +52,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             tokenStartColumn = 0;
 
             this.sourceCode = sourceCode;
+            this.fileName = fileName;
             
             expectedToken = null;
             expectingToken = false;
@@ -86,6 +88,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 CharIndex = start,
                 MetaType = TokenMetaType.Invalid,
                 Previous = previousToken,
+                FileName = fileName
             });
             
             return tokens;
@@ -161,7 +164,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private void LexIdentifier()
         {
-            while (IsAlphaNumeric(Peek())) Advance();
+            while (IsAlphaNumeric(Peek()) || Peek() == '.') Advance();
 
             string text = sourceCode[start..current];
             TokenType type = Keywords.ContainsKey(text) ? Keywords[text] : TokenType.Identifier;
@@ -253,7 +256,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 Column = tokenStartColumn + 1,
                 CharIndex = start,
                 MetaType = TokenMetaType.Invalid,
-                Previous = previousToken
+                Previous = previousToken,
+                FileName = fileName
             };
             tokens.Add(token);
             

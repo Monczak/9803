@@ -9,9 +9,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         public abstract DirectiveType Type { get; }
         public abstract int ArgCount { get; }
         
+        public virtual bool Single { get; } = false;
+
         protected readonly List<Operand> operands;
 
-        public abstract OperationResult<List<Operand>> Evaluate(ref ushort programCounter);
+        public abstract OperationResult<List<Operand>> Evaluate(ref ushort programCounter, Vectors vectors);
         
         protected Directive(List<Operand> operands)
         {

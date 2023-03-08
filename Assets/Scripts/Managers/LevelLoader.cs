@@ -19,10 +19,12 @@ namespace NineEightOhThree.Managers
         {
             string levelName = SceneManager.GetActiveScene().name;
 
-            BuildQueue buildQueue = new();
+            BuildQueue buildQueue = new(debug: true);
             buildQueue.Add($"GameData/LevelScripts/{levelName}/main");
-            buildQueue.Add($"GameData/LevelScripts/{levelName}/not_main");
             var result = buildQueue.Build();
+            
+            foreach (var log in result.Logs)
+                Logger.Log(log);
 
             if (result.Failed)
             {
@@ -32,7 +34,7 @@ namespace NineEightOhThree.Managers
                 foreach (var pair in result.JobAssemblerErrors)
                 {
                     foreach (var error in pair.Value)
-                        Logger.LogError($"Assembler: {pair.Key.ResourceLocation} - {error.Message}");
+                        Logger.LogError($"Assembler: {pair.Key.ResourceLocation} - {error.Message} ({error.Token})");
                 }
             }
             else

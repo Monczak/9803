@@ -610,7 +610,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stackSize: 256
-  showDebugInfo: 1
+  showDebugInfo: 0
   running: 0
   cyclesPerSecond: 500
 --- !u!114 &454578873

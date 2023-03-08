@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -13,7 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
     public delegate void LogHandler(string message);
     
-    public class Assembler
+    public partial class Assembler
     {
         public Lexer Lexer { get; }
         public Parser Parser { get; }
@@ -25,27 +22,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private readonly ErrorHandler errorHandler;
         private readonly LogHandler logHandler;
 
-        public class AssemblerResult
-        {
-            public byte[] Code { get; }
-            public bool[] CodeMask { get; }
-            public List<string> Logs { get; }
-            public List<AssemblerError> Errors { get; }
-            
-            public List<Token> Tokens { get; }
-            public List<AbstractStatement> Statements { get; }
-
-            public AssemblerResult(byte[] code, bool[] codeMask, List<string> logs, List<AssemblerError> errors, List<Token> tokens, List<AbstractStatement> statements)
-            {
-                Code = code;
-                CodeMask = codeMask;
-                Logs = logs;
-                Errors = errors;
-                Tokens = tokens;
-                Statements = statements;
-            }
-        }
-
         public Assembler(ErrorHandler errorHandler, LogHandler logHandler)
         {
             Lexer = new Lexer();
@@ -56,7 +32,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             this.logHandler = logHandler;
         }
         
-        public AssemblerResult Assemble(string input)
+        public AssemblerResult Assemble(string input, string fileName, bool setResetVector = true)
         {
             tokens = new List<Token>();
             statements = new List<AbstractStatement>();
@@ -74,20 +50,21 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             CodeGenerator.RegisterErrorHandler(AddError);
             CodeGenerator.RegisterLogHandler(AddLog);
 
-            byte[] code = null;
-            bool[] codeMask = null;
+            AssembledCode assembledCode = null;
             try
             {
-                tokens = Lexer.Lex(input);
+                tokens = Lexer.Lex(input, fileName);
                 statements = Parser.Parse(tokens);
-                (code, codeMask) = CodeGenerator.GenerateCode(statements);
+                assembledCode = CodeGenerator.GenerateCode(statements);
+
+                if (setResetVector) assembledCode.WriteResetVector();
             }
             catch (Exception e)
             {
                 errors.Add(new AssemblerError(AssemblerError.ErrorType.Internal, e.Message + e.StackTrace, null));
             }
 
-            return new AssemblerResult(code, codeMask, logs, errors, tokens, statements);
+            return new AssemblerResult(assembledCode, logs, errors, tokens, statements);
         }
 
         public AssemblerResult OnAssemblerFinished(Task<AssemblerResult> task)
@@ -96,15 +73,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 errorHandler(error);
             foreach (var log in task.Result.Logs)
                 logHandler(log);
-            LogAssemblerThings();
+            LogDebugData();
             return task.Result;
         }
 
-        private void LogAssemblerThings()
+        public void LogDebugData()
         {
             StringBuilder builder = new StringBuilder();
             foreach (Token token in tokens)
-                builder.Append("(").Append(token.ToString()).Append(") ");
+                builder.Append("(").Append(token).Append(") ");
             Logger.Log(builder.ToString());
             
             builder = new StringBuilder();

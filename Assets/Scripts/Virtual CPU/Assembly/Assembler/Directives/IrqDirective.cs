@@ -1,22 +1,22 @@
 ﻿using System.Collections.Generic;
-using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
-    public sealed class BogusDirective : Directive
+    public class IrqDirective : Directive
     {
-        public BogusDirective(List<Operand> operands) : base(operands)
+        public IrqDirective(List<Operand> operands) : base(operands)
         {
         }
 
-        public override string Name => "bogus";
+        public override string Name => "irq";
         public override DirectiveType Type => DirectiveType.Nullary;
         public override int ArgCount => 0;
         public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter, Vectors vectors)
         {
+            vectors.Irq = programCounter;
             return OperationResult<List<Operand>>.Success(null);
         }
 
-        protected internal override Directive Construct(List<Operand> ops) => new BogusDirective(ops);
+        protected internal override Directive Construct(List<Operand> ops) => new IrqDirective(ops);
     }
 }

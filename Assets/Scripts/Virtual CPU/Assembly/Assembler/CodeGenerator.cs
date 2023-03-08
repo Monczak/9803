@@ -10,24 +10,25 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     public class CodeGenerator : LogErrorProducer
     {
         private List<AbstractStatement> statements;
-        private Dictionary<string, Label> labels;
+        private Dictionary<string, Label> labels;   // TODO: Rework this to support multiple files using the same label
+
+        private Dictionary<Directive, int> directiveUseCounts;
 
         private ushort programCounter;
 
         private byte[] code;
         private bool[] codeMask;
 
-        private ushort resetVector;
-        private bool resetVectorSet;
+        private Vectors vectors;
         private ushort firstInstructionAddress;
         private bool firstInstructionFound;
-        
+
         private const int MemorySize = 65536;
         
         public bool HadError { get; private set; }
         private event ErrorHandler OnWarning;
         
-        public (byte[] code, bool[] mask) GenerateCode(List<AbstractStatement> stmts)
+        public AssembledCode GenerateCode(List<AbstractStatement> stmts)
         {
             code = new byte[MemorySize];
             codeMask = new bool[MemorySize];
@@ -36,8 +37,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             labels = new Dictionary<string, Label>();
             programCounter = 0;
 
-            resetVector = 0;
-            resetVectorSet = false;
+            directiveUseCounts = new Dictionary<Directive, int>();
+
+            vectors = new Vectors();
 
             firstInstructionAddress = 0;
             firstInstructionFound = false;
@@ -85,17 +87,18 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 }
             }
             
-            // Put reset vector at addresses FFFC and FFFD, like in the real 6502
-            // TODO: Warn if code overlaps with reset vector or otherwise disallow this
+            // TODO: Warn if code overlaps with vectors or otherwise disallow this
 
-            if (!resetVectorSet && firstInstructionFound)
-                resetVector = firstInstructionAddress;
+            if (!vectors.ResetSet && firstInstructionFound)
+                vectors.Reset = firstInstructionAddress;
             
-            code[0xFFFC] = (byte)(resetVector & 0xFF);
+            /*code[0xFFFC] = (byte)(resetVector & 0xFF);
             code[0xFFFD] = (byte)((resetVector >> 8) & 0xFF);
-            codeMask[0xFFFC] = codeMask[0xFFFD] = true;
+            codeMask[0xFFFC] = codeMask[0xFFFD] = true;*/
 
-            return HadError ? (null, null) : (code, codeMask);
+            return HadError 
+                ? new AssembledCode(null, null, vectors) 
+                : new AssembledCode(code, codeMask, vectors);
         }
 
         private OperationResult EmitBytes(CompiledStatement cStmt)
@@ -216,26 +219,25 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             if (result.Failed)
                 return OperationResult<CompiledStatement>.Error((AssemblerError)result.TheError, stmt.Tokens[0]);
 
+            if (!directiveUseCounts.ContainsKey(stmt.Directive))
+                directiveUseCounts[stmt.Directive] = 0;
+            
+            if (stmt.Directive.Single && directiveUseCounts[stmt.Directive] > 1)
+                return OperationResult<CompiledStatement>.Error(
+                    SyntaxErrors.DuplicateSingleDirective(stmt.Tokens[0]));
+
             var evalResult = EvaluateDirective(result.Result);
             if (evalResult.Failed)
                 return OperationResult<CompiledStatement>.Error(evalResult.TheError);
-            
-            // Special handling for the .begin directive
-            if (stmt.Directive is BeginDirective)
-            {
-                if (resetVectorSet)
-                    return OperationResult<CompiledStatement>.Error(SyntaxErrors.DuplicateBeginDirective(stmt.Tokens[0], resetVector));
-                
-                resetVector = programCounter;
-                resetVectorSet = true;
-            }
+
+            directiveUseCounts[stmt.Directive]++;
             
             return OperationResult<CompiledStatement>.Success(new CompiledStatement(stmt, programCounter, null, evalResult.Result));
         }
 
         private OperationResult<List<Operand>> EvaluateDirective(Directive directive)
         {
-            var evalResult = directive.Evaluate(ref programCounter);
+            var evalResult = directive.Evaluate(ref programCounter, vectors);
             if (evalResult.Failed)
             {
                 return OperationResult<List<Operand>>.Error(evalResult.TheError);

@@ -74,7 +74,7 @@ namespace NineEightOhThree.UI.CodeEditor
             formatter.Begin(inputField.textComponent);
 
             // TODO: Make this asyncable (wait for assembler to finish assembling using the task queue and then format)
-            var result = AssemblerInterface.Assembler.Assemble(currentCode);
+            var result = AssemblerInterface.Assemble(currentCode);
 
             foreach (Token token in result.Tokens)
             {

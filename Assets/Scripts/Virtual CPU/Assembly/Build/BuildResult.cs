@@ -58,12 +58,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             
             for (int i = 0; i < CodeMask.Length; i++)
             {
-                if (CodeMask[i] && job.Result.CodeMask[i])
+                if (CodeMask[i] && job.Result.AssembledCode.Mask[i])
                     return OperationResult.Error(Build.BuildErrors.OverlappingCode(job, codeOrigins[i], (ushort)i));
 
-                if (job.Result.CodeMask[i])
+                if (job.Result.AssembledCode.Mask[i])
                 {
-                    Code[i] = job.Result.Code[i];
+                    Code[i] = job.Result.AssembledCode.Code[i];
                     CodeMask[i] = true;
                     codeOrigins[i] = job;
                 }

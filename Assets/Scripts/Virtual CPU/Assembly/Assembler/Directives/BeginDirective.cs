@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
@@ -12,8 +11,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         public override string Name => "begin";
         public override DirectiveType Type => DirectiveType.Nullary;
         public override int ArgCount => 0;
-        public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter)
+
+        public override bool Single => true;
+
+        public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter, Vectors vectors)
         {
+            vectors.Reset = programCounter;
             return OperationResult<List<Operand>>.Success(null);
         }
 

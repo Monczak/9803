@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler;
+using UnityEngine.Assertions.Must;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Build
 {
@@ -11,11 +12,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
 
         private readonly ErrorHandler buildErrorHandler, assemblerErrorHandler;
 
-        public BuildQueue(ErrorHandler buildErrorHandler = null, ErrorHandler assemblerErrorHandler = null)
+        private bool debug;
+
+        public BuildQueue(ErrorHandler buildErrorHandler = null, ErrorHandler assemblerErrorHandler = null,
+            bool debug = false)
         {
             jobs = new Queue<BuildJob>();
             this.buildErrorHandler = buildErrorHandler;
             this.assemblerErrorHandler = assemblerErrorHandler;
+            this.debug = debug;
         }
 
         public void Add(BuildJob job)
@@ -25,7 +30,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
 
         public void Add(string resourceLocation)
         {
-            jobs.Enqueue(new BuildJob(resourceLocation));
+            jobs.Enqueue(new BuildJob(resourceLocation, Error, Log, debug: debug));
+        }
+
+        private void Error(Error error)
+        {
+            
+        }
+        
+        private void Log(string log)
+        {
+            Logger.Log(log);
         }
 
         public BuildResult Build()

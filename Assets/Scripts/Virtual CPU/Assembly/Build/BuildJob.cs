@@ -1,7 +1,6 @@
 ﻿using NineEightOhThree.Managers;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler;
 using UnityEngine;
-using AssemblerResult = NineEightOhThree.VirtualCPU.Assembly.Assembler.Assembler.AssemblerResult;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Build
 {
@@ -12,16 +11,20 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
         
         public bool Failed => Result.Errors.Count > 0;
 
+        private bool debug;
+
         private readonly ErrorHandler errorHandler;
         private readonly LogHandler logHandler;
         
-        public BuildJob(string resourceLocation, ErrorHandler errorHandler = null, LogHandler logHandler = null)
+        public BuildJob(string resourceLocation, ErrorHandler errorHandler = null, LogHandler logHandler = null, bool debug = false)
         {
             ResourceLocation = resourceLocation;
             Result = null;
 
             this.errorHandler = errorHandler;
             this.logHandler = logHandler;
+
+            this.debug = debug;
         }
 
         public OperationResult<BuildError> Build()
@@ -31,9 +34,12 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Build
             
             string code = resource.text;
             if (errorHandler is null || logHandler is null)
-                Result = AssemblerInterface.Assemble(code);
+                Result = AssemblerInterface.Assemble(code, ResourceLocation);
             else
-                Result = AssemblerInterface.Assemble(code, errorHandler, logHandler);
+                Result = AssemblerInterface.Assemble(code, errorHandler, logHandler, ResourceLocation);
+
+            if (debug)
+                AssemblerInterface.Assembler.LogDebugData();
             
             if (Result.Errors.Count > 0)
                 return OperationResult<BuildError>.Error(BuildErrors.AssemblerFailed(this));

@@ -13,7 +13,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         public override DirectiveType Type => DirectiveType.Variadic;
         public override int ArgCount => -1;
 
-        public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter)
+        public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter, Vectors vectors)
         {
             foreach (Operand op in operands)
             {

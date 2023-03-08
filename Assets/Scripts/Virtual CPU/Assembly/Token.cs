@@ -9,6 +9,7 @@
         public int Line { get; init; }
         public int Column { get; init; }
         public int CharIndex { get; init; }
+        public string FileName { get; init; }
         
         public Token Previous { get; init; }
 
@@ -19,7 +20,7 @@
 
         public override string ToString()
         {
-            return $"{Type.ToString()} {(Type == TokenType.Newline ? "" : Content)} L{Line} C{Column}";
+            return $"{FileName.Split("/")[^1]} {Type.ToString()} {(Type == TokenType.Newline ? "" : Content)} L{Line} C{Column}";
         }
     }
 }

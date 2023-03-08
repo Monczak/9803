@@ -81,7 +81,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public static AssemblerError OverlappingCode(Token token, ushort address) =>
             new(AssemblerError.ErrorType.Syntax, $"Overlapping code (at address {address:X4})", token);
         
-        public static AssemblerError DuplicateBeginDirective(Token token, ushort entryPoint) =>
-            new(AssemblerError.ErrorType.Syntax, $"The .begin directive is already present (entry point at address {entryPoint:X4})", token);
+        public static AssemblerError DuplicateSingleDirective(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"The {token.Content} directive is already present", token);
     }
 }

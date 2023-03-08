@@ -8,40 +8,43 @@ namespace NineEightOhThree.Managers
 {
     public static class AssemblerInterface
     {
-        private static Task<Assembler.AssemblerResult> assemblerTask;
+        private static Task<AssemblerResult> assemblerTask;
 
-        private static Queue<Task<Assembler.AssemblerResult>> assemblerTaskQueue;
+        private static Queue<Task<AssemblerResult>> assemblerTaskQueue;
 
         private static Assembler assembler;
+
+        private const string FileName = "Int";
+        
         public static Assembler Assembler
         {
             get => assembler ??= new Assembler(HandleErrors, HandleLogs);
             private set => assembler = value;
         }
 
-        public static Assembler.AssemblerResult Assemble(string code)
+        public static AssemblerResult Assemble(string code, string fileName = FileName)
         {
-            Assembler = new Assembler(HandleErrors, HandleLogs);
-            return Assembler.Assemble(code);
+            return Assemble(code, HandleErrors, HandleLogs, fileName);
         }
         
-        public static Assembler.AssemblerResult Assemble(string code, ErrorHandler errorHandler, LogHandler logHandler)
+        public static AssemblerResult Assemble(string code, ErrorHandler errorHandler, LogHandler logHandler, string fileName = FileName)
         {
-            return new Assembler(errorHandler, logHandler).Assemble(code);
+            Assembler = new Assembler(errorHandler, logHandler);
+            return Assembler.Assemble(code, fileName);
         }
 
         // TODO: Implement task queue functionality
         public static void ScheduleAssembly(string code, Action<byte[], bool[]> onFinish)
         {
-            assemblerTaskQueue ??= new Queue<Task<Assembler.AssemblerResult>>();
+            assemblerTaskQueue ??= new Queue<Task<AssemblerResult>>();
 
             Assembler = new Assembler(HandleErrors, HandleLogs);
 
-            Task<Assembler.AssemblerResult>.Factory.StartNew(() => Assembler.Assemble(code))
+            Task<AssemblerResult>.Factory.StartNew(() => Assembler.Assemble(code, FileName))
                 .ContinueWith(t =>
                 {
                     var result = Assembler.OnAssemblerFinished(t);
-                    onFinish(result.Code, result.CodeMask);
+                    onFinish(result.AssembledCode.Code, result.AssembledCode.Mask);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
@@ -82,7 +85,7 @@ namespace NineEightOhThree.Managers
 
         private static void HandleLogs(string log)
         {
-            Debug.Log(log);
+            Logger.Log(log);
         }
     }
 }
