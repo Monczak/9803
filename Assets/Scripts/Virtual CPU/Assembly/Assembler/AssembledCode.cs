@@ -22,15 +22,17 @@
             NmiVector = vectors.Nmi;
         }
 
-        private void SetVector(ushort address, ushort value)
+        private void WriteVector(ushort address, ushort value)
         {
+            if (Code is null || Mask is null) return;
+            
             Code[address] = (byte)(value & 0xFF);
             Code[address + 1] = (byte)((value >> 8) & 0xFF);
             Mask[address] = Mask[address + 1] = true;
         }
 
-        public void WriteResetVector() => SetVector(ResetVectorAddress, ResetVector);
-        public void WriteIrqVector() => SetVector(IrqVectorAddress, IrqVector);
-        public void WriteNmiVector() => SetVector(NmiVectorAddress, NmiVector);
+        public void WriteResetVector() => WriteVector(ResetVectorAddress, ResetVector);
+        public void WriteIrqVector() => WriteVector(IrqVectorAddress, IrqVector);
+        public void WriteNmiVector() => WriteVector(NmiVectorAddress, NmiVector);
     }
 }

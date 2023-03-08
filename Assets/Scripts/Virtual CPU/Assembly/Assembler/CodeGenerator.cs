@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
@@ -12,7 +13,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private List<AbstractStatement> statements;
         private Dictionary<string, Label> labels;   // TODO: Rework this to support multiple files using the same label
 
-        private Dictionary<Directive, int> directiveUseCounts;
+        private Dictionary<Type, int> directiveUseCounts;
 
         private ushort programCounter;
 
@@ -37,7 +38,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             labels = new Dictionary<string, Label>();
             programCounter = 0;
 
-            directiveUseCounts = new Dictionary<Directive, int>();
+            directiveUseCounts = new Dictionary<Type, int>();
 
             vectors = new Vectors();
 
@@ -219,10 +220,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             if (result.Failed)
                 return OperationResult<CompiledStatement>.Error((AssemblerError)result.TheError, stmt.Tokens[0]);
 
-            if (!directiveUseCounts.ContainsKey(stmt.Directive))
-                directiveUseCounts[stmt.Directive] = 0;
+            if (!directiveUseCounts.ContainsKey(stmt.Directive.GetType()))
+                directiveUseCounts[stmt.Directive.GetType()] = 0;
             
-            if (stmt.Directive.Single && directiveUseCounts[stmt.Directive] > 1)
+            if (stmt.Directive.Single && directiveUseCounts[stmt.Directive.GetType()] >= 1)
                 return OperationResult<CompiledStatement>.Error(
                     SyntaxErrors.DuplicateSingleDirective(stmt.Tokens[0]));
 
@@ -230,7 +231,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             if (evalResult.Failed)
                 return OperationResult<CompiledStatement>.Error(evalResult.TheError);
 
-            directiveUseCounts[stmt.Directive]++;
+            directiveUseCounts[stmt.Directive.GetType()]++;
             
             return OperationResult<CompiledStatement>.Success(new CompiledStatement(stmt, programCounter, null, evalResult.Result));
         }

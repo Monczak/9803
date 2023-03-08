@@ -10,7 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
     public delegate void LogHandler(string message);
     
-    public partial class Assembler
+    public class Assembler
     {
         public Lexer Lexer { get; }
         public Parser Parser { get; }
@@ -32,7 +32,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             this.logHandler = logHandler;
         }
         
-        public AssemblerResult Assemble(string input, string fileName, bool setResetVector = true)
+        public AssemblerResult Assemble(string input, string fileName, bool writeResetVector = true)
         {
             tokens = new List<Token>();
             statements = new List<AbstractStatement>();
@@ -57,7 +57,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 statements = Parser.Parse(tokens);
                 assembledCode = CodeGenerator.GenerateCode(statements);
 
-                if (setResetVector) assembledCode.WriteResetVector();
+                if (writeResetVector) assembledCode.WriteResetVector();
+                assembledCode.WriteIrqVector();
+                assembledCode.WriteNmiVector();
             }
             catch (Exception e)
             {
