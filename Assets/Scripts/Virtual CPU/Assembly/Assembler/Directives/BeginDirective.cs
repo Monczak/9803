@@ -2,7 +2,7 @@
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
-    public class BeginDirective : Directive
+    public sealed class BeginDirective : Directive
     {
         public BeginDirective(List<Operand> operands) : base(operands)
         {

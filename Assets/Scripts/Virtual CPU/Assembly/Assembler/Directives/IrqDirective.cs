@@ -2,7 +2,7 @@
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
-    public class IrqDirective : Directive
+    public sealed class IrqDirective : Directive
     {
         public IrqDirective(List<Operand> operands) : base(operands)
         {

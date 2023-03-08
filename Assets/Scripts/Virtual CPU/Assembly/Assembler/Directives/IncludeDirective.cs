@@ -2,7 +2,7 @@
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
-    public class IncludeDirective : Directive
+    public sealed class IncludeDirective : Directive
     {
         public IncludeDirective(List<Operand> operands) : base(operands)
         {

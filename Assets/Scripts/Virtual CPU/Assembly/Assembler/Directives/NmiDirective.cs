@@ -2,7 +2,7 @@
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
-    public class NmiDirective : Directive
+    public sealed class NmiDirective : Directive
     {
         public NmiDirective(List<Operand> operands) : base(operands)
         {
