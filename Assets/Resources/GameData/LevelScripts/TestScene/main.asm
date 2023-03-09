@@ -1,4 +1,6 @@
-﻿.org $ff00
+﻿.include not_main
+
+.org $ff00
 .irq
 lda #0
 sta $0302

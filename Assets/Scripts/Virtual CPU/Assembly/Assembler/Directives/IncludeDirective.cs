@@ -4,6 +4,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
     public sealed class IncludeDirective : Directive
     {
+        public string IncludedResourceLocation { get; private set; }
+        
         public IncludeDirective(List<Operand> operands) : base(operands)
         {
         }

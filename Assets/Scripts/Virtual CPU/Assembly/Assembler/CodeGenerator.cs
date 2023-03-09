@@ -45,7 +45,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             firstInstructionAddress = 0;
             firstInstructionFound = false;
             
-            HadError = false; 
+            HadError = false;
+            
+            // Pass 0: Recursively replace include directives with the corresponding AbstractStatements
+            for (int i = 0; i < statements.Count; i++)
+            {
+                AbstractStatement stmt = statements[i];
+                if (stmt is DirectiveStatementOperands { Directive: IncludeDirective } s)
+                {
+                    MakeLog($"Include {s.Args[0]}");
+                }
+            }
 
             // Pass 1: Find labels
             foreach (AbstractStatement stmt in statements)
@@ -92,10 +102,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
             if (!vectors.ResetSet && firstInstructionFound)
                 vectors.Reset = firstInstructionAddress;
-            
-            /*code[0xFFFC] = (byte)(resetVector & 0xFF);
-            code[0xFFFD] = (byte)((resetVector >> 8) & 0xFF);
-            codeMask[0xFFFC] = codeMask[0xFFFD] = true;*/
 
             return HadError 
                 ? new AssembledCode(null, null, vectors) 

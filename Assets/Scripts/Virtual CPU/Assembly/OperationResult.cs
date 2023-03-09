@@ -19,7 +19,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly
 
         public static OperationResult Error(AssemblerError error, Token token)
         {
-            if (error == null) throw new InternalErrorException("OperationResult Error was null");
+            if (error is null) throw new InternalErrorException("OperationResult Error was null");
             OperationResult result = new(failed: true, theError: error.WithToken(token));
             return result;
         }
@@ -42,7 +42,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly
         public new static OperationResult<T> Error(AssemblerError error, Token token)
         {
             if (error is null) throw new InternalErrorException("OperationResult Error was null");
-            OperationResult<T> result = new(failed: true, theError: error.WithToken(token), default);
+            OperationResult<T> result = new(failed: true, theError: error.WithToken(token), result: default);
             return result;
         }
     }
