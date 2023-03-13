@@ -21,17 +21,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public bool HadError { get; private set; }
 
-        private List<string> useChain;
+        private HashSet<string> useChain;
 
 
-        public List<AbstractStatement> Parse(List<Token> tokens, List<string> useChain = null)
+        public List<AbstractStatement> Parse(List<Token> tokens, HashSet<string> useChain = null)
         {
             statements = new List<AbstractStatement>();
             source = tokens;
             current = 0;
             HadError = false;
             fileName = tokens[0].FileName;
-            this.useChain = useChain is null ? new List<string> { fileName } : new List<string>(useChain);
+            this.useChain = useChain is null ? new HashSet<string> { fileName } : new HashSet<string>(useChain);
 
             AssemblerCache.GrammarGraph ??= GrammarGraph.Build();
             graph = AssemblerCache.GrammarGraph;
@@ -69,11 +69,22 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 string location =
                     PathUtils.GetAbsoluteResourceLocation<TextAsset>(directive.IncludedResourceLocation, fileName);
-
                 MakeLog($"Include {location}");
-                if (useChain is not null && useChain.Contains(location))
+                
+                useChain ??= new HashSet<string>();
+                if (useChain.Contains(location))
                     return OperationResult.Error(SyntaxErrors.CircularDependency(s.Tokens[1], location));
-
+                useChain.Add(location);
+                
+                // Try to open resource at the specified location and parse the code
+                TextAsset asset = Resources.Load<TextAsset>(location);
+                if (asset is null)
+                    return OperationResult.Error(SyntaxErrors.InvalidIncludedResourceLocation(s.Tokens[1], location));
+                string code = asset.text;
+                
+                // TODO: Check if any changes to the code were made, if not, use cached List<AbstractStatement>
+                // And if so, reparse the code and save to cache
+                
                 Lexer subLexer = new Lexer();
                 Parser subParser = new Parser();
                 subLexer.RegisterLogHandlers(LogHandlers);
@@ -81,18 +92,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 subParser.RegisterLogHandlers(LogHandlers);
                 subParser.RegisterErrorHandlers(ErrorHandlers);
 
-                // Try to open resource at the specified location and parse the code
-                TextAsset asset = Resources.Load<TextAsset>(location);
-                if (asset is null)
-                    return OperationResult.Error(SyntaxErrors.InvalidIncludedResourceLocation(s.Tokens[1], location));
-                
-                string code = asset.text;
                 var tokens = subLexer.Lex(code, location);
                 if (subLexer.HadError) return OperationResult.Success();
 
-                useChain ??= new List<string>();
-                useChain.Add(location);
-                
                 var stmts = subParser.Parse(tokens, useChain);
                 if (subParser.HadError) return OperationResult.Success();
                 
