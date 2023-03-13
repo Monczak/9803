@@ -2,14 +2,16 @@
 {
     public class Label
     {
-        public string Name { get; set; }
+        public string Name { get; }
+        public string Location { get; }
         public ushort? Address { get; set; }
 
         public bool IsDeclared { get; set; }
 
-        public Label(string name, ushort? address, bool isDeclared)
+        public Label(string name, string location, ushort? address, bool isDeclared)
         {
             Name = name;
+            Location = location;
             Address = address;
             IsDeclared = isDeclared;
         }

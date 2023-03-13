@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using NineEightOhThree.VirtualCPU.Assembly;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using UnityEngine;
 
@@ -97,7 +96,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 var stmts = subParser.Parse(tokens, useChain);
                 if (subParser.HadError) return OperationResult.Success();
                 
-                // TODO: Assign origin files to labels
                 statements.ReplaceRange(index, stmts);
             }
             return OperationResult.Success();

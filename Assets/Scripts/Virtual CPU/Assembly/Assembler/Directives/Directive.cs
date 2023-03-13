@@ -13,6 +13,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 
         protected readonly List<Operand> operands;
 
+        protected const int UnlimitedArgs = -1;
+
         public abstract OperationResult<List<Operand>> Evaluate(ref ushort programCounter, Vectors vectors);
         
         protected Directive(List<Operand> operands)

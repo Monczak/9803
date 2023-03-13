@@ -11,7 +11,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     public class CodeGenerator : LogErrorProducer
     {
         private List<AbstractStatement> statements;
-        private Dictionary<string, Label> labels;   // TODO: Rework this to support multiple files using the same label
+        private Dictionary<string, Label> labels;   // TODO: Figure out how to support multiple files with the same labels
 
         private Dictionary<Type, int> directiveUseCounts;
 
@@ -50,7 +50,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             // Pass 1: Find labels
             foreach (AbstractStatement stmt in statements)
             {
-                var result = FindLabel(stmt);
+                var result = FindLabelInStatement(stmt);
                 if (result.Failed) ThrowError((AssemblerError)result.TheError);
             }
 
@@ -243,7 +243,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult<List<Operand>>.Success(evalResult.Result);
         }
 
-        private OperationResult FindLabel(AbstractStatement stmt)
+        private OperationResult FindLabelInStatement(AbstractStatement stmt)
         {
             OperationResult result = TryAddLabel(stmt);
             return result.Failed ? result : OperationResult.Success();
@@ -253,8 +253,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             Label label = stmt switch
             {
-                LabelStatement labelStmt => new Label(labelStmt.LabelName, null, true),
-                InstructionStatementOperand opStmt => new Label(opStmt.Operand.LabelRef, null, false),
+                LabelStatement labelStmt => new Label(labelStmt.LabelName, stmt.FileName, null, true),
+                InstructionStatementOperand opStmt => new Label(opStmt.Operand.LabelRef, null, null, false),
                 _ => null
             };
             if (label is null) return OperationResult.Success();
