@@ -26,5 +26,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             stmts = new List<AbstractStatement>(parseCache[resourceLocation].stmts);
             return true;
         }
+
+        public static void CacheParseResults(string resourceLocation, string code, List<AbstractStatement> stmts)
+        {
+            parseCache ??= new Dictionary<string, (string code, List<AbstractStatement> stmts)>();
+            parseCache[resourceLocation] = (code, new List<AbstractStatement>(stmts));
+        }
     }
 }

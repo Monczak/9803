@@ -31,7 +31,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             current = 0;
             HadError = false;
             fileName = tokens[0].FileName;
-            this.useChain = useChain is null ? new HashSet<string> { fileName } : new HashSet<string>(useChain);
+
+            if (useChain is null)
+            {
+                this.useChain = new HashSet<string> { fileName };
+            }
+            else
+            {
+                this.useChain = new HashSet<string>(useChain) { fileName };
+            }
 
             AssemblerCache.GrammarGraph ??= GrammarGraph.Build();
             graph = AssemblerCache.GrammarGraph;
@@ -74,8 +82,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 useChain ??= new HashSet<string>();
                 if (useChain.Contains(location))
                     return OperationResult.Error(SyntaxErrors.CircularDependency(s.Tokens[1], location));
-                useChain.Add(location);
-                
+
                 // Try to open resource at the specified location and parse the code
                 TextAsset asset = Resources.Load<TextAsset>(location);
                 if (asset is null)
@@ -84,19 +91,28 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 // TODO: Check if any changes to the code were made, if not, use cached List<AbstractStatement>
                 // And if so, reparse the code and save to cache
-                
-                Lexer subLexer = new Lexer();
-                Parser subParser = new Parser();
-                subLexer.RegisterLogHandlers(LogHandlers);
-                subLexer.RegisterErrorHandlers(ErrorHandlers);
-                subParser.RegisterLogHandlers(LogHandlers);
-                subParser.RegisterErrorHandlers(ErrorHandlers);
 
-                var tokens = subLexer.Lex(code, location);
-                if (subLexer.HadError) return OperationResult.Success();
+                if (!AssemblerCache.TryGetParseCache(location, code, out var stmts))
+                {
+                    Lexer subLexer = new Lexer();
+                    Parser subParser = new Parser();
+                    subLexer.RegisterLogHandlers(LogHandlers);
+                    subLexer.RegisterErrorHandlers(ErrorHandlers);
+                    subParser.RegisterLogHandlers(LogHandlers);
+                    subParser.RegisterErrorHandlers(ErrorHandlers);
 
-                var stmts = subParser.Parse(tokens, useChain);
-                if (subParser.HadError) return OperationResult.Success();
+                    var tokens = subLexer.Lex(code, location);
+                    if (subLexer.HadError) return OperationResult.Success();
+
+                    stmts = subParser.Parse(tokens, useChain);
+                    if (subParser.HadError) return OperationResult.Success();
+                    
+                    AssemblerCache.CacheParseResults(location, code, stmts);
+                }
+                else
+                {
+                    MakeLog($"Using cached {location}");
+                }
                 
                 statements.ReplaceRange(index, stmts);
             }
