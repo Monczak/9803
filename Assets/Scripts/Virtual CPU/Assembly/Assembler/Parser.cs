@@ -22,14 +22,17 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public bool HadError { get; private set; }
 
+        private List<string> useChain;
 
-        public List<AbstractStatement> Parse(List<Token> tokens)
+
+        public List<AbstractStatement> Parse(List<Token> tokens, List<string> useChain = null)
         {
             statements = new List<AbstractStatement>();
             source = tokens;
             current = 0;
             HadError = false;
             fileName = tokens[0].FileName;
+            this.useChain = useChain is null ? new List<string> { fileName } : new List<string>(useChain);
 
             AssemblerCache.GrammarGraph ??= GrammarGraph.Build();
             graph = AssemblerCache.GrammarGraph;
@@ -64,28 +67,38 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             if (stmt is DirectiveStatementOperands { Directive: IncludeDirective directive } s)
             {
                 directive.Setup(s.Args[0].Token.Content);
-                MakeLog($"Include {s.Args[0]}");
+                
+                string location =
+                    PathUtils.GetAbsoluteResourceLocation<TextAsset>(directive.IncludedResourceLocation, fileName);
+
+                MakeLog($"Include {location}");
+                if (useChain is not null && useChain.Contains(location))
+                    return OperationResult.Error(SyntaxErrors.CircularDependency(s.Tokens[1], location));
 
                 Lexer subLexer = new Lexer();
                 Parser subParser = new Parser();
+                subLexer.RegisterLogHandlers(LogHandlers);
+                subLexer.RegisterErrorHandlers(ErrorHandlers);
+                subParser.RegisterLogHandlers(LogHandlers);
+                subParser.RegisterErrorHandlers(ErrorHandlers);
 
                 // Try to open resource at the specified location and parse the code
-                string location =
-                    PathUtils.GetAbsoluteResourceLocation<TextAsset>(directive.IncludedResourceLocation, fileName);
                 TextAsset asset = Resources.Load<TextAsset>(location);
                 if (asset is null)
-                    return OperationResult.Error(SyntaxErrors.InvalidIncludedResourceLocation(stmt.Tokens[1], location));
+                    return OperationResult.Error(SyntaxErrors.InvalidIncludedResourceLocation(s.Tokens[1], location));
+                
                 string code = asset.text;
                 var tokens = subLexer.Lex(code, location);
-                if (!subLexer.HadError)
-                {
-                    var stmts = subParser.Parse(tokens);
-                    if (!subParser.HadError)
-                    {
-                        // TODO: Assign origin files to labels
-                        statements.ReplaceRange(index, stmts);
-                    }
-                }
+                if (subLexer.HadError) return OperationResult.Success();
+
+                useChain ??= new List<string>();
+                useChain.Add(location);
+                
+                var stmts = subParser.Parse(tokens, useChain);
+                if (subParser.HadError) return OperationResult.Success();
+                
+                // TODO: Assign origin files to labels
+                statements.ReplaceRange(index, stmts);
             }
             return OperationResult.Success();
         }

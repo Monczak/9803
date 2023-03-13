@@ -86,5 +86,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public static AssemblerError InvalidIncludedResourceLocation(Token token, string resourceLocation) =>
             new(AssemblerError.ErrorType.Syntax, $"The specified resource location ({resourceLocation}) is invalid", token);
+
+        public static AssemblerError CircularDependency(Token token, string resourceLocation) =>
+            new(AssemblerError.ErrorType.Syntax, $"Circular dependency - cannot include {resourceLocation} here", token);
     }
 }

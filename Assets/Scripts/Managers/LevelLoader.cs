@@ -34,7 +34,19 @@ namespace NineEightOhThree.Managers
                 foreach (var pair in result.JobAssemblerErrors)
                 {
                     foreach (var error in pair.Value)
-                        Logger.LogError($"Assembler: {pair.Key.ResourceLocation} - {error.Message} ({error.Token})");
+                    {
+                        switch (error.Type)
+                        {
+                            case AssemblerError.ErrorType.Internal:
+                                Logger.LogError($"Internal assembler error: {error.Message}");
+                                break;
+                            case AssemblerError.ErrorType.Lexical:
+                            case AssemblerError.ErrorType.Syntax:
+                            default:
+                                Logger.LogError($"Assembler: {error.Token.FileName} - {error.Message} ({error.Token})");
+                                break;
+                        }
+                    }
                 }
             }
             else
