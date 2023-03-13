@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
 {
@@ -13,6 +14,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives
         public override string Name => "include";
         public override DirectiveType Type => DirectiveType.Variadic;
         public override int ArgCount => 1;
+
+        public void Setup(string includedResourceLocation)
+        {
+            IncludedResourceLocation = includedResourceLocation;
+        }
         
         public override OperationResult<List<Operand>> Evaluate(ref ushort programCounter, Vectors vectors)
         {

@@ -9,6 +9,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         public List<Token> Tokens { get; }
         private int current;
         private int currentPattern;
+        
+        public string FileName { get; protected set; }
 
         protected internal delegate OperationResult TokenHandler(Token token);
         
@@ -48,6 +50,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             while (!IsAtEnd())
             {
                 Token token = Consume();
+                FileName = token.FileName;
                 if (currentPattern + 1 < Pattern.Count && !Pattern[currentPattern + 1].pattern.Cycle && Pattern[currentPattern].pattern.Cycle)
                     currentPattern++;
 

@@ -83,5 +83,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         
         public static AssemblerError DuplicateSingleDirective(Token token) =>
             new(AssemblerError.ErrorType.Syntax, $"The {token.Content} directive is already present", token);
+
+        public static AssemblerError InvalidIncludedResourceLocation(Token token, string resourceLocation) =>
+            new(AssemblerError.ErrorType.Syntax, $"The specified resource location ({resourceLocation}) is invalid", token);
     }
 }

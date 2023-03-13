@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NineEightOhThree.Utilities;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
 using NineEightOhThree.VirtualCPU.Assembly;
+using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
+using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
@@ -13,6 +16,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private List<AbstractStatement> statements;
 
         private List<Token> source;
+        private string fileName;
 
         private GrammarGraph graph;
 
@@ -25,16 +29,67 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             source = tokens;
             current = 0;
             HadError = false;
+            fileName = tokens[0].FileName;
 
             AssemblerCache.GrammarGraph ??= GrammarGraph.Build();
             graph = AssemblerCache.GrammarGraph;
 
             CreateStatements();
+            
+            HandleIncludes();
 
             return statements;
             // return HadError ? null : statements;
         }
-        
+
+        private void HandleIncludes()
+        {
+            // Replace includes with AbstractStatements from the corresponding file
+            for (int i = 0; i < statements.Count; i++)
+            {
+                AbstractStatement stmt = statements[i];
+                
+                var result = HandleInclude(stmt, i);
+                if (result.Failed)
+                {
+                    MakeError((AssemblerError)result.TheError);
+                    HadError = true;
+                    Synchronize();
+                }
+            }
+        }
+
+        private OperationResult HandleInclude(AbstractStatement stmt, int index)
+        {
+            if (stmt is DirectiveStatementOperands { Directive: IncludeDirective directive } s)
+            {
+                directive.Setup(s.Args[0].Token.Content);
+                MakeLog($"Include {s.Args[0]}");
+
+                Lexer subLexer = new Lexer();
+                Parser subParser = new Parser();
+
+                // Try to open resource at the specified location and parse the code
+                string location =
+                    PathUtils.GetAbsoluteResourceLocation<TextAsset>(directive.IncludedResourceLocation, fileName);
+                TextAsset asset = Resources.Load<TextAsset>(location);
+                if (asset is null)
+                    return OperationResult.Error(SyntaxErrors.InvalidIncludedResourceLocation(stmt.Tokens[1], location));
+                string code = asset.text;
+                var tokens = subLexer.Lex(code, location);
+                if (!subLexer.HadError)
+                {
+                    var stmts = subParser.Parse(tokens);
+                    if (!subParser.HadError)
+                    {
+                        // TODO: Assign origin files to labels
+                        statements.ReplaceRange(index, stmts);
+                    }
+                }
+            }
+            return OperationResult.Success();
+        }
+
         private void CreateStatements()
         {
             while (!IsAtEnd())

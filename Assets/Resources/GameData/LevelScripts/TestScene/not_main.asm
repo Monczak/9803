@@ -1,6 +1,5 @@
-﻿.org $8000
-loop:
-lda #$fe
-adc $0302
+﻿.org $ff00
+.irq
+lda #0
 sta $0302
-jmp loop
+rti

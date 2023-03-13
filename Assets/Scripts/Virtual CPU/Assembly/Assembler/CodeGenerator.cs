@@ -46,16 +46,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             firstInstructionFound = false;
             
             HadError = false;
-            
-            // Pass 0: Recursively replace include directives with the corresponding AbstractStatements
-            for (int i = 0; i < statements.Count; i++)
-            {
-                AbstractStatement stmt = statements[i];
-                if (stmt is DirectiveStatementOperands { Directive: IncludeDirective } s)
-                {
-                    MakeLog($"Include {s.Args[0]}");
-                }
-            }
 
             // Pass 1: Find labels
             foreach (AbstractStatement stmt in statements)
