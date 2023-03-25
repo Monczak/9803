@@ -1,12 +1,12 @@
 ﻿namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
-    public class Label
+    public class Label : Symbol<ushort?>
     {
-        public string Name { get; }
-        public string Location { get; }
-        public ushort? Address { get; set; }
-
-        public bool IsDeclared { get; set; }
+        public ushort? Address
+        {
+            get => Value;
+            set => Value = value;
+        }
 
         public Label(string name, string location, ushort? address, bool isDeclared)
         {

@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Directives;
 using NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements;
-using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
     public class CodeGenerator : LogErrorProducer
     {
         private List<AbstractStatement> statements;
-        private Dictionary<string, Label> labels;   // TODO: Figure out how to support multiple files with the same labels
+        private SymbolTable symbols;   
 
         private Dictionary<Type, int> directiveUseCounts;
 
@@ -35,7 +33,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             codeMask = new bool[MemorySize];
 
             statements = stmts;
-            labels = new Dictionary<string, Label>();
+            symbols = new SymbolTable();
             programCounter = 0;
 
             directiveUseCounts = new Dictionary<Type, int>();
@@ -55,7 +53,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             }
 
             StringBuilder builder = new();
-            builder.AppendJoin(" ", labels);
+            builder.AppendJoin(" ", symbols);
             MakeLog(builder.ToString());
 
             // Pass 2: Convert statements to a compiled form
@@ -132,10 +130,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     if (!op.IsDefined)
                     {
-                        Label label = labels[op.LabelRef];
+                        Label label = symbols.Get<Label>(op.LabelRef);
                         if (!label.IsDeclared)
                             return OperationResult.Error(SyntaxErrors.UseOfUndeclaredLabel(op.Token, label));
-                        op.Number = labels[op.LabelRef].Address;
+                        op.Number = label.Address;
                     }
                 }
             }
@@ -162,7 +160,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 case LabelStatement s:
                 {
-                    labels[s.LabelName].Address = programCounter;
+                    symbols.Get<Label>(s.LabelName).Address = programCounter;
                     break;
                 }
                 case DirectiveStatement s:
@@ -251,31 +249,32 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private OperationResult TryAddLabel(AbstractStatement stmt)
         {
-            Label label = stmt switch
+            Label newLabel = stmt switch
             {
                 LabelStatement labelStmt => new Label(labelStmt.LabelName, stmt.FileName, null, true),
                 InstructionStatementOperand opStmt => new Label(opStmt.Operand.LabelRef, null, null, false),
                 _ => null
             };
-            if (label is null) return OperationResult.Success();
+            if (newLabel is null) return OperationResult.Success();
 
             bool isDeclaration = stmt is LabelStatement;
 
-            if (label.Name is not null)
+            if (newLabel.Name is not null)
             {
-                if (labels.ContainsKey(label.Name))
+                if (symbols.Contains(newLabel.Name))
                 {
-                    if (isDeclaration && labels[label.Name].IsDeclared)
+                    Label label = symbols.Get<Label>(newLabel.Name);
+                    if (isDeclaration && label.IsDeclared)
                         return OperationResult.Error(
                             SyntaxErrors
                                 .LabelAlreadyDeclared(
                                     stmt.Tokens[0])); // Assuming LabelStatements are created from 1 token
                     
-                    labels[label.Name].IsDeclared = true;
+                    label.IsDeclared = true;
                 }
                 else
                 {
-                    labels.Add(label.Name, label);
+                    symbols.Add(newLabel.Name, newLabel);
                 }
             }
             return OperationResult.Success();
