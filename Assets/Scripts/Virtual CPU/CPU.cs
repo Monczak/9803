@@ -258,7 +258,7 @@ namespace NineEightOhThree.VirtualCPU
             currentInstruction = data.Value.instruction;
             addressingMode = data.Value.addressingMode;
                 
-            byte[] args = Memory.ReadBlock((ushort)(ProgramCounter + 1), data.Value.metadata.ArgumentCount);
+            var args = Memory.ReadBlock((ushort)(ProgramCounter + 1), data.Value.metadata.ArgumentCount);
             currentInstruction.Setup(args);
 
             ProgramCounter += (ushort)(1 + args.Length);

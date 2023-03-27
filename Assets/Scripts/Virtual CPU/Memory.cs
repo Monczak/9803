@@ -1,4 +1,5 @@
-﻿using NineEightOhThree.VirtualCPU.Interfacing;
+﻿using System;
+using NineEightOhThree.VirtualCPU.Interfacing;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,9 +59,14 @@ namespace NineEightOhThree.VirtualCPU
             return Write((ushort)(address + offset), value);
         }
 
+        public ReadOnlySpan<byte> ReadBlockSpan(ushort address, int count)
+        {
+            return new ReadOnlySpan<byte>(data, address, count);
+        }
+        
         public byte[] ReadBlock(ushort address, int count)
         {
-            return data[address..(address + count)];
+            return ReadBlockSpan(address, count).ToArray();
         }
 
         public bool WriteBlock(ushort address, byte[] bytes, bool setDirty = true)
