@@ -75,7 +75,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 if (op.Number != null)
                 {
-                    if (op.LabelRef is null && op.Number > 0xFF)
+                    if (op.SymbolRef is null && op.Number > 0xFF)
                         return OperationResult.Error(SyntaxErrors.OperandNotByte(op.Token));
                     
                     bytes.Add((byte)(op.Number.Value - programCounter - ByteCount));

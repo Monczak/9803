@@ -68,8 +68,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public static AssemblerError UnexpectedToken(Token token) =>
             new(AssemblerError.ErrorType.Syntax, $"Unexpected token \"{token.Content}\"", token);
 
-        public static AssemblerError LabelAlreadyDeclared(Token token) =>
-            new(AssemblerError.ErrorType.Syntax, $"Label {token.Content[..^1]} is already defined", token);
+        public static AssemblerError SymbolAlreadyDeclared(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Symbol {token.Content[..^1]} is already declared", token);
 
         public static AssemblerError WrongArgumentCount(Token token, int count) =>
             new(AssemblerError.ErrorType.Syntax,

@@ -8,12 +8,9 @@
             set => Value = value;
         }
 
-        public Label(string name, string location, ushort? address, bool isDeclared)
+        public Label(string name, string location, bool isDeclared, ushort? address) 
+            : base(name, location, isDeclared, address)
         {
-            Name = name;
-            Location = location;
-            Address = address;
-            IsDeclared = isDeclared;
         }
 
         public override string ToString()

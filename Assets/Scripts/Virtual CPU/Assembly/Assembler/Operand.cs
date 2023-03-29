@@ -3,34 +3,34 @@
     public class Operand
     {
         public ushort? Number { get; set; }
-        public string LabelRef { get; }
+        public string SymbolRef { get; }
         
         public Token Token { get; }
 
         public bool IsDefined => Number.HasValue;
         public bool IsByte { get; set; }
 
-        public Operand(Token token, ushort number, string labelRef)
+        public Operand(Token token, ushort number, string symbolRef)
         {
             Token = token;
             Number = number;
-            LabelRef = labelRef;
+            SymbolRef = symbolRef;
         }
 
         public Operand(Token token, ushort number)
         {
             Token = token;
             Number = number;
-            LabelRef = null;
+            SymbolRef = null;
 
             Token.SetMetaType(TokenMetaType.None);
         }
 
-        public Operand(Token token, string labelRef)
+        public Operand(Token token, string symbolRef)
         {
             Token = token;
             Number = null;
-            LabelRef = labelRef;
+            SymbolRef = symbolRef;
             
             Token.SetMetaType(TokenMetaType.Label);
         }
@@ -40,14 +40,14 @@
             IsByte = isByte;
         }
         
-        public Operand(Token token, string labelRef, bool isByte) : this(token, labelRef)
+        public Operand(Token token, string symbolRef, bool isByte) : this(token, symbolRef)
         {
             IsByte = isByte;
         }
 
         public override string ToString()
         {
-            return IsDefined ? $"{Number:X4}" : $"[{LabelRef}]";
+            return IsDefined ? $"{Number:X4}" : $"[{SymbolRef}]";
         }
     }
 }

@@ -12,6 +12,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         
         public string FileName { get; protected set; }
 
+        public virtual bool DeclaresSymbol { get; } = false;
+
         protected internal delegate OperationResult TokenHandler(Token token);
         
         protected internal abstract List<(NodePattern pattern, TokenHandler handler)> Pattern { get; }

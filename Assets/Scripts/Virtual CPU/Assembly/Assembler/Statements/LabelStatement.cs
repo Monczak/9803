@@ -4,10 +4,11 @@ using NineEightOhThree.VirtualCPU.Assembly;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
+    [DeclaresSymbol]
     public sealed class LabelStatement : IntermediateStatement
     {
         public string LabelName { get; private set; }
-        
+
         public LabelStatement(List<Token> tokens) : base(tokens)
         {
             

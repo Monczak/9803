@@ -48,7 +48,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             // Pass 1: Find labels
             foreach (AbstractStatement stmt in statements)
             {
-                var result = FindLabelInStatement(stmt);
+                var result = FindSymbolInStatement(stmt);
                 if (result.Failed) ThrowError((AssemblerError)result.TheError);
             }
 
@@ -130,7 +130,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     if (!op.IsDefined)
                     {
-                        Label label = symbols.Get<Label>(op.LabelRef);
+                        Label label = symbols.Find<Label>(op.SymbolRef);
                         if (!label.IsDeclared)
                             return OperationResult.Error(SyntaxErrors.UseOfUndeclaredLabel(op.Token, label));
                         op.Number = label.Address;
@@ -160,7 +160,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 case LabelStatement s:
                 {
-                    symbols.Get<Label>(s.LabelName).Address = programCounter;
+                    symbols.Find<Label>(s.LabelName).Address = programCounter;
                     break;
                 }
                 case DirectiveStatement s:
@@ -241,40 +241,40 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult<List<Operand>>.Success(evalResult.Result);
         }
 
-        private OperationResult FindLabelInStatement(AbstractStatement stmt)
+        private OperationResult FindSymbolInStatement(AbstractStatement stmt)
         {
-            OperationResult result = TryAddLabel(stmt);
+            OperationResult result = TryAddSymbol(stmt);
             return result.Failed ? result : OperationResult.Success();
         }
 
-        private OperationResult TryAddLabel(AbstractStatement stmt)
+        private OperationResult TryAddSymbol(AbstractStatement stmt)
         {
-            Label newLabel = stmt switch
+            Symbol newSymbol = stmt switch
             {
-                LabelStatement labelStmt => new Label(labelStmt.LabelName, stmt.FileName, null, true),
-                InstructionStatementOperand opStmt => new Label(opStmt.Operand.LabelRef, null, null, false),
+                LabelStatement labelStmt => new Label(labelStmt.LabelName, stmt.FileName, true, null),
+                InstructionStatementOperand opStmt => new Symbol(opStmt.Operand.SymbolRef, null, false),
                 _ => null
             };
-            if (newLabel is null) return OperationResult.Success();
+            if (newSymbol is null) return OperationResult.Success();
 
-            bool isDeclaration = stmt is LabelStatement;
+            bool isDeclaration = Attribute.IsDefined(stmt.GetType(), typeof(DeclaresSymbolAttribute));
 
-            if (newLabel.Name is not null)
+            if (newSymbol.Name is not null)
             {
-                if (symbols.Contains(newLabel.Name))
+                if (symbols.Contains(newSymbol.Name))
                 {
-                    Label label = symbols.Get<Label>(newLabel.Name);
-                    if (isDeclaration && label.IsDeclared)
+                    Symbol symbol = symbols.Find<Symbol>(newSymbol.Name);
+                    if (isDeclaration && symbol.IsDeclared)
                         return OperationResult.Error(
                             SyntaxErrors
-                                .LabelAlreadyDeclared(
+                                .SymbolAlreadyDeclared(
                                     stmt.Tokens[0])); // Assuming LabelStatements are created from 1 token
                     
-                    label.IsDeclared = true;
+                    symbol.IsDeclared = true;
                 }
                 else
                 {
-                    symbols.Add(newLabel.Name, newLabel);
+                    symbols.Add(newSymbol.Name, newSymbol);
                 }
             }
             return OperationResult.Success();
