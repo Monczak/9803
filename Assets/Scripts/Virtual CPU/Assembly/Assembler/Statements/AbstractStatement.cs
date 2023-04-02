@@ -10,7 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         private int current;
         private int currentPattern;
         
-        public string FileName { get; protected set; }
+        public string ResourceLocation { get; protected set; }
 
         public virtual bool DeclaresSymbol { get; } = false;
 
@@ -52,7 +52,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             while (!IsAtEnd())
             {
                 Token token = Consume();
-                FileName = token.FileName;
+                ResourceLocation = token.ResourceLocation;
                 if (currentPattern + 1 < Pattern.Count && !Pattern[currentPattern + 1].pattern.Cycle && Pattern[currentPattern].pattern.Cycle)
                     currentPattern++;
 

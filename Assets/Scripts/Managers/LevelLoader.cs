@@ -43,7 +43,7 @@ namespace NineEightOhThree.Managers
                             case AssemblerError.ErrorType.Lexical:
                             case AssemblerError.ErrorType.Syntax:
                             default:
-                                Logger.LogError($"Assembler: {error.Token.FileName} - {error.Message} ({error.Token})");
+                                Logger.LogError($"Assembler: {error.Token.ResourceLocation} - {error.Message} ({error.Token})");
                                 break;
                         }
                     }

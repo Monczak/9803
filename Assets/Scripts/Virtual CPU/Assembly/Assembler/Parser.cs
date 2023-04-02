@@ -30,7 +30,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             source = tokens;
             current = 0;
             HadError = false;
-            fileName = tokens[0].FileName;
+            fileName = tokens[0].ResourceLocation;
 
             if (useChain is null)
             {

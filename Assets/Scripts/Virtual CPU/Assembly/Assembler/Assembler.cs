@@ -32,7 +32,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             this.logHandler = logHandler;
         }
         
-        public AssemblerResult Assemble(string input, string fileName, bool writeResetVector = true)
+        public AssemblerResult Assemble(string input, string resourceLocation, bool writeResetVector = true)
         {
             tokens = new List<Token>();
             statements = new List<AbstractStatement>();
@@ -53,7 +53,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             AssembledCode assembledCode = null;
             try
             {
-                tokens = Lexer.Lex(input, fileName);
+                tokens = Lexer.Lex(input, resourceLocation);
                 statements = Parser.Parse(tokens);
                 assembledCode = CodeGenerator.GenerateCode(statements);
 

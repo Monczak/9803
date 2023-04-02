@@ -33,7 +33,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             codeMask = new bool[MemorySize];
 
             statements = stmts;
-            symbols = new SymbolTable();
+            symbols = new SymbolTable(statements[0].ResourceLocation);
             programCounter = 0;
 
             directiveUseCounts = new Dictionary<Type, int>();
@@ -130,10 +130,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     if (!op.IsDefined)
                     {
-                        Label label = symbols.Find<Label>(op.SymbolRef);
+                        Symbol label = symbols.Find(op.SymbolRef).To(SymbolType.Label);
                         if (!label.IsDeclared)
                             return OperationResult.Error(SyntaxErrors.UseOfUndeclaredLabel(op.Token, label));
-                        op.Number = label.Address;
+                        op.Number = label.Value;
                     }
                 }
             }
@@ -160,7 +160,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 case LabelStatement s:
                 {
-                    symbols.Find<Label>(s.LabelName).Address = programCounter;
+                    Symbol label = symbols.Find(s.LabelName);
+                    if (label is null)
+                        throw new Exception("Label statement symbol was null");
+                    label.Value = programCounter;
                     break;
                 }
                 case DirectiveStatement s:
@@ -251,24 +254,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             Symbol newSymbol = stmt switch
             {
-                LabelStatement labelStmt => new Label(labelStmt.LabelName, stmt.FileName, true, null),
-                InstructionStatementOperand opStmt => new Symbol(opStmt.Operand.SymbolRef, null, false),
+                LabelStatement labelStmt => new Symbol(SymbolType.Label, labelStmt.LabelName, stmt.ResourceLocation, true),
+                InstructionStatementOperand opStmt => new Symbol(SymbolType.Unknown, opStmt.Operand.SymbolRef, null, false),
                 _ => null
             };
             if (newSymbol is null) return OperationResult.Success();
 
-            bool isDeclaration = Attribute.IsDefined(stmt.GetType(), typeof(DeclaresSymbolAttribute));
+            DeclaresSymbolAttribute attr = 
+                (DeclaresSymbolAttribute)Attribute.GetCustomAttribute(stmt.GetType(), typeof(DeclaresSymbolAttribute));
+            bool isDeclaration = attr is not null;
+            int symbolTokenPos = attr?.TokenPos ?? -1;
 
             if (newSymbol.Name is not null)
             {
                 if (symbols.Contains(newSymbol.Name))
                 {
-                    Symbol symbol = symbols.Find<Symbol>(newSymbol.Name);
+                    Symbol symbol = symbols.Find(newSymbol.Name);
                     if (isDeclaration && symbol.IsDeclared)
-                        return OperationResult.Error(
-                            SyntaxErrors
-                                .SymbolAlreadyDeclared(
-                                    stmt.Tokens[0])); // Assuming LabelStatements are created from 1 token
+                        return OperationResult.Error(SyntaxErrors.SymbolAlreadyDeclared(stmt.Tokens[symbolTokenPos]));
                     
                     symbol.IsDeclared = true;
                 }

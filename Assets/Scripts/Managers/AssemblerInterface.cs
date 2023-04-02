@@ -14,7 +14,7 @@ namespace NineEightOhThree.Managers
 
         private static Assembler assembler;
 
-        private const string FileName = "Int";
+        private const string ResourceLocation = "Int";
         
         public static Assembler Assembler
         {
@@ -22,15 +22,15 @@ namespace NineEightOhThree.Managers
             private set => assembler = value;
         }
 
-        public static AssemblerResult Assemble(string code, string fileName = FileName)
+        public static AssemblerResult Assemble(string code, string resourceLocation = ResourceLocation)
         {
-            return Assemble(code, HandleErrors, HandleLogs, fileName);
+            return Assemble(code, HandleErrors, HandleLogs, resourceLocation);
         }
         
-        public static AssemblerResult Assemble(string code, ErrorHandler errorHandler, LogHandler logHandler, string fileName = FileName)
+        public static AssemblerResult Assemble(string code, ErrorHandler errorHandler, LogHandler logHandler, string resourceLocation = ResourceLocation)
         {
             Assembler = new Assembler(errorHandler, logHandler);
-            return Assembler.Assemble(code, fileName);
+            return Assembler.Assemble(code, resourceLocation);
         }
 
         // TODO: Implement task queue functionality
@@ -40,7 +40,7 @@ namespace NineEightOhThree.Managers
 
             Assembler = new Assembler(HandleErrors, HandleLogs);
 
-            Task<AssemblerResult>.Factory.StartNew(() => Assembler.Assemble(code, FileName))
+            Task<AssemblerResult>.Factory.StartNew(() => Assembler.Assemble(code, ResourceLocation))
                 .ContinueWith(t =>
                 {
                     var result = Assembler.OnAssemblerFinished(t);

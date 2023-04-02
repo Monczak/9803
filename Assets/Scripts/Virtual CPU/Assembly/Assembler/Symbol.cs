@@ -8,22 +8,26 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         public string Location { get; }
 
         public bool IsDeclared { get; set; }
+        
+        public ushort? Value { get; set; }
+        
+        public SymbolType Type { get; set; }
 
-        public Symbol(string name, string location, bool isDeclared)
+        public Symbol(SymbolType type, string name, string location, bool isDeclared, ushort? value = null)
         {
+            Type = type;
             Name = name;
             Location = location;
             IsDeclared = isDeclared;
-        }
-    }
-    
-    public class Symbol<T> : Symbol
-    {
-        public T Value { get; set; }
-
-        public Symbol(string name, string location, bool isDeclared, T value) : base(name, location, isDeclared)
-        {
             Value = value;
         }
+
+        public Symbol To(SymbolType type)
+        {
+            Type = type;
+            return this;
+        }
+
+        public bool Is(SymbolType typeMask) => (Type & typeMask) != 0;
     }
 }

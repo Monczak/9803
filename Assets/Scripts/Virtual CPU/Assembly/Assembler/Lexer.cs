@@ -14,7 +14,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private List<Token> tokens;
 
         private string sourceCode;
-        private string fileName;
+        private string resourceLocation;
 
         private TokenType? expectedToken;
         private TokenType? previousTokenType;
@@ -42,7 +42,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             { "Y", TokenType.RegisterY },
         };
 
-        public List<Token> Lex(string sourceCode, string fileName)
+        public List<Token> Lex(string sourceCode, string resourceLocation)
         {
             tokens = new List<Token>(); 
             start = 0;
@@ -52,7 +52,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             tokenStartColumn = 0;
 
             this.sourceCode = sourceCode;
-            this.fileName = fileName;
+            this.resourceLocation = resourceLocation;
             
             expectedToken = null;
             expectingToken = false;
@@ -88,7 +88,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 CharIndex = start,
                 MetaType = TokenMetaType.Invalid,
                 Previous = previousToken,
-                FileName = fileName
+                ResourceLocation = resourceLocation
             });
             
             return tokens;
@@ -257,7 +257,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 CharIndex = start,
                 MetaType = TokenMetaType.Invalid,
                 Previous = previousToken,
-                FileName = fileName
+                ResourceLocation = resourceLocation
             };
             tokens.Add(token);
             
