@@ -1,10 +1,14 @@
-﻿.include not_main
+﻿; .include not_main
+
 
 .org $8000
 .begin
 
-jsr not_main.reset_box
+NUM = $10
+lda NUM
 
-loop:
-jsr not_main.move_box
-jmp loop
+;jsr not_main.reset_box
+;
+;loop:
+;jsr not_main.move_box
+;jmp loop

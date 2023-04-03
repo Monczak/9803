@@ -103,6 +103,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 case '(': AddToken(TokenType.LeftParen); break;
                 case ')': AddToken(TokenType.RightParen); break;
                 case ',': AddToken(TokenType.Comma); break;
+                
+                case '=': 
+                    AddToken(TokenType.Equals); 
+                    Expect(TokenType.Number);
+                    break;
 
                 case ';':
                     while (Peek() != '\n' && !IsAtEnd()) Advance();

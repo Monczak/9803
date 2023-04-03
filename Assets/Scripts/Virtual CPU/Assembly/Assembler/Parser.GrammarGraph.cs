@@ -20,9 +20,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             public class GrammarNode
             {
                 public NodePattern Pattern { get; }
-                public bool IsFinal { get; }
-                public AbstractStatement Statement { get; }
-                public Type StatementType { get; set; }
+                public bool IsFinal { get; internal set; }
+                public AbstractStatement Statement { get; internal set; }
+                public Type StatementType { get; internal set; }
                 public List<GrammarNode> Children { get; }
 
                 public GrammarNode(NodePattern pattern)
@@ -120,6 +120,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                         }
                         else
                         {
+                            child.IsFinal |= node.IsFinal;
+                            child.Statement ??= node.Statement;
+                            child.StatementType ??= node.StatementType;
                             currentNode = child;
                         }
                     }

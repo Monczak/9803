@@ -265,6 +265,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             Symbol newSymbol = stmt switch
             {
                 LabelStatement labelStmt => new Symbol(SymbolType.Label, labelStmt.LabelName, stmt.ResourceLocation, stmt.Namespace, true, stmt.Tokens[symbolTokenPos]),
+                ConstantStatement constantStmt => new Symbol(SymbolType.Constant, constantStmt.ConstantName, stmt.ResourceLocation, stmt.Namespace, true, stmt.Tokens[symbolTokenPos], constantStmt.ConstantValue),
                 InstructionStatementOperand opStmt => new Symbol(SymbolType.Unknown, opStmt.Operand.SymbolRef, stmt.ResourceLocation, stmt.Namespace, false, opStmt.Operand.Token),
                 _ => null
             };

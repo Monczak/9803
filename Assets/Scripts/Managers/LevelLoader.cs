@@ -43,6 +43,7 @@ namespace NineEightOhThree.Managers
                             case AssemblerError.ErrorType.Lexical:
                             case AssemblerError.ErrorType.Syntax:
                             default:
+                                // FIXME: WTF causes this lexical error? Expected Number, got Equals
                                 Logger.LogError($"Assembler: {error.Token.ResourceLocation} - {error.Message} ({error.Token})");
                                 break;
                         }

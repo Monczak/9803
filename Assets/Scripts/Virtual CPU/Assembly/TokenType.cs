@@ -18,5 +18,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly
         Newline = 1 << 10,
         EndOfFile = 1 << 11,
         Directive = 1 << 12,
+        Equals = 1 << 13,
     }
 }
