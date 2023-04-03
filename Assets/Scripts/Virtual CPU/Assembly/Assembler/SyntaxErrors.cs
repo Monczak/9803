@@ -76,8 +76,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 $"Wrong argument count, expected {(count == -1 ? "at least 1 argument" : $"{count} {(count == 1 ? "argument" : "arguments")}")}", token);
 
         public static AssemblerError UseOfUndeclaredSymbol(Token token, Symbol symbol) =>
-            new(AssemblerError.ErrorType.Syntax, $"Use of undeclared symbol \"{symbol.Name}\"", token);
+            new(AssemblerError.ErrorType.Syntax, $"Use of undeclared symbol \"{symbol?.Name ?? token.Content}\"", token);
 
+        public static AssemblerError NonLocalSymbolDeclaration(Token token, Symbol symbol) =>
+            new(AssemblerError.ErrorType.Syntax, $"Cannot declare symbol from another namespace", token);
+        
+        public static AssemblerError InvalidLabelName(Token token) =>
+            new(AssemblerError.ErrorType.Syntax, $"Invalid label name", token);
+        
         public static AssemblerError OverlappingCode(Token token, ushort address) =>
             new(AssemblerError.ErrorType.Syntax, $"Overlapping code (at address {address:X4})", token);
         

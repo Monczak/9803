@@ -137,9 +137,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     if (!op.IsDefined)
                     {
                         Symbol symbol = symbols.Find(op.SymbolRef, cStmt.Stmt.Namespace);
-                        if (!symbol.IsDeclared) // Just in case, but this shouldn't happen
-                            return OperationResult.Error(SyntaxErrors.UseOfUndeclaredSymbol(op.Token, symbol));
-                        op.Number = symbol.Value;
+                        if (symbol is not null && symbol.IsDeclared)
+                            op.Number = symbol.Value;
                     }
                 }
             }
@@ -168,7 +167,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     Symbol label = symbols.Find(s.LabelName, stmt.Namespace);
                     if (label is null)
-                        throw new Exception("Label statement symbol was null");
+                        return OperationResult<CompiledStatement>.Error(SyntaxErrors.InvalidLabelName(s.Tokens[0]));
                     label.Value = programCounter;
                     break;
                 }
@@ -275,22 +274,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 return symbols.Add(newSymbol);
             }
-            
-            // if (newSymbol.Name is not null)
-            // {
-            //     if (symbols.Contains(newSymbol.Name))
-            //     {
-            //         Symbol symbol = symbols.Find(newSymbol.Name);
-            //         if (isDeclaration && symbol.IsDeclared)
-            //             return OperationResult.Error(SyntaxErrors.SymbolAlreadyDeclared(stmt.Tokens[symbolTokenPos]));
-            //         
-            //         symbol.IsDeclared = true;
-            //     }
-            //     else
-            //     {
-            //         symbols.Add(newSymbol);
-            //     }
-            // }
             return OperationResult.Success();
         }
     }

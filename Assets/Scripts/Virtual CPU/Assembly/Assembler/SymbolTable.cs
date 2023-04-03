@@ -7,6 +7,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
     public class SymbolTable
     {
+        private const string Separator = ".";
+        
         private readonly Dictionary<string, Symbol> symbols;
         private readonly HashSet<Symbol> unresolvedSymbols;
 
@@ -32,12 +34,14 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         
         private static (string firstNamespace, string rest) SplitName(string theNamespace)
         {
-            int firstDotIndex = theNamespace.IndexOf(".", StringComparison.Ordinal);
+            int firstDotIndex = theNamespace.IndexOf(Separator, StringComparison.Ordinal);
             string firstNamespace = firstDotIndex == -1 ? theNamespace : theNamespace[..firstDotIndex];
             string rest = firstDotIndex == -1 ? "" : theNamespace[(firstDotIndex + 1)..];
             return (firstNamespace, rest);
         }
 
+        // WTF ReSharper? This is a perfectly fine method name
+        // ReSharper disable once InconsistentNaming
         private OperationResult AddRecursively(string theNamespace, Symbol symbol, SymbolTable subTable)
         {
             while (true)
@@ -48,6 +52,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     if (subTable.symbols.ContainsKey(symbol.SimpleName))
                         return OperationResult.Error(SyntaxErrors.SymbolAlreadyDeclared(symbol.Token));
+                    
                     subTable[symbol.SimpleName] = symbol;
                 }
                 else
@@ -71,6 +76,9 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         public OperationResult Add(Symbol symbol)
         {
+            if (symbol.IsDeclared && symbol.Name.Split(Separator).Length > 1)
+                return OperationResult.Error(SyntaxErrors.NonLocalSymbolDeclaration(symbol.Token, symbol));
+            
             if (symbol.Is(SymbolType.Unknown))
             {
                 // Debug.Log($"Adding unresolved symbol {symbol.Name} from {symbol.Location} in {(symbol.Namespace == string.Empty ? "(root)" : symbol.Namespace)}");
