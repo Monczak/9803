@@ -22,6 +22,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private Token previousToken;
 
         private bool expectingToken;
+        private bool addedToken;
 
         public bool HadError { get; private set; }
 
@@ -57,6 +58,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             expectedToken = null;
             expectingToken = false;
             HadError = false;
+            addedToken = false;
 
             previousToken = null;
             
@@ -96,6 +98,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private OperationResult ScanToken()
         {
+            addedToken = false;
+            
             char c = Advance();
 
             switch (c) 
@@ -139,22 +143,27 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 default: return OperationResult.Error(LexicalErrors.UnexpectedCharacter(c, line, column, start, current - start));
             }
 
-            switch (expectingToken)
+            if (addedToken)
             {
-                case true when expectedToken is not null && expectedToken != previousTokenType:
-                    if (previousTokenType != null)
-                        return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, start, current - start, expectedToken.Value,
-                            previousTokenType.Value));
-                    throw new InternalErrorException("Last token was null");
+                switch (expectingToken)
+                {
+                    case true when expectedToken is not null && expectedToken != previousTokenType:
+                        if (previousTokenType != null)
+                            return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, start, current - start, expectedToken.Value,
+                                previousTokenType.Value));
+                        throw new InternalErrorException("Last token was null");
 
-                case false when expectedToken is not null:
-                    expectingToken = true;
-                    break;
-                default:
-                    expectedToken = null;
-                    expectingToken = false;
-                    break;
+                    case false when expectedToken is not null:
+                        expectingToken = true;
+                        break;
+                    default:
+                        expectedToken = null;
+                        expectingToken = false;
+                        break;
+                }
             }
+
+            addedToken = false;
 
             tokenStartColumn = column;
 
@@ -268,6 +277,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             
             previousTokenType = type;
             previousToken = token;
+
+            addedToken = true;
         }
 
         private bool IsAtEnd() => current >= sourceCode.Length;
