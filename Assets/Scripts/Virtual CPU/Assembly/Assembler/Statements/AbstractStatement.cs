@@ -10,7 +10,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
         private int current;
         private int currentPattern;
         
-        public string ResourceLocation { get; protected set; }
+        public string ResourceLocation { get; private set; }
+        public string Namespace { get; protected set; }
 
         public virtual bool DeclaresSymbol { get; } = false;
 
@@ -30,9 +31,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 
         protected abstract AbstractStatement Construct(List<Token> tokens);
 
-        public OperationResult<AbstractStatement> Build(List<Token> theTokens)
+        public OperationResult<AbstractStatement> Build(List<Token> theTokens, string @namespace)
         {
-            return Construct(theTokens).ConsumePattern();
+            var stmt = Construct(theTokens);
+            stmt.Namespace = @namespace;    
+            return stmt.ConsumePattern();
         }
 
         public virtual void FinalizeStatement() { }

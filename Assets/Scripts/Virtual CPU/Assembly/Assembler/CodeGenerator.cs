@@ -33,7 +33,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             codeMask = new bool[MemorySize];
 
             statements = stmts;
-            symbols = new SymbolTable(statements[0].ResourceLocation);
+            symbols = new SymbolTable("");
             programCounter = 0;
 
             directiveUseCounts = new Dictionary<Type, int>();
@@ -45,15 +45,21 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             
             HadError = false;
 
-            // Pass 1: Find labels
+            // Pass 1: Find symbols
             foreach (AbstractStatement stmt in statements)
             {
                 var result = FindSymbolInStatement(stmt);
                 if (result.Failed) ThrowError((AssemblerError)result.TheError);
             }
+            
+            // Pass 1.5: Find uses of undeclared symbols
+            foreach (var result in symbols.FindUsesOfUndeclaredSymbols())
+            {
+                if (result.Failed) ThrowError((AssemblerError)result.TheError);
+            }
 
             StringBuilder builder = new();
-            builder.AppendJoin(" ", symbols);
+            builder.Append("Symbols: ").AppendJoin(", ", symbols.GetAllSymbols());
             MakeLog(builder.ToString());
 
             // Pass 2: Convert statements to a compiled form
@@ -68,11 +74,11 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     compiledStatements.Add(result.Result);
             }
 
-            // Pass 3: Replace label references with label addresses
+            // Pass 3: Resolve symbols - replace symbol references with symbol values
             programCounter = 0;
             foreach (CompiledStatement cStmt in compiledStatements)
             {
-                var result = UpdateLabelRefs(cStmt);
+                var result = ResolveSymbol(cStmt);
                 if (result.Failed) ThrowError((AssemblerError)result.TheError);
             }
             
@@ -122,7 +128,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             return OperationResult.Success();
         }
 
-        private OperationResult UpdateLabelRefs(CompiledStatement cStmt)
+        private OperationResult ResolveSymbol(CompiledStatement cStmt)
         {
             if (cStmt.Operands is not null)
             {
@@ -130,10 +136,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 {
                     if (!op.IsDefined)
                     {
-                        Symbol label = symbols.Find(op.SymbolRef).To(SymbolType.Label);
-                        if (!label.IsDeclared)
-                            return OperationResult.Error(SyntaxErrors.UseOfUndeclaredLabel(op.Token, label));
-                        op.Number = label.Value;
+                        Symbol symbol = symbols.Find(op.SymbolRef, cStmt.Stmt.Namespace);
+                        if (!symbol.IsDeclared) // Just in case, but this shouldn't happen
+                            return OperationResult.Error(SyntaxErrors.UseOfUndeclaredSymbol(op.Token, symbol));
+                        op.Number = symbol.Value;
                     }
                 }
             }
@@ -160,7 +166,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 case LabelStatement s:
                 {
-                    Symbol label = symbols.Find(s.LabelName);
+                    Symbol label = symbols.Find(s.LabelName, stmt.Namespace);
                     if (label is null)
                         throw new Exception("Label statement symbol was null");
                     label.Value = programCounter;
@@ -252,34 +258,39 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
         private OperationResult TryAddSymbol(AbstractStatement stmt)
         {
-            Symbol newSymbol = stmt switch
-            {
-                LabelStatement labelStmt => new Symbol(SymbolType.Label, labelStmt.LabelName, stmt.ResourceLocation, true),
-                InstructionStatementOperand opStmt => new Symbol(SymbolType.Unknown, opStmt.Operand.SymbolRef, null, false),
-                _ => null
-            };
-            if (newSymbol is null) return OperationResult.Success();
-
             DeclaresSymbolAttribute attr = 
                 (DeclaresSymbolAttribute)Attribute.GetCustomAttribute(stmt.GetType(), typeof(DeclaresSymbolAttribute));
             bool isDeclaration = attr is not null;
             int symbolTokenPos = attr?.TokenPos ?? -1;
+            
+            Symbol newSymbol = stmt switch
+            {
+                LabelStatement labelStmt => new Symbol(SymbolType.Label, labelStmt.LabelName, stmt.ResourceLocation, stmt.Namespace, true, stmt.Tokens[symbolTokenPos]),
+                InstructionStatementOperand opStmt => new Symbol(SymbolType.Unknown, opStmt.Operand.SymbolRef, stmt.ResourceLocation, stmt.Namespace, false, opStmt.Operand.Token),
+                _ => null
+            };
+            if (newSymbol is null) return OperationResult.Success();
 
             if (newSymbol.Name is not null)
             {
-                if (symbols.Contains(newSymbol.Name))
-                {
-                    Symbol symbol = symbols.Find(newSymbol.Name);
-                    if (isDeclaration && symbol.IsDeclared)
-                        return OperationResult.Error(SyntaxErrors.SymbolAlreadyDeclared(stmt.Tokens[symbolTokenPos]));
-                    
-                    symbol.IsDeclared = true;
-                }
-                else
-                {
-                    symbols.Add(newSymbol.Name, newSymbol);
-                }
+                return symbols.Add(newSymbol);
             }
+            
+            // if (newSymbol.Name is not null)
+            // {
+            //     if (symbols.Contains(newSymbol.Name))
+            //     {
+            //         Symbol symbol = symbols.Find(newSymbol.Name);
+            //         if (isDeclaration && symbol.IsDeclared)
+            //             return OperationResult.Error(SyntaxErrors.SymbolAlreadyDeclared(stmt.Tokens[symbolTokenPos]));
+            //         
+            //         symbol.IsDeclared = true;
+            //     }
+            //     else
+            //     {
+            //         symbols.Add(newSymbol);
+            //     }
+            // }
             return OperationResult.Success();
         }
     }

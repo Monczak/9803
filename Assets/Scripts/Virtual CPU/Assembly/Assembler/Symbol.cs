@@ -6,20 +6,28 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
     {
         public string Name { get; }
         public string Location { get; }
+        public string Namespace { get; }
+
+        public string SimpleName => Name.Split(".")[^1];
+        public string NamespacedName => $"{Namespace}{(string.IsNullOrEmpty(Namespace) ? "" : ".")}{Name}";
 
         public bool IsDeclared { get; set; }
         
         public ushort? Value { get; set; }
         
-        public SymbolType Type { get; set; }
+        public SymbolType Type { get; private set; }
+        
+        public Token Token { get; }
 
-        public Symbol(SymbolType type, string name, string location, bool isDeclared, ushort? value = null)
+        public Symbol(SymbolType type, string name, string location, string @namespace, bool isDeclared, Token token, ushort? value = null)
         {
             Type = type;
             Name = name;
             Location = location;
+            Namespace = @namespace;
             IsDeclared = isDeclared;
             Value = value;
+            Token = token;
         }
 
         public Symbol To(SymbolType type)
@@ -29,5 +37,10 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         }
 
         public bool Is(SymbolType typeMask) => (Type & typeMask) != 0;
+
+        public override string ToString()
+        {
+            return $"{NamespacedName}: {(Value is null ? "(null)" : Value)}";
+        }
     }
 }

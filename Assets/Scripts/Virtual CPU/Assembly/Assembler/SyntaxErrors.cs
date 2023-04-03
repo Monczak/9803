@@ -75,8 +75,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             new(AssemblerError.ErrorType.Syntax,
                 $"Wrong argument count, expected {(count == -1 ? "at least 1 argument" : $"{count} {(count == 1 ? "argument" : "arguments")}")}", token);
 
-        public static AssemblerError UseOfUndeclaredLabel(Token token, Symbol label) =>
-            new(AssemblerError.ErrorType.Syntax, $"Use of undeclared label \"{label.Name}\"", token);
+        public static AssemblerError UseOfUndeclaredSymbol(Token token, Symbol symbol) =>
+            new(AssemblerError.ErrorType.Syntax, $"Use of undeclared symbol \"{symbol.Name}\"", token);
 
         public static AssemblerError OverlappingCode(Token token, ushort address) =>
             new(AssemblerError.ErrorType.Syntax, $"Overlapping code (at address {address:X4})", token);

@@ -3,8 +3,8 @@
 .org $8000
 .begin
 
-jsr reset_box
+jsr not_main.reset_box
 
 loop:
-jsr move_box
+jsr not_main.move_box
 jmp loop

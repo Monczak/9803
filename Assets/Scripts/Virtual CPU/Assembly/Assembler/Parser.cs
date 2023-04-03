@@ -17,6 +17,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private List<Token> source;
         private string fileName;
 
+        private string currentNamespace;
+
         private GrammarGraph graph;
 
         public bool HadError { get; private set; }
@@ -24,13 +26,15 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         private HashSet<string> useChain;
 
 
-        public List<AbstractStatement> Parse(List<Token> tokens, HashSet<string> useChain = null)
+        public List<AbstractStatement> Parse(List<Token> tokens, string currentNamespace = "", HashSet<string> useChain = null)
         {
             statements = new List<AbstractStatement>();
             source = tokens;
             current = 0;
             HadError = false;
             fileName = tokens[0].ResourceLocation;
+
+            this.currentNamespace = currentNamespace;
 
             if (useChain is null)
             {
@@ -73,7 +77,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
         {
             if (stmt is DirectiveStatementOperands { Directive: IncludeDirective directive } s)
             {
-                directive.Setup(s.Args[0].Token.Content);
+                string @namespace = s.Args[0].Token.Content; 
+                directive.Setup(@namespace);
                 
                 string location =
                     PathUtils.GetAbsoluteResourceLocation<TextAsset>(directive.IncludedResourceLocation, fileName);
@@ -104,7 +109,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     var tokens = subLexer.Lex(code, location);
                     if (subLexer.HadError) return OperationResult.Success();
 
-                    stmts = subParser.Parse(tokens, useChain);
+                    stmts = subParser.Parse(tokens, $"{currentNamespace}{(currentNamespace == string.Empty ? "" : ".")}{@namespace}", useChain);
                     if (subParser.HadError) return OperationResult.Success();
                     
                     AssemblerCache.CacheParseResults(location, code, stmts);
@@ -175,7 +180,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     // If the last statement parsed is an IntermediateStatement, don't add it again
                     if (currentNode.Statement is IntermediateStatement && IsAtEnd()) continue;
 
-                    OperationResult<AbstractStatement> stmt = currentNode.Statement.Build(lineTokens);
+                    OperationResult<AbstractStatement> stmt = currentNode.Statement.Build(lineTokens, currentNamespace);
 
                     if (stmt.Failed) return stmt;
 
@@ -210,7 +215,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 
                     if (currentNode.Statement is IntermediateStatement stmt)
                     {
-                        OperationResult<AbstractStatement> s = stmt.Build(lineTokens);
+                        OperationResult<AbstractStatement> s = stmt.Build(lineTokens, currentNamespace);
                         if (s.Failed) return s;
                         
                         stmt.FinalizeStatement();

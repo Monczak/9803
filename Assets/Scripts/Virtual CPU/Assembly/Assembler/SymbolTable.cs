@@ -1,66 +1,157 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
 {
     public class SymbolTable
     {
         private readonly Dictionary<string, Symbol> symbols;
+        private readonly HashSet<Symbol> unresolvedSymbols;
 
-        private readonly Dictionary<string, SymbolTable> childTables;
+        private readonly Dictionary<string, SymbolTable> subTables;
 
-        private readonly string resourceLocation;
+        private readonly string @namespace;
 
-        public SymbolTable(string resourceLocation)
+        public SymbolTable(string @namespace)
         {
             symbols = new Dictionary<string, Symbol>();
-            childTables = new Dictionary<string, SymbolTable>();
+            subTables = new Dictionary<string, SymbolTable>();
 
-            this.resourceLocation = resourceLocation;
+            unresolvedSymbols = new HashSet<Symbol>();
+
+            this.@namespace = @namespace;
         }
 
-        private (string moduleName, string rest) SplitName(string name)
+        private Symbol this[string name]
         {
-            int firstDotIndex = name.IndexOf(".", StringComparison.Ordinal);
-            string moduleName = name[..firstDotIndex];
-            string rest = name[(firstDotIndex + 1)..];
-            return (moduleName, rest);
+            get => symbols[name];
+            set => symbols[name] = value;
+        }
+        
+        private static (string firstNamespace, string rest) SplitName(string theNamespace)
+        {
+            int firstDotIndex = theNamespace.IndexOf(".", StringComparison.Ordinal);
+            string firstNamespace = firstDotIndex == -1 ? theNamespace : theNamespace[..firstDotIndex];
+            string rest = firstDotIndex == -1 ? "" : theNamespace[(firstDotIndex + 1)..];
+            return (firstNamespace, rest);
         }
 
-        public void Add(string name, Symbol symbol)
+        private OperationResult AddRecursively(string theNamespace, Symbol symbol, SymbolTable subTable)
         {
-            var split = SplitName(name);
-            if (split.moduleName != string.Empty)
+            while (true)
             {
-                if (!childTables.ContainsKey(split.moduleName))
-                    childTables.Add(split.moduleName, new SymbolTable(resourceLocation));   // TODO: Will this work? Should the resource location be inferred from the symbol?
-                childTables[split.moduleName].Add(split.rest, symbol);
+                var (firstNamespace, rest) = SplitName(theNamespace);
+
+                if (string.IsNullOrEmpty(firstNamespace))
+                {
+                    if (subTable.symbols.ContainsKey(symbol.SimpleName))
+                        return OperationResult.Error(SyntaxErrors.SymbolAlreadyDeclared(symbol.Token));
+                    subTable[symbol.SimpleName] = symbol;
+                }
+                else
+                {
+                    if (!subTables.ContainsKey(firstNamespace))
+                    {
+                        // Debug.Log($"Symbol table for namespace {firstNamespace} does not exist, creating");
+                        subTables.Add(firstNamespace, new SymbolTable(firstNamespace));
+                    }
+
+                    theNamespace = rest;
+                    subTable = subTables[firstNamespace];
+                    continue;
+                }
+
+                break;
             }
-            else
-                symbols[name] = symbol;
+
+            return OperationResult.Success();
         }
 
-        public bool Contains(string name)
+        public OperationResult Add(Symbol symbol)
         {
-            var split = SplitName(name);
-            if (split.moduleName != string.Empty)
+            if (symbol.Is(SymbolType.Unknown))
             {
-                if (childTables.ContainsKey(split.moduleName))
-                    return childTables[split.moduleName].Contains(split.rest);
+                // Debug.Log($"Adding unresolved symbol {symbol.Name} from {symbol.Location} in {(symbol.Namespace == string.Empty ? "(root)" : symbol.Namespace)}");
+                unresolvedSymbols.Add(symbol);
+                return OperationResult.Success();
             }
-            return symbols.ContainsKey(split.rest);
+
+            // Debug.Log($"Adding symbol {symbol.Name} from {symbol.Location} in {(symbol.Namespace == string.Empty ? "(root)" : symbol.Namespace)}");
+            return AddRecursively(symbol.Namespace, symbol, this);
         }
 
-        // TODO: Figure out how to support multiple files with the same symbols
-        // TODO: This will very likely break with multiple types of symbols if they have the same name
-        // - disallow this or store all symbols of the same name in a dict
-        public Symbol Find(string name, SymbolType typeMask = SymbolType.Any)
+        public bool Contains(string symbolName)
         {
-            if (!Contains(name)) return null;
+            return FindRecursively(symbolName, this) is not null;
+        }
 
-            if (typeMask != SymbolType.Any && symbols[name].Is(typeMask)) return null;
+        private Symbol FindRecursively(string namespacedName, SymbolTable subTable)
+        {
+            while (true)
+            {
+                var (firstNamespace, rest) = SplitName(namespacedName);
 
-            return symbols[name];
+                if (string.IsNullOrEmpty(rest))
+                {
+                    return subTable.symbols.ContainsKey(namespacedName) ? subTable.symbols[namespacedName] : null;
+                }
+
+                if (subTables.ContainsKey(firstNamespace))
+                {
+                    namespacedName = rest;
+                    subTable = subTables[firstNamespace];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+        
+        // TODO: Support multiple types of symbols with the same name
+        public Symbol Find(string symbolName, string theNamespace, SymbolType typeMask = SymbolType.Any)
+        {
+            // Debug.Log($"Finding {symbolName}");
+            
+            Symbol foundSymbol = FindRecursively(symbolName, string.IsNullOrEmpty(theNamespace) ? this : subTables[theNamespace]);
+            if (foundSymbol is null) return null;
+            if (!foundSymbol.Is(typeMask)) return null;
+
+            // Debug.Log($"Found {symbolName}");
+            return foundSymbol;
+        }
+
+        public IEnumerable<OperationResult> FindUsesOfUndeclaredSymbols()
+        {
+            foreach (Symbol symbol in unresolvedSymbols)
+            {
+                Symbol corrSymbol = Find(symbol.NamespacedName, @namespace);
+                if (corrSymbol is null)
+                {
+                    yield return OperationResult.Error(SyntaxErrors.UseOfUndeclaredSymbol(symbol.Token, symbol));
+                    continue;
+                }
+
+                corrSymbol.IsDeclared = true;
+            }
+        }
+
+        public List<Symbol> GetAllSymbols()
+        {
+            void AddSymbols(List<Symbol> list, SymbolTable table)
+            {
+                list.AddRange(table.symbols.Values);
+                foreach (SymbolTable t in table.subTables.Values)
+                {
+                    AddSymbols(list, t);
+                }
+            }
+            
+            List<Symbol> result = new();
+            AddSymbols(result, this);
+            return result;
         }
     }
 }
