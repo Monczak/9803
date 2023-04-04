@@ -167,6 +167,7 @@ namespace NineEightOhThree.UI.CodeEditor
         public List<((TokenType type, TokenMetaType metaType) pattern, Color32 color)> SyntaxColors => new()
         {
             ((TokenType.Identifier, TokenMetaType.Label), new Color32(245, 81, 66, 255)),
+            ((TokenType.Identifier, TokenMetaType.Constant), new Color32(245, 21, 146, 255)),
             ((TokenType.Identifier, TokenMetaType.Instruction), new Color32(245, 144, 66, 255)),
             ((TokenType.Identifier, TokenMetaType.AllValid), new Color32(245, 144, 66, 255)),
             ((TokenType.Number, TokenMetaType.All), new Color32(132, 245, 66, 255)),

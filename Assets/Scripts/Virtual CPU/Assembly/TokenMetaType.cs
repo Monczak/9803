@@ -10,6 +10,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly
         Instruction = 1<<1,
         Label = 1<<2,
         Directive = 1<<3,
+        Constant = 1<<4,
         
         All = ~None,
         AllValid = All ^ Invalid,

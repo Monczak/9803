@@ -137,8 +137,24 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     if (!op.IsDefined)
                     {
                         Symbol symbol = symbols.Find(op.SymbolRef, cStmt.Stmt.Namespace);
+
                         if (symbol is not null && symbol.IsDeclared)
+                        {
                             op.Number = symbol.Value;
+
+                            switch (symbol.Type)
+                            {
+                                case SymbolType.Constant:
+                                    op.Token.SetMetaType(TokenMetaType.Constant);
+                                    break;
+                                case SymbolType.Label:
+                                    op.Token.SetMetaType(TokenMetaType.Label);
+                                    break;
+                                case SymbolType.Unknown:
+                                case SymbolType.Any:
+                                default: break;
+                            }
+                        }
                     }
                 }
             }

@@ -32,7 +32,7 @@
             Number = null;
             SymbolRef = symbolRef;
             
-            Token.SetMetaType(TokenMetaType.Label);
+            // Token.SetMetaType(TokenMetaType.Label);
         }
 
         public Operand(Token token, ushort number, bool isByte) : this(token, number)

@@ -18,6 +18,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
             (NodePattern.Single(TokenType.Identifier), token =>
             {
                 ConstantName = token.Content;
+                token.MetaType = TokenMetaType.Constant;
                 return OperationResult.Success();
             }),
             (NodePattern.Single(TokenType.Equals), null),
