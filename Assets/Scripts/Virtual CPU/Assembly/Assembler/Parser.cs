@@ -45,7 +45,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 this.useChain = new HashSet<string>(useChain) { fileName };
             }
 
-            AssemblerCache.GrammarGraph = GrammarGraph.Build();
+            AssemblerCache.GrammarGraph ??= GrammarGraph.Build();
             graph = AssemblerCache.GrammarGraph;
 
             CreateStatements();

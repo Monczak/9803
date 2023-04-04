@@ -104,11 +104,31 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                     if (patterns.Count == 0 && connectTo is not null)
                     {
                         currentNode.Children.Add(node);
-                        List<Type> followedBy = (node.Statement as IntermediateStatement)?.FollowedBy;
-                        if (followedBy != null)
-                            foreach (Type type in followedBy)
-                                node.Children.Add(FindEarliestOfType(Root, type));
-                        else throw new InternalErrorException("FollowedBy was null");
+                        
+                        // CONSIDER: Take most derived common base of the followedBy types
+                        // and if it isn't AbstractStatement, find earliest node based on that?
+                        
+                        // Actually a bit of a dirty hack, as this would potentially allow IntermediateStatements
+                        // to be followed by statements that are not specified in followedBy
+                        
+                        // This could be better - IntermediateStatements could just require the statement that follows
+                        // to be of one of the types specified in followedBy
+
+                        Type mostCommonType = TypeUtils.MostDerivedCommonBase(connectTo);
+                        GrammarNode earliest = FindEarliestOfType(Root, mostCommonType);
+                        if (earliest is null)
+                            throw new InternalErrorException($"Earliest node for {mostCommonType} not found");
+                            
+                        node.Children.Add(earliest);
+
+                        // foreach (Type type in connectTo)
+                        // {
+                        //     GrammarNode earliest = FindEarliestOfType(Root, type);
+                        //     if (earliest is null)
+                        //         throw new InternalErrorException($"Earliest node for {type} not found");
+                        //         
+                        //     node.Children.Add(earliest);
+                        // }
                     }
                     else
                     {
@@ -184,7 +204,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                             graph.AddPath(s);
                             break;
                         case IntermediateStatement s:
-                            graph.UpdateBaseTypes(graph.Root); 
+                            graph.UpdateBaseTypes(graph.Root);
                             graph.AddPath(s, s.FollowedBy);
                             break;
                     }

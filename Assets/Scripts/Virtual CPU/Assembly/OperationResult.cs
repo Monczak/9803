@@ -7,8 +7,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly
     {
         public bool Failed { get; }
         public Error TheError { get; }
-        
-        public OperationResult(bool failed, Error theError)
+
+        protected OperationResult(bool failed, Error theError)
         {
             Failed = failed;
             TheError = theError;
@@ -28,8 +28,8 @@ namespace NineEightOhThree.VirtualCPU.Assembly
     public class OperationResult<T> : OperationResult
     {
         public T Result { get; }
-        
-        public OperationResult(bool failed, Error theError, T result) : base(failed, theError)
+
+        private OperationResult(bool failed, Error theError, T result) : base(failed, theError)
         {
             Result = result;
         }

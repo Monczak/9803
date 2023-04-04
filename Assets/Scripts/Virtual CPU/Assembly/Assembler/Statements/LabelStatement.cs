@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 
 namespace NineEightOhThree.VirtualCPU.Assembly.Assembler.Statements
 {
