@@ -130,7 +130,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                 
                 case '#':
                     AddToken(TokenType.ImmediateOp);
-                    Expect(TokenType.Number);
+                    Expect(TokenType.Identifier | TokenType.Number);
                     break;
                 
                 case var _ when IsDecimalDigit(c) || (c == '$' && IsDigit( Peek(), NumberBase.Hex)) || (c == '%' && IsDigit( Peek(), NumberBase.Binary)):
@@ -147,7 +147,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
             {
                 switch (expectingToken)
                 {
-                    case true when expectedToken is not null && expectedToken != previousTokenType:
+                    case true when expectedToken is not null && (expectedToken & previousTokenType) == 0:
                         if (previousTokenType != null)
                             return OperationResult.Error(LexicalErrors.ExpectedGot(c, line, column, start, current - start, expectedToken.Value,
                                 previousTokenType.Value));

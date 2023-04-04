@@ -39,7 +39,7 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                         }
                         else
                         {
-                            if (AddressingMode is VirtualCPU.AddressingMode.Relative)
+                            if (AddressingMode is VirtualCPU.AddressingMode.Relative or VirtualCPU.AddressingMode.Immediate)
                                 bytes += 1;
                             else
                                 bytes += 2;
