@@ -4,8 +4,7 @@
 .org $8000
 .begin
 
-NUM = $10
-lda NUM
+loop: jmp loop
 
 ;jsr not_main.reset_box
 ;

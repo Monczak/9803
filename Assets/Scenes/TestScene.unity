@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8544896
 Transform:
   m_ObjectHideFlags: 0
@@ -709,7 +709,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stackSize: 256
   showDebugInfo: 0
-  running: 0
+  running: 1
   cyclesPerSecond: 500
 --- !u!114 &454578873
 MonoBehaviour:

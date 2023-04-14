@@ -76,14 +76,14 @@ Material:
     - _Scanline_Density: 720
     - _Scanline_Height: 0.8
     m_Colors:
-    - _Blue_Offset: {r: -0.002, g: 0.003, b: 0, a: 0}
+    - _Blue_Offset: {r: -0.0002, g: 0.0003, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _Green_Offset: {r: -0.001, g: 0.001, b: 0, a: 0}
+    - _Green_Offset: {r: -0.0001, g: 0.0001, b: 0, a: 0}
     - _Margin: {r: 0.05, g: 0.05, b: 0, a: 0}
     - _Pixel_Off_Color: {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 1}
     - _Pixel_On_Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Red_Offset: {r: -0.001, g: -0.001, b: 0, a: 0}
+    - _Red_Offset: {r: -0.0001, g: -0.0001, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _Scanline_Off_Color: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
     - _Scanline_On_Color: {r: 1, g: 1, b: 1, a: 1}
