@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace NineEightOhThree.Rendering
@@ -6,12 +7,14 @@ namespace NineEightOhThree.Rendering
     [Serializable]
     public class Effect
     {
-        public Material material;
+        [SerializeField] private Material sourceMaterial;
         public bool enabled;
         public float strength;
 
         private Material matCopy;
 
-        public Material MatCopy => matCopy ? matCopy : matCopy = new Material(material);
+        public Material Material => matCopy && matCopy.name == sourceMaterial.name ? matCopy : matCopy = new Material(sourceMaterial);
+        
+        [field: SerializeField] public List<EffectAnimation> Animations { get; private set; }
     }
 }
