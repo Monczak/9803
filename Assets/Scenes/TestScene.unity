@@ -4107,6 +4107,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debug: 1
+  canActivateHackMode: 1
+  hackModeActive: 0
 --- !u!114 &663957688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4671,6 +4673,9 @@ GameObject:
   - component: {fileID: 912178568}
   - component: {fileID: 912178567}
   - component: {fileID: 912178566}
+  - component: {fileID: 912178570}
+  - component: {fileID: 912178572}
+  - component: {fileID: 912178571}
   m_Layer: 5
   m_Name: UI Canvas
   m_TagString: Untagged
@@ -4763,6 +4768,51 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &912178570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912178565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55a9ef9fed8a776479d9d3992f86c4b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  safeMargin: 16
+--- !u!114 &912178571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912178565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021e3ce16621b3b4ca5cf17847479b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!95 &912178572
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912178565}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: dc0a1c5ecdba76c4288d2efe836d8dc1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &914241729
 GameObject:
   m_ObjectHideFlags: 0
@@ -5237,6 +5287,8 @@ GameObject:
   - component: {fileID: 1139591177}
   - component: {fileID: 1139591179}
   - component: {fileID: 1139591178}
+  - component: {fileID: 1139591180}
+  - component: {fileID: 1139591181}
   m_Layer: 5
   m_Name: Playfield
   m_TagString: Untagged
@@ -5259,11 +5311,11 @@ RectTransform:
   m_Father: {fileID: 912178569}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -297, y: 0}
-  m_SizeDelta: {x: 335, y: -50}
-  m_Pivot: {x: 0, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 320, y: 0}
+  m_SizeDelta: {x: 320, y: 320}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1139591178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5284,7 +5336,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 8400000, guid: 2e94457b7423b0047972be86bff4d010, type: 2}
+  m_Texture: {fileID: 1407767674}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -5299,6 +5351,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1139591176}
   m_CullTransparentMesh: 1
+--- !u!114 &1139591180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1139591176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21fa18f5fa573024e82af64d43e31f81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  positionOffset: 0
+  moveToLeft: 1
+  marginOffset: 16
+--- !u!114 &1139591181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1139591176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 374a06d2c26a35345a85e560a1e3347f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  input: {fileID: 8400000, guid: 2e94457b7423b0047972be86bff4d010, type: 2}
+  effects:
+  - sourceMaterial: {fileID: 2100000, guid: 66dd34bca33340543906f64cc0264ea2, type: 2}
+    enabled: 1
+    strength: 1
+    <Animations>k__BackingField:
+    - <VariableName>k__BackingField: _FX_Strength
+      animationCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.5
+          value: 0.5
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 0
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 0
+  animationTime: 0
 --- !u!1 &1184126387
 GameObject:
   m_ObjectHideFlags: 0
@@ -5823,6 +5943,43 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &1407767674
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Playfield (Effect)
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 94
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &1532496456
 GameObject:
   m_ObjectHideFlags: 0

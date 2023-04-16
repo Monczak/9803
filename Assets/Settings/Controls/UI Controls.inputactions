@@ -529,6 +529,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Toggle Hack Mode",
+                    "type": "Button",
+                    "id": "69abf564-1395-4409-9208-28b1d7846d00",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -540,6 +549,17 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "Skip Dialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2a17f5de-bf38-46f3-b9ef-e08556a517a9",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle Hack Mode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

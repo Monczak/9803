@@ -9,7 +9,18 @@ namespace NineEightOhThree.Managers
         public static GameManager Instance { get; private set; }
 
         public bool debug;
+
+        [Header("Hack Mode")]
+        public bool canActivateHackMode = true;
+        public bool hackModeActive = false;
         
+        // Controls
+        private UIControls uiControls;
+        
+        
+        // Events
+        public event EventHandler<bool> OnHackModeToggled; 
+
         public Camera GameCamera { get; private set; }
         public Camera UICamera { get; private set; }
         public PlayerController Player { get; private set; }
@@ -30,9 +41,24 @@ namespace NineEightOhThree.Managers
             
             Logger.Setup();
 
+            SetupControls();
+
             // DontDestroyOnLoad(gameObject);
 
             LoadEverything();
+        }
+
+        private void SetupControls()
+        {
+            uiControls = new UIControls();
+            uiControls.Game.ToggleHackMode.performed += _ =>
+            {
+                if (!canActivateHackMode) return;
+                hackModeActive = !hackModeActive;
+                OnHackModeToggled?.Invoke(this, hackModeActive);
+            };
+            
+            uiControls.Enable();
         }
 
         // Start is called before the first frame update

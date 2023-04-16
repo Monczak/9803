@@ -551,6 +551,15 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Toggle Hack Mode"",
+                    ""type"": ""Button"",
+                    ""id"": ""69abf564-1395-4409-9208-28b1d7846d00"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -562,6 +571,17 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""KeyboardMouse"",
                     ""action"": ""Skip Dialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2a17f5de-bf38-46f3-b9ef-e08556a517a9"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Toggle Hack Mode"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -602,6 +622,7 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
         // Game
         m_Game = asset.FindActionMap("Game", throwIfNotFound: true);
         m_Game_SkipDialogue = m_Game.FindAction("Skip Dialogue", throwIfNotFound: true);
+        m_Game_ToggleHackMode = m_Game.FindAction("Toggle Hack Mode", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -767,11 +788,13 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Game;
     private IGameActions m_GameActionsCallbackInterface;
     private readonly InputAction m_Game_SkipDialogue;
+    private readonly InputAction m_Game_ToggleHackMode;
     public struct GameActions
     {
         private @UIControls m_Wrapper;
         public GameActions(@UIControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @SkipDialogue => m_Wrapper.m_Game_SkipDialogue;
+        public InputAction @ToggleHackMode => m_Wrapper.m_Game_ToggleHackMode;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -784,6 +807,9 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
                 @SkipDialogue.started -= m_Wrapper.m_GameActionsCallbackInterface.OnSkipDialogue;
                 @SkipDialogue.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnSkipDialogue;
                 @SkipDialogue.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnSkipDialogue;
+                @ToggleHackMode.started -= m_Wrapper.m_GameActionsCallbackInterface.OnToggleHackMode;
+                @ToggleHackMode.performed -= m_Wrapper.m_GameActionsCallbackInterface.OnToggleHackMode;
+                @ToggleHackMode.canceled -= m_Wrapper.m_GameActionsCallbackInterface.OnToggleHackMode;
             }
             m_Wrapper.m_GameActionsCallbackInterface = instance;
             if (instance != null)
@@ -791,6 +817,9 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
                 @SkipDialogue.started += instance.OnSkipDialogue;
                 @SkipDialogue.performed += instance.OnSkipDialogue;
                 @SkipDialogue.canceled += instance.OnSkipDialogue;
+                @ToggleHackMode.started += instance.OnToggleHackMode;
+                @ToggleHackMode.performed += instance.OnToggleHackMode;
+                @ToggleHackMode.canceled += instance.OnToggleHackMode;
             }
         }
     }
@@ -820,5 +849,6 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
     public interface IGameActions
     {
         void OnSkipDialogue(InputAction.CallbackContext context);
+        void OnToggleHackMode(InputAction.CallbackContext context);
     }
 }

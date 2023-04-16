@@ -24,7 +24,7 @@ MonoBehaviour:
     - rid: 3228110152829763597
       type: {class: LineEvent, ns: NineEightOhThree.Dialogues, asm: Assembly-CSharp}
       data:
-        <Text>k__BackingField: '{pause4} I poisoned[newline]the water supply.'
+        <Text>k__BackingField: I poisoned[newline]the water supply.
         <PhoneticText>k__BackingField: 
         <SamOptions>k__BackingField:
           <Pitch>k__BackingField: 64
