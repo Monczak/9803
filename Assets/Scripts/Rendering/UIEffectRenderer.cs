@@ -40,12 +40,12 @@ namespace NineEightOhThree.Rendering
             InitializeEffects();
         }
 
-        private void InitializeEffects()
+        public void InitializeEffects(bool destructive = false)
         {
             foreach (var effect in effects)
             {
 #if UNITY_EDITOR
-                effect.InitializeProperties();
+                effect.InitializeProperties(destructive);
 #endif
 
                 effect.SetupPropertyDict();
@@ -64,6 +64,7 @@ namespace NineEightOhThree.Rendering
 
         private void Update()
         {
+            if (!this.isActiveAndEnabled) return;
             RenderTexture bufferA = RenderTexture.GetTemporary(input.width, input.height, input.depth, input.format);
             RenderTexture bufferB = RenderTexture.GetTemporary(input.width, input.height, input.depth, input.format);
             
@@ -75,7 +76,7 @@ namespace NineEightOhThree.Rendering
             {
                 if (!effect.enabled) continue;
                 
-                effect.SetupPropertyDict();
+                // effect.SetupPropertyDict();
                 foreach (var effectProperty in effect.Properties.Values)
                 {
                     UpdatePropertyID(effectProperty.Name);

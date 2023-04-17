@@ -20,9 +20,13 @@ namespace NineEightOhThree.Rendering
         [field: SerializeField] public List<EffectAnimation> Animations { get; private set; }
 
         #if UNITY_EDITOR
-        public void InitializeProperties()
+        public void InitializeProperties(bool destructive = false)
         {
-            if (propertyList is not null && propertyList.Count > 0) return;
+            if (!destructive)
+            {
+                if (propertyList is not null && propertyList.Count > 0) return;
+            }
+            
             Properties = null;
         
             propertyList = new List<EffectProperty>();

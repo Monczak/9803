@@ -655,6 +655,43 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &357491522
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Playfield (Effect)
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 94
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!114 &414075308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5336,7 +5373,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 1937534884}
+  m_Texture: {fileID: 357491522}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -5384,15 +5421,19 @@ MonoBehaviour:
     enabled: 1
     propertyList:
     - <Name>k__BackingField: _FX_Noise_Edge
-      <Value>k__BackingField: 0.44
+      <Value>k__BackingField: 0.39
     - <Name>k__BackingField: _FX_Noise_Edge_Offset
-      <Value>k__BackingField: 0.13
+      <Value>k__BackingField: 0.16
     - <Name>k__BackingField: _FX_Noise_Scale
-      <Value>k__BackingField: 32
+      <Value>k__BackingField: 47.38
     - <Name>k__BackingField: _FX_Noise_Morph
-      <Value>k__BackingField: 0.12
+      <Value>k__BackingField: 3.14
     - <Name>k__BackingField: _FX_Strength
-      <Value>k__BackingField: 0.12
+      <Value>k__BackingField: 0.08
+    - <Name>k__BackingField: _FX_Normal_Color_Strength
+      <Value>k__BackingField: 1
+    - <Name>k__BackingField: _FX_Glitched_Color_Strength
+      <Value>k__BackingField: 1
     <Animations>k__BackingField: []
   - sourceMaterial: {fileID: 2100000, guid: 66dd34bca33340543906f64cc0264ea2, type: 2}
     enabled: 1
@@ -6997,43 +7038,6 @@ MonoBehaviour:
   meshMaterial: {fileID: 2100000, guid: 3619a8a356e3c8245b12bbcc3737f487, type: 2}
   underlineHeight: 5
   underlineScale: 5
---- !u!84 &1937534884
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Playfield (Effect)
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 256
-  m_Height: 256
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 94
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 0
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &1980000980
 GameObject:
   m_ObjectHideFlags: 0
