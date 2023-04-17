@@ -5336,7 +5336,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 1407767674}
+  m_Texture: {fileID: 1461080129}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -5380,11 +5380,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   input: {fileID: 8400000, guid: 2e94457b7423b0047972be86bff4d010, type: 2}
   effects:
+  - sourceMaterial: {fileID: 2100000, guid: 554808947c9cf8a4db3a4c15e8b9e270, type: 2}
+    enabled: 1
+    propertyList:
+    - <Name>k__BackingField: _FX_Noise_Edge
+      <Value>k__BackingField: 0.44
+    - <Name>k__BackingField: _FX_Noise_Edge_Offset
+      <Value>k__BackingField: 0.13
+    - <Name>k__BackingField: _FX_Noise_Scale
+      <Value>k__BackingField: 32
+    - <Name>k__BackingField: _FX_Noise_Morph
+      <Value>k__BackingField: 0.12
+    - <Name>k__BackingField: _FX_Strength
+      <Value>k__BackingField: 0.25
+    <Animations>k__BackingField: []
   - sourceMaterial: {fileID: 2100000, guid: 66dd34bca33340543906f64cc0264ea2, type: 2}
     enabled: 1
-    strength: 1
+    propertyList:
+    - <Name>k__BackingField: _FX_Pixel_Size
+      <Value>k__BackingField: 32
+    - <Name>k__BackingField: _FX_Noise_Seed
+      <Value>k__BackingField: 3.6
+    - <Name>k__BackingField: _FX_Strength
+      <Value>k__BackingField: 1
+    - <Name>k__BackingField: _FX_Noise_Scale
+      <Value>k__BackingField: 50
     <Animations>k__BackingField:
-    - <VariableName>k__BackingField: _FX_Strength
+    - <PropertyName>k__BackingField: _FX_Strength
       animationCurve:
         serializedVersion: 2
         m_Curve:
@@ -5943,7 +5965,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!84 &1407767674
+--- !u!84 &1461080129
 RenderTexture:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

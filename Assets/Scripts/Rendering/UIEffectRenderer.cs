@@ -18,8 +18,6 @@ namespace NineEightOhThree.Rendering
         [Range(0f, 1f)] public float animationTime;
 
         private RawImage rawImage;
-        
-        private static readonly int FXStrength = Shader.PropertyToID("_FX_Strength");
 
         private Dictionary<string, int> propertyIDs;
 
@@ -33,11 +31,35 @@ namespace NineEightOhThree.Rendering
 
             rawImage = GetComponent<RawImage>();
             rawImage.texture = output;
+            
+            InitializeEffects();
         }
 
-        private void GetPropertyID(EffectAnimation effectAnimation)
+        private void OnEnable()
         {
-            propertyIDs[effectAnimation.VariableName] = Shader.PropertyToID(effectAnimation.VariableName);
+            InitializeEffects();
+        }
+
+        private void InitializeEffects()
+        {
+            foreach (var effect in effects)
+            {
+#if UNITY_EDITOR
+                effect.InitializeProperties();
+#endif
+
+                effect.SetupPropertyDict();
+                foreach (var property in effect.Properties.Values)
+                {
+                    UpdatePropertyID(property.Name);
+                }
+            }
+        }
+
+        private void UpdatePropertyID(string propertyName)
+        {
+            propertyIDs ??= new Dictionary<string, int>();
+            if (!propertyIDs.ContainsKey(propertyName)) propertyIDs[propertyName] = Shader.PropertyToID(propertyName);
         }
 
         private void Update()
@@ -52,16 +74,26 @@ namespace NineEightOhThree.Rendering
             foreach (var effect in effects)
             {
                 if (!effect.enabled) continue;
+                
+                effect.SetupPropertyDict();
+                foreach (var effectProperty in effect.Properties.Values)
+                {
+                    UpdatePropertyID(effectProperty.Name);
+                }
 
-                effect.Material.SetFloat(FXStrength, effect.strength);
+                foreach (var effectProperty in effect.Properties.Values)
+                {
+                    float value = effectProperty.Value;
+                    effect.Material.SetFloat(propertyIDs[effectProperty.Name], value);
+                }
 
                 foreach (var effectAnimation in effect.Animations)
                 {
-                    if (propertyIDs is null) propertyIDs = new Dictionary<string, int>();
-                    if (!propertyIDs.ContainsKey(effectAnimation.VariableName)) GetPropertyID(effectAnimation);
-                    
-                    effect.Material.SetFloat(propertyIDs[effectAnimation.VariableName], 
-                        effectAnimation.AnimationCurve.Evaluate(animationTime) * (effectAnimation.VariableName == "_FX_Strength" ? effect.strength : 1));
+                    if (!effect.Properties.ContainsKey(effectAnimation.PropertyName)) continue;
+
+                    float value = effect.Material.GetFloat(propertyIDs[effectAnimation.PropertyName]);
+                    value *= effectAnimation.AnimationCurve.Evaluate(animationTime);
+                    effect.Material.SetFloat(propertyIDs[effectAnimation.PropertyName], value);
                 }
                 
                 if (appliedEffects % 2 == 0)

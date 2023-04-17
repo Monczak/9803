@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace NineEightOhThree.Rendering
@@ -9,12 +10,43 @@ namespace NineEightOhThree.Rendering
     {
         [SerializeField] private Material sourceMaterial;
         public bool enabled;
-        public float strength;
 
         private Material matCopy;
 
         public Material Material => matCopy && matCopy.name == sourceMaterial.name ? matCopy : matCopy = new Material(sourceMaterial);
-        
+
+        [SerializeField] private List<EffectProperty> propertyList;
+        public Dictionary<string, EffectProperty> Properties { get; private set; }
         [field: SerializeField] public List<EffectAnimation> Animations { get; private set; }
+
+        #if UNITY_EDITOR
+        public void InitializeProperties()
+        {
+            if (propertyList is not null && propertyList.Count > 0) return;
+            Properties = null;
+        
+            propertyList = new List<EffectProperty>();
+
+            int propertyCount = ShaderUtil.GetPropertyCount(Material.shader);
+            for (int i = 0; i < propertyCount; i++)
+            {
+                string name = ShaderUtil.GetPropertyName(Material.shader, i);
+                if (!name.StartsWith("_FX_")) continue;
+                
+                var property = new EffectProperty(name, Material.GetFloat(name));
+                propertyList.Add(property);
+            }
+        }
+        #endif
+
+        public void SetupPropertyDict()
+        {
+            if (Properties is not null) return;
+            Properties = new Dictionary<string, EffectProperty>();
+            foreach (var property in propertyList)
+            {
+                Properties.Add(property.Name, property);
+            }
+        }
     }
 }

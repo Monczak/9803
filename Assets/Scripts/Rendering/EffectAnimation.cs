@@ -6,7 +6,7 @@ namespace NineEightOhThree.Rendering
     [Serializable]
     public class EffectAnimation
     {
-        [field: SerializeField] public string VariableName { get; private set; }
+        [field: SerializeField] public string PropertyName { get; private set; }
         
         [SerializeField] private AnimationCurve animationCurve;
         public AnimationCurve AnimationCurve
