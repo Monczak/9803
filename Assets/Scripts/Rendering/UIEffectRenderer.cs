@@ -15,6 +15,8 @@ namespace NineEightOhThree.Rendering
 
         public List<Effect> effects;
 
+        public List<EffectAnimationList> animations;
+        public int animationIndex;
         [Range(0f, 1f)] public float animationTime;
 
         private RawImage rawImage;
@@ -62,9 +64,10 @@ namespace NineEightOhThree.Rendering
             if (!propertyIDs.ContainsKey(propertyName)) propertyIDs[propertyName] = Shader.PropertyToID(propertyName);
         }
 
+        // TODO: Support multiple animations on multiple materials' properties
         private void Update()
         {
-            if (!this.isActiveAndEnabled) return;
+            if (!isActiveAndEnabled) return;
             RenderTexture bufferA = RenderTexture.GetTemporary(input.width, input.height, input.depth, input.format);
             RenderTexture bufferB = RenderTexture.GetTemporary(input.width, input.height, input.depth, input.format);
             
@@ -76,7 +79,7 @@ namespace NineEightOhThree.Rendering
             {
                 if (!effect.enabled) continue;
                 
-                // effect.SetupPropertyDict();
+                effect.SetupPropertyDict();
                 foreach (var effectProperty in effect.Properties.Values)
                 {
                     UpdatePropertyID(effectProperty.Name);

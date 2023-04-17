@@ -17,7 +17,8 @@ namespace NineEightOhThree.Rendering
 
         [SerializeField] private List<EffectProperty> propertyList;
         public Dictionary<string, EffectProperty> Properties { get; private set; }
-        [field: SerializeField] public List<EffectAnimation> Animations { get; private set; }
+        
+        public List<EffectAnimation> Animations { get; private set; }
 
         #if UNITY_EDITOR
         public void InitializeProperties(bool destructive = false)
