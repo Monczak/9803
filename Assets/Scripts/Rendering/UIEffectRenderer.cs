@@ -65,7 +65,6 @@ namespace NineEightOhThree.Rendering
         
         private void Update()
         {
-            if (!isActiveAndEnabled) return;
             RenderTexture bufferA = RenderTexture.GetTemporary(input.width, input.height, input.depth, input.format);
             RenderTexture bufferB = RenderTexture.GetTemporary(input.width, input.height, input.depth, input.format);
             
