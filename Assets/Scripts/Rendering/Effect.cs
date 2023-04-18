@@ -13,12 +13,15 @@ namespace NineEightOhThree.Rendering
 
         private Material matCopy;
 
-        public Material Material => matCopy && matCopy.name == sourceMaterial.name ? matCopy : matCopy = new Material(sourceMaterial);
+        public bool HasMaterial => sourceMaterial != null;
+        public Material Material => HasMaterial ? matCopy && matCopy.name == sourceMaterial.name ? matCopy : matCopy = new Material(sourceMaterial) : null;
 
-        [SerializeField] private List<EffectProperty> propertyList;
+        public List<EffectProperty> propertyList;
         public Dictionary<string, EffectProperty> Properties { get; private set; }
         
         [field: SerializeField] public List<EffectAnimationList> Animations { get; private set; }
+
+        public float test;
 
         #if UNITY_EDITOR
         public void InitializeProperties(bool destructive = false)

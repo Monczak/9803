@@ -74,8 +74,8 @@ namespace NineEightOhThree.Rendering
 
             foreach (var effect in effects)
             {
-                if (!effect.enabled) continue;
-                
+                if (!effect.enabled || !effect.HasMaterial) continue;
+
                 effect.SetupPropertyDict();
                 foreach (var effectProperty in effect.Properties.Values)
                 {
