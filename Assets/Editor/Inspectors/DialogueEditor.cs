@@ -106,60 +106,22 @@ namespace NineEightOhThree.Editor.Inspectors
 
         private void DrawEventEditors()
         {
-            DialogueEvent toRemove = null;
-            int index = -1;
-            bool moveUp = false;
-            bool moveDown = false;
-            for (int i = 0; i < dialogue.Events.Count; i++)
-            {
-                var theEvent = dialogue.Events[i];
-                using (new EditorGUILayout.HorizontalScope())
+            using var reorderableListScope = new ReorderableListScope<DialogueEvent>(dialogue.Events,
+                (theEvent, i) =>
                 {
-                    using (new EditorGUILayout.VerticalScope())
+                    foldOuts[theEvent] = EditorGUILayout.BeginFoldoutHeaderGroup(foldOuts[theEvent], theEvent.EditorTitle);
+                    if (foldOuts[theEvent])
                     {
-                        foldOuts[theEvent] = EditorGUILayout.BeginFoldoutHeaderGroup(foldOuts[theEvent], theEvent.EditorTitle);
-                        if (foldOuts[theEvent])
+                        switch (theEvent)
                         {
-                            switch (theEvent)
-                            {
-                                case LineEvent line:
-                                    DrawDialogueLineEditor(line);
-                                    break;
-                            }
+                            case LineEvent line:
+                                DrawDialogueLineEditor(line);
+                                break;
                         }
-                        EditorGUILayout.EndFoldoutHeaderGroup();
-                        
                     }
-
-                    if (GUILayout.Button("/\\", new GUIStyle(EditorStyles.miniButton) { fixedWidth = 25 }))
-                    {
-                        index = i;
-                        moveUp = true;
-                    }
-
-                    if (GUILayout.Button("\\/", new GUIStyle(EditorStyles.miniButton) { fixedWidth = 25 }))
-                    {
-                        index = i;
-                        moveDown = true;
-                    }
-
-                    if (GUILayout.Button("-", new GUIStyle(EditorStyles.miniButton) { fixedWidth = 20 }))
-                        toRemove = theEvent;
+                    EditorGUILayout.EndFoldoutHeaderGroup();
                 }
-            }
-
-            if (toRemove is not null) dialogue.Events.Remove(toRemove);
-            if (moveUp && index > 0)
-            {
-                (dialogue.Events[index], dialogue.Events[index - 1]) =
-                    (dialogue.Events[index - 1], dialogue.Events[index]);
-            }
-
-            if (moveDown && index < dialogue.Events.Count - 1 && index != -1)
-            {
-                (dialogue.Events[index], dialogue.Events[index + 1]) =
-                    (dialogue.Events[index + 1], dialogue.Events[index]);
-            }
+            );
         }
 
         private void DrawDialogueLineEditor(LineEvent line)
@@ -233,26 +195,21 @@ namespace NineEightOhThree.Editor.Inspectors
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
 
-            using (new GUILayout.HorizontalScope())
+            using (new IndentedScope())
             {
-                GUILayout.Space(10);
-                using (new GUILayout.VerticalScope())
+                showPhonemes[line] = EditorGUILayout.Foldout(showPhonemes[line], "Phoneme Data");
+                if (showPhonemes[line])
                 {
-                    showPhonemes[line] = EditorGUILayout.Foldout(showPhonemes[line], "Phoneme Data");
-                    if (showPhonemes[line])
+                    if (phonemeData[line] is not null)
                     {
-                        if (phonemeData[line] is not null)
-                        {
-                            DrawPhonemeTable(line);
-                            SetKeyframes(line);
-                            SetWordBoundaries(line);
-                        }
-                        else
-                        {
-                            EditorGUILayout.LabelField("No phoneme data exists yet.");
-                        }
+                        DrawPhonemeTable(line);
+                        SetKeyframes(line);
+                        SetWordBoundaries(line);
                     }
-                    EditorGUILayout.EndFoldoutHeaderGroup();
+                    else
+                    {
+                        EditorGUILayout.LabelField("No phoneme data exists yet.");
+                    }
                 }
             }
         }
