@@ -21,9 +21,7 @@ namespace NineEightOhThree.Rendering
         
         [field: SerializeField] public List<EffectAnimationList> Animations { get; private set; }
 
-        public float test;
-
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         public void InitializeProperties(bool destructive = false)
         {
             if (!destructive)
@@ -35,6 +33,9 @@ namespace NineEightOhThree.Rendering
         
             propertyList = new List<EffectProperty>();
 
+            if (Material is null)
+                return;
+
             int propertyCount = ShaderUtil.GetPropertyCount(Material.shader);
             for (int i = 0; i < propertyCount; i++)
             {
@@ -45,7 +46,7 @@ namespace NineEightOhThree.Rendering
                 propertyList.Add(property);
             }
         }
-        #endif
+#endif
 
         public void SetupPropertyDict()
         {

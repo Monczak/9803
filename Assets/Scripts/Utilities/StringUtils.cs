@@ -13,7 +13,7 @@ namespace NineEightOhThree.Utilities
             foreach (string str in strings)
                 builder.Append(str[0].ToString().ToUpper()).Append(str.AsSpan(1)).Append(" ");
             builder.Remove(builder.Length - 1, 1);
-            return builder.ToString();
+            return Regex.Replace(builder.ToString(), @"\s+", " ");
         }
     }
 }

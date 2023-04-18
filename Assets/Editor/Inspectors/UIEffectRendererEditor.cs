@@ -32,30 +32,32 @@ namespace NineEightOhThree.Editor.Inspectors
             if (!properties.ContainsKey(realProp))
                 properties[realProp] = serializedObject.FindProperty(realProp);
 
-            if (properties[realProp] is null)
-                Debug.LogError($"{realProp} does not exist!");
+            /*if (properties[realProp] is null)
+                Debug.LogError($"{realProp} does not exist!");*/
             
             return properties[realProp];
         }
 
-        private bool PropertyField(string prop, bool isCsharpProperty = false, string label = null)
+        private bool PropertyField(string prop, bool isCSharpProperty = false, string label = null)
         {
             if (label is null)
-                return EditorGUILayout.PropertyField(FindProperty(prop, isCsharpProperty));
-            return EditorGUILayout.PropertyField(FindProperty(prop, isCsharpProperty), new GUIContent(label));
+                return EditorGUILayout.PropertyField(FindProperty(prop, isCSharpProperty));
+            return EditorGUILayout.PropertyField(FindProperty(prop, isCSharpProperty), new GUIContent(label));
         }
 
-        private void SetFoldout(object obj, bool visible)
+        private void SetFoldout(object key, bool visible)
         {
             foldOuts ??= new Dictionary<object, bool>();
-            foldOuts[obj] = visible;
+
+            if (key is null) return;
+            foldOuts[key] = visible;
         }
 
-        private bool GetFoldout(object obj)
+        private bool GetFoldout(object key)
         {
-            if (foldOuts is null) return false;
-            if (!foldOuts.ContainsKey(obj)) return false;
-            return foldOuts[obj];
+            if (key is null || foldOuts is null) return false;
+            if (!foldOuts.ContainsKey(key)) return false;
+            return foldOuts[key];
         }
 
         private void OnEnable()
@@ -77,6 +79,8 @@ namespace NineEightOhThree.Editor.Inspectors
 
             DrawEffectList();
 
+            DrawAnimationList();
+
             bool reloadMaterials = GUILayout.Button("Reload Effects");
             if (reloadMaterials)
             {
@@ -86,27 +90,47 @@ namespace NineEightOhThree.Editor.Inspectors
             serializedObject.ApplyModifiedProperties();
         }
 
-        private bool BeginFoldout(object obj, string name)
+        private bool BeginFoldout(object key, string name)
         {
-            SetFoldout(obj, EditorGUILayout.Foldout(GetFoldout(obj), name));
-            return GetFoldout(obj);
+            SetFoldout(key, EditorGUILayout.Foldout(GetFoldout(key), name, EditorStyles.foldoutHeader));
+            return GetFoldout(key);
+        }
+
+        private bool BeginListAddFoldout<T>(object key, string name, ICollection<T> list)
+        {
+            using var horizontalScope = new GUILayout.HorizontalScope();
+                
+            bool open;
+            using (new GUILayout.VerticalScope())
+            {
+                open = BeginFoldout(key, name);
+            }
+
+            if (GUILayout.Button("+", new GUIStyle(EditorStyles.miniButton) { fixedWidth = 20 }))
+            {
+                T obj = (T)Activator.CreateInstance(typeof(T));
+                list.Add(obj);
+            }
+
+            return open;
         }
 
         private void DrawEffectList()
         {
-            if (BeginFoldout("EffectFoldout", "Effects"))
+            if (BeginListAddFoldout("EffectFoldout", "Effects", effects))
             {
-                using (new GUILayout.HorizontalScope())
-                {
-                    GUILayout.Space(10);
-                    using (new GUILayout.VerticalScope())
+                using var scope = new IndentedScope();
+
+                using var reorderableListScope = new ReorderableListScope<Effect>(effects,
+                    (element, i) =>
                     {
-                        for (int i = 0; i < effects.Count; i++)
+                        if (BeginFoldout(element, element.HasMaterial ? element.Material.name : "(no material)"))
                         {
+                            using var scope2 = new IndentedScope();
                             DrawEffectEditor(i);
                         }
                     }
-                }
+                );
             }
         }
 
@@ -114,42 +138,31 @@ namespace NineEightOhThree.Editor.Inspectors
         {
             var effect = effects[effectIndex];
 
-            if (BeginFoldout(effect, effect.HasMaterial ? effect.Material.name : "(no material)"))
-            {
-                using (new GUILayout.HorizontalScope())
-                {
-                    GUILayout.Space(10);
-                    using (new GUILayout.VerticalScope())
-                    {
-                        string effectPath = $"effects.Array.data[{effectIndex}]";
+            string effectPath = $"effects.Array.data[{effectIndex}]";
                         
-                        PropertyField($"{effectPath}.sourceMaterial");
-                        PropertyField($"{effectPath}.enabled");
+            PropertyField($"{effectPath}.sourceMaterial");
+            PropertyField($"{effectPath}.enabled");
 
-                        if (BeginFoldout(effect.propertyList, "Properties"))
-                        {
-                            using (new GUILayout.HorizontalScope())
-                            {
-                                GUILayout.Space(10);
-                                using (new GUILayout.VerticalScope())
-                                {
-                                    for (int i = 0; i < effect.propertyList.Count; i++)
-                                    {
-                                        string propertyPath = $"{effectPath}.propertyList.Array.data[{i}]";
-                                        
-                                        PropertyField(prop: $"{propertyPath}.Value", isCsharpProperty: true, label: effect.propertyList[i].Name);
-                                        
-                                    }
-                                    PropertyField($"{effectPath}.test");
-                                }
-                            }
-                        }
-                        // PropertyField($"{effectPath}.propertyList");
-                    }
+            if (BeginFoldout(effect.propertyList, "Properties"))
+            {
+                using var scope2 = new IndentedScope();
+                    
+                for (int i = 0; i < effect.propertyList.Count; i++)
+                {
+                    string propertyPath = $"{effectPath}.propertyList.Array.data[{i}]";
+                    PropertyField(prop: $"{propertyPath}.Value", isCSharpProperty: true, label: effect.propertyList[i].NiceName);
                 }
             }
+        }
 
-            
+        private void DrawAnimationList()
+        {
+            // TODO
+        }
+        
+        private void DrawAnimationEditor()
+        {
+            // TODO
         }
     }
 }
