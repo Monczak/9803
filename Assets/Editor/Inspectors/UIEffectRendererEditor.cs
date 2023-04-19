@@ -238,12 +238,12 @@ namespace NineEightOhThree.Editor.Inspectors
             using (new GUILayout.HorizontalScope())
             {
                 var effectNames = effects.Where(e => e.HasMaterial).Select(e => e.Name).ToArray();
-                int index = animation.Effect is null ? 0 : GetEffectIndex(animation.Effect);
+                int index = !animation.Effect.HasMaterial ? 0 : GetEffectIndex(animation.Effect);
                 index = EditorGUILayout.Popup(index, effectNames);
                 animation.Effect = effects[index];
 
                 var propertyNames = animation.Effect.Properties.Values.Select(p => p.NiceName).ToArray();
-                index = animation.Property is null ? 0 : GetPropertyIndex(animation.Effect, animation.Property);
+                index = string.IsNullOrEmpty(animation.Property.Name) ? 0 : GetPropertyIndex(animation.Effect, animation.Property);
                 index = EditorGUILayout.Popup(index, propertyNames);
                 animation.Property = animation.Effect.propertyList[index];
             }
