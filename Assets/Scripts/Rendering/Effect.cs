@@ -18,8 +18,8 @@ namespace NineEightOhThree.Rendering
 
         public List<EffectProperty> propertyList;
         public Dictionary<string, EffectProperty> Properties { get; private set; }
-        
-        [field: SerializeField] public List<EffectAnimationList> Animations { get; private set; }
+
+        public string Name => Material != null ? Material.name : null;
 
 #if UNITY_EDITOR
         public void InitializeProperties(bool destructive = false)

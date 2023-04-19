@@ -14,6 +14,7 @@ namespace NineEightOhThree.Rendering
         private RenderTexture output;
 
         public List<Effect> effects;
+        public List<EffectAnimationList> animations;
         
         public int animationIndex;
         [Range(0f, 1f)] public float animationTime;
@@ -62,6 +63,12 @@ namespace NineEightOhThree.Rendering
             propertyIDs ??= new Dictionary<string, int>();
             if (!propertyIDs.ContainsKey(propertyName)) propertyIDs[propertyName] = Shader.PropertyToID(propertyName);
         }
+
+        private int GetPropertyID(string propertyName)
+        {
+            UpdatePropertyID(propertyName);
+            return propertyIDs[propertyName];
+        }
         
         private void Update()
         {
@@ -83,12 +90,24 @@ namespace NineEightOhThree.Rendering
                 }
 
                 SetBasePropertyValues(effect);
+            }
 
-                if (animationIndex >= 0 && animationIndex < effect.Animations.Count)
+            if (animationIndex >= 0 && animationIndex < animations.Count)
+            {
+                foreach (var effectAnimation in animations[animationIndex])
                 {
-                    ApplyAnimations(effect);
+                    if (!effectAnimation.Valid) continue;
+                    
+                    float value = effectAnimation.Effect.Material.GetFloat(GetPropertyID(effectAnimation.PropertyName));
+                    value *= effectAnimation.AnimationCurve.Evaluate(animationTime);
+                    effectAnimation.Effect.Material.SetFloat(GetPropertyID(effectAnimation.PropertyName), value);
                 }
+            }
 
+            foreach (var effect in effects) 
+            {
+                if (!effect.enabled || !effect.HasMaterial) continue;
+                
                 if (appliedEffects % 2 == 0)
                     Graphics.Blit(bufferA, bufferB, effect.Material, pass: 0);  // Thank you cr4y for saving me from days of pain
                 else
@@ -101,18 +120,6 @@ namespace NineEightOhThree.Rendering
 
             RenderTexture.ReleaseTemporary(bufferA);
             RenderTexture.ReleaseTemporary(bufferB);
-        }
-
-        private void ApplyAnimations(Effect effect)
-        {
-            foreach (var effectAnimation in effect.Animations[animationIndex])
-            {
-                if (!effect.Properties.ContainsKey(effectAnimation.PropertyName)) continue;
-
-                float value = effect.Material.GetFloat(propertyIDs[effectAnimation.PropertyName]);
-                value *= effectAnimation.AnimationCurve.Evaluate(animationTime);
-                effect.Material.SetFloat(propertyIDs[effectAnimation.PropertyName], value);
-            }
         }
 
         private void SetBasePropertyValues(Effect effect)

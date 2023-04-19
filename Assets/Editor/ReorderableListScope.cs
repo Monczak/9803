@@ -21,9 +21,10 @@ namespace NineEightOhThree.Editor
 
         public ReorderableListScope(List<T> list, DrawElementDelegate drawElement)
         {
+            list ??= new List<T>();
             this.list = list;
             this.drawElement = drawElement;
-            
+
             DrawElements();
         }
 

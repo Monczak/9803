@@ -676,43 +676,6 @@ MonoBehaviour:
   serializedValue: 255
   enabled: 1
   dirty: 0
---- !u!84 &430314469
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Playfield (Effect)
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 256
-  m_Height: 256
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 94
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 0
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &454578871
 GameObject:
   m_ObjectHideFlags: 0
@@ -5373,7 +5336,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 430314469}
+  m_Texture: {fileID: 1305247302}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -5423,7 +5386,7 @@ MonoBehaviour:
     - <Name>k__BackingField: _FX_Noise_Edge
       <Value>k__BackingField: 0.44
     - <Name>k__BackingField: _FX_Noise_Edge_Offset
-      <Value>k__BackingField: 0.13
+      <Value>k__BackingField: 0
     - <Name>k__BackingField: _FX_Noise_Scale
       <Value>k__BackingField: 32
     - <Name>k__BackingField: _FX_Noise_Morph
@@ -5434,7 +5397,41 @@ MonoBehaviour:
       <Value>k__BackingField: 1
     - <Name>k__BackingField: _FX_Glitched_Color_Strength
       <Value>k__BackingField: 1
-    <Animations>k__BackingField: []
+  - sourceMaterial: {fileID: 2100000, guid: 66dd34bca33340543906f64cc0264ea2, type: 2}
+    enabled: 1
+    propertyList:
+    - <Name>k__BackingField: _FX_Pixel_Size
+      <Value>k__BackingField: 32
+    - <Name>k__BackingField: _FX_Noise_Seed
+      <Value>k__BackingField: 3.6
+    - <Name>k__BackingField: _FX_Strength
+      <Value>k__BackingField: 0
+    - <Name>k__BackingField: _FX_Noise_Scale
+      <Value>k__BackingField: 50
+  animations:
+  - <Name>k__BackingField: New Animation List
+    <PropertyAnimations>k__BackingField:
+    - <Effect>k__BackingField:
+        sourceMaterial: {fileID: 2100000, guid: 66dd34bca33340543906f64cc0264ea2, type: 2}
+        enabled: 1
+        propertyList:
+        - <Name>k__BackingField: _FX_Pixel_Size
+          <Value>k__BackingField: 32
+        - <Name>k__BackingField: _FX_Noise_Seed
+          <Value>k__BackingField: 3.6
+        - <Name>k__BackingField: _FX_Strength
+          <Value>k__BackingField: 0
+        - <Name>k__BackingField: _FX_Noise_Scale
+          <Value>k__BackingField: 50
+      <Property>k__BackingField:
+        <Name>k__BackingField: _FX_Noise_Edge_Offset
+        <Value>k__BackingField: 0
+      animationCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
   animationIndex: 0
   animationTime: 0
 --- !u!1 &1184126387
@@ -5917,6 +5914,43 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1293011799}
   m_CullTransparentMesh: 1
+--- !u!84 &1305247302
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Playfield (Effect)
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 94
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &1357957218
 GameObject:
   m_ObjectHideFlags: 0
