@@ -16,8 +16,8 @@ namespace NineEightOhThree.Editor.Inspectors
         private List<Effect> effects;
         private List<EffectAnimationList> animations;
         
-        private Dictionary<Effect, int> effectIndexes;
-        private Dictionary<Effect, Dictionary<EffectProperty, int>> propertyIndexes;
+        private Dictionary<string, int> effectIndexes;
+        private Dictionary<string, Dictionary<string, int>> propertyIndexes;
 
         private Dictionary<object, bool> foldOuts;
         private Dictionary<string, SerializedProperty> properties;
@@ -65,28 +65,33 @@ namespace NineEightOhThree.Editor.Inspectors
             return foldOuts[key];
         }
 
-        private void UpdateEffectIndex(Effect effect, int index)
+        private void UpdateEffectIndex(string effectName, int index)
         {
-            effectIndexes ??= new Dictionary<Effect, int>();
-            effectIndexes[effect] = index;
+            effectIndexes ??= new Dictionary<string, int>();
+            effectIndexes[effectName] = index;
         }
 
-        private int GetEffectIndex(Effect effect)
+        private int GetEffectIndex(string effectName)
         {
-            return effectIndexes[effect];
+            return effectIndexes[effectName];
         }
         
-        private void UpdatePropertyIndex(Effect effect, EffectProperty property, int index)
+        private void UpdatePropertyIndex(string effectName, string propertyName, int index)
         {
-            propertyIndexes ??= new Dictionary<Effect, Dictionary<EffectProperty, int>>();
-            if (!propertyIndexes.ContainsKey(effect))
-                propertyIndexes.Add(effect, new Dictionary<EffectProperty, int>());
-            propertyIndexes[effect][property] = index;
+            propertyIndexes ??= new Dictionary<string, Dictionary<string, int>>();
+            if (!propertyIndexes.ContainsKey(effectName))
+                propertyIndexes.Add(effectName, new Dictionary<string, int>());
+            propertyIndexes[effectName][propertyName] = index;
         }
 
-        private int GetPropertyIndex(Effect effect, EffectProperty property)
+        private bool HasProperty(string effectName, string propertyName)
         {
-            return propertyIndexes[effect][property];
+            return propertyIndexes[effectName].ContainsKey(propertyName);
+        }
+
+        private int GetPropertyIndex(string effectName, string propertyName)
+        {
+            return propertyIndexes[effectName][propertyName];
         }
 
         private void OnEnable()
@@ -97,13 +102,18 @@ namespace NineEightOhThree.Editor.Inspectors
             effects = theRenderer.effects;
             animations = theRenderer.animations;
 
+            UpdateIndexes();
+        }
+
+        private void UpdateIndexes()
+        {
             for (int i = 0; i < effects.Count; i++)
             {
                 var effect = effects[i];
-                UpdateEffectIndex(effect, i);
+                UpdateEffectIndex(effect.Name, i);
                 for (int j = 0; j < effect.propertyList.Count; j++)
                 {
-                    UpdatePropertyIndex(effect, effect.propertyList[j], j);
+                    UpdatePropertyIndex(effect.Name, effect.propertyList[j].Name, j);
                 }
             }
         }
@@ -113,20 +123,22 @@ namespace NineEightOhThree.Editor.Inspectors
             // base.OnInspectorGUI();
             
             serializedObject.Update();
-
+            
             PropertyField("input");
             PropertyField("animationTime");
-
+            
             DrawEffectList();
-
+            
+            UpdateIndexes();
+            
             DrawAnimationList();
-
+            
             bool reloadMaterials = GUILayout.Button("Reload Effects");
             if (reloadMaterials)
             {
                 theRenderer.InitializeEffects(destructive: true);
             }
-
+            
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -166,8 +178,8 @@ namespace NineEightOhThree.Editor.Inspectors
                 using var reorderableListScope = new ReorderableListScope<Effect>(effects,
                     (effect, i) =>
                     {
-                        UpdateEffectIndex(effect, i);
-                        
+                        UpdateEffectIndex(effect.Name, i);
+
                         if (BeginFoldout(effect, effect.HasMaterial ? effect.Name : "(no material)"))
                         {
                             using var scope2 = new IndentedScope();
@@ -193,7 +205,7 @@ namespace NineEightOhThree.Editor.Inspectors
                     
                 for (int i = 0; i < effect.propertyList.Count; i++)
                 {
-                    UpdatePropertyIndex(effect, effect.propertyList[i], i);
+                    UpdatePropertyIndex(effect.Name, effect.propertyList[i].Name, i);
                     
                     string propertyPath = $"{effectPath}.propertyList.Array.data[{i}]";
                     PropertyField(prop: $"{propertyPath}.Value", isCSharpProperty: true, label: effect.propertyList[i].NiceName);
@@ -226,26 +238,28 @@ namespace NineEightOhThree.Editor.Inspectors
 
                     using var reorderableListScope = new ReorderableListScope<EffectAnimation>(
                         animationList.PropertyAnimations,
-                        DrawPropertyAnimationEditor);
+                        (anim, animIndex) => DrawPropertyAnimationEditor(anim, animIndex, animationListIndex));
                 }
             }
             
             
         }
 
-        private void DrawPropertyAnimationEditor(EffectAnimation animation, int animationIndex) // FIXME
+        private void DrawPropertyAnimationEditor(EffectAnimation animation, int animationIndex, int animationListIndex) // FIXME
         {
             using (new GUILayout.HorizontalScope())
             {
                 var effectNames = effects.Where(e => e.HasMaterial).Select(e => e.Name).ToArray();
-                int index = !animation.Effect.HasMaterial ? 0 : GetEffectIndex(animation.Effect);
+                int index = animation.Effect is null || !animation.Effect.HasMaterial ? 0 : GetEffectIndex(animation.Effect.Name);
                 index = EditorGUILayout.Popup(index, effectNames);
                 animation.Effect = effects[index];
 
                 var propertyNames = animation.Effect.Properties.Values.Select(p => p.NiceName).ToArray();
-                index = string.IsNullOrEmpty(animation.Property.Name) ? 0 : GetPropertyIndex(animation.Effect, animation.Property);
+                index = string.IsNullOrEmpty(animation.PropertyName) || !animation.Effect.HasProperty(animation.PropertyName) ? 0 : GetPropertyIndex(animation.Effect.Name, animation.PropertyName);
                 index = EditorGUILayout.Popup(index, propertyNames);
-                animation.Property = animation.Effect.propertyList[index];
+                animation.PropertyName = animation.Effect.propertyList[index].Name;
+
+                PropertyField($"animations.Array.data[{animationListIndex}].<PropertyAnimations>k__BackingField.Array.data[{animationIndex}].animationCurve", label: "");
             }
         }
     }

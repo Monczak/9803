@@ -7,17 +7,15 @@ namespace NineEightOhThree.Rendering
     public class EffectAnimation
     {
         [field: SerializeField] public Effect Effect { get; set; }
-        [field: SerializeField] public EffectProperty Property { get; set; }
+        [field: SerializeField] public string PropertyName { get; set; }
 
         public EffectAnimation()
         {
             Effect = null;
-            Property = null;
+            PropertyName = null;
         }
 
-        public string PropertyName => Property.Name;
-
-        public bool Valid => Effect is not null && Effect.HasMaterial && Property?.Name != null;
+        public bool Valid => Effect is not null && Effect.HasMaterial && PropertyName is not null;
         
         [SerializeField] private AnimationCurve animationCurve;
 

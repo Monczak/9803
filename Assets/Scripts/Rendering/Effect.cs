@@ -21,6 +21,8 @@ namespace NineEightOhThree.Rendering
 
         public string Name => Material != null ? Material.name : null;
 
+        public bool HasProperty(string propertyName) => Properties.ContainsKey(propertyName);
+
 #if UNITY_EDITOR
         public void InitializeProperties(bool destructive = false)
         {
