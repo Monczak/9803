@@ -1,7 +1,7 @@
 using NineEightOhThree.Managers;
 using UnityEngine;
 
-namespace NineEightOhThree.UI
+namespace NineEightOhThree.Animation
 {
     [RequireComponent(typeof(Animator))]
     public class HackModeAnimator : MonoBehaviour
