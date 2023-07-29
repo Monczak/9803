@@ -41,7 +41,9 @@ namespace NineEightOhThree.Animation
 
         private void UpdateEffectRenderer()
         {
-            effectRenderer.effects = new List<Effect>(effectAnimation.usedEffects);
+            effectRenderer.effects = effectAnimation is not null 
+                ? new List<Effect>(effectAnimation.usedEffects) 
+                : new List<Effect>();
         }
     }
 }

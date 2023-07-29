@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd056c416130e40a382d2d8b3cf5cb, type: 3}
   m_Name: CRTBlit
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
     Event: 500
     blitMaterial: {fileID: 2100000, guid: 5afccf3bf6fe87d4ab3b72d6fc58e124, type: 2}

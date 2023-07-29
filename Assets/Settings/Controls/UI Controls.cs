@@ -59,7 +59,7 @@ public partial class @UIControls : IInputActionCollection2, IDisposable
                     ""type"": ""PassThrough"",
                     ""id"": ""fda97c0d-3c0a-4cd2-a550-dc0abf29eb11"",
                     ""expectedControlType"": ""Vector2"",
-                    ""processors"": ""DistortionCorrection(centerX=0.5,centerY=0.5,strengthX=0.17,strengthY=0.08,scale=1.06,enabled=true)"",
+                    ""processors"": ""DistortionCorrection(centerX=0.5,centerY=0.5,strengthX=0.17,strengthY=0.08,scale=1.06)"",
                     ""interactions"": """",
                     ""initialStateCheck"": true
                 },
