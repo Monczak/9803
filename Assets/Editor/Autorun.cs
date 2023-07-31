@@ -1,5 +1,6 @@
 ﻿using NineEightOhThree.Dialogues;
 using NineEightOhThree.Inventories;
+using NineEightOhThree.UI.BindableFormatters;
 using UnityEditor;
 
 namespace NineEightOhThree.Editor
@@ -17,6 +18,7 @@ namespace NineEightOhThree.Editor
             if (DialogueEventRegistry.IsNull())
                 DialogueEventRegistry.RegisterEvents();
             
+            BindableFormatterRegistry.RegisterFormatters();
         }
     }
     #endif

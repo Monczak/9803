@@ -1,6 +1,5 @@
 ﻿namespace NineEightOhThree.VirtualCPU.Interfacing.TypeHandling
 {
-
     public interface IBindableTypeHandler
     {
         public object Parse(string str);

@@ -14,6 +14,8 @@ namespace NineEightOhThree.UI.HackMode
         [field: SerializeField] public List<Window> Windows { get; private set; }
         private List<(TabController tab, RectTransform content)> windowWidgets;
 
+        public Color tabActiveColor, tabInactiveColor;
+
         [SerializeField] private int selectedTab;
         public int SelectedTab
         {
@@ -49,10 +51,10 @@ namespace NineEightOhThree.UI.HackMode
                 if (tab)
                 {
                     int currentIndex = index;
-                    tab.SetupButton(() =>
+                    tab.SetupTab(() =>
                     {
                         SelectedTab = currentIndex;
-                    });
+                    }, tabActiveColor, tabInactiveColor);
                 }
                 
                 if (content)
@@ -72,10 +74,12 @@ namespace NineEightOhThree.UI.HackMode
         {
             foreach (var (tab, content) in windowWidgets)
             {
+                tab.SetActive(false);
                 content.gameObject.SetActive(false);
             }
 
             var (activeTab, activeContent) = windowWidgets[selectedTab];
+            activeTab.SetActive(true);
             activeContent.gameObject.SetActive(true);
         }
     }

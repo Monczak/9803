@@ -28,9 +28,9 @@ namespace NineEightOhThree.Inventories
                     continue;
                 }
 
-                if (itemsById.ContainsKey(item.Id))
+                if (itemsById.TryGetValue(item.Id, out var value))
                 {
-                    Debug.LogError($"Invalid ID for item {item.ItemName} (ID {item.Id} is already taken by {itemsById[item.Id].ItemName})");
+                    Debug.LogError($"Invalid ID for item {item.ItemName} (ID {item.Id} is already taken by {value.ItemName})");
                     continue;
                 }
                 itemsById[item.Id] = item;
@@ -41,8 +41,8 @@ namespace NineEightOhThree.Inventories
 
         public static Item GetItem(byte id)
         {
-            if (itemsById.ContainsKey(id))
-                return itemsById[id];
+            if (itemsById.TryGetValue(id, out var item))
+                return item;
             throw new InvalidItemException(id);
         }
     }

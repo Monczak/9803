@@ -33,7 +33,7 @@ namespace NineEightOhThree.UI.Layout
         
         private void Update()
         {
-            rectTransform.anchorMin = rectTransform.anchorMax = new Vector2(moveToLeft ? 0f : 1f, 0.5f);
+            rectTransform.anchorMin = rectTransform.anchorMax = new Vector2(moveToLeft ? 0f : 1f, 0f);
             
             rectTransform.anchoredPosition = new Vector2(
                 (int)Mathf.Lerp(CenterPos, SidePos, positionOffset) * (moveToLeft ? 1 : -1),

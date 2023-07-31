@@ -1,5 +1,6 @@
 using System;
 using NineEightOhThree.Controllers;
+using NineEightOhThree.UI.BindableFormatters;
 using UnityEngine;
 
 namespace NineEightOhThree.Managers
@@ -86,6 +87,7 @@ namespace NineEightOhThree.Managers
             Inventories.ItemRegistry.RegisterItems();
             VirtualCPU.CPUInstructionRegistry.RegisterInstructions();
             VirtualCPU.Assembly.Assembler.Directives.DirectiveRegistry.RegisterDirectives();
+            BindableFormatterRegistry.RegisterFormatters();
         }
 
         private void OnDestroy()

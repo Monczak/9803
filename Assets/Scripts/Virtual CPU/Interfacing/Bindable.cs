@@ -25,6 +25,9 @@ namespace NineEightOhThree.VirtualCPU.Interfacing
 
         private bool initializeLazily;
         public bool IsPointer { get; private set; }
+        
+        public string KeyName => $"{parentObjectName}.{parentClassName}.{fieldName}";
+        public string ShortKeyName => $"{parentClassName}.{fieldName}";
 
         public T GetValue<T>()
         {
