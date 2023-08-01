@@ -12,14 +12,20 @@ namespace NineEightOhThree.UI.Tooltips
 {
     public class TooltipController : MonoBehaviour
     {
-        private UIControls controls;
-
+        [Header("Positioning")]
         public RectTransform referenceTransform;
+        public RectTransform rescaleTransform;
         private RectTransform referenceCanvasTransform;
 
-        public RectTransform rescaleTransform;
-
+        [Header("Prefabs")] public GameObject tooltipPrefab;
+        
+        private UIControls controls;
+        
         private List<TooltipDataProvider> dataProviders;
+        private HashSet<TooltipDataProvider> activeDataProviders;
+
+        public event EventHandler<TooltipDataProvider> OnTooltipActivate;
+        public event EventHandler<TooltipDataProvider> OnTooltipDeactivate;
 
         private void Awake()
         {
@@ -30,6 +36,7 @@ namespace NineEightOhThree.UI.Tooltips
             referenceCanvasTransform = referenceTransform.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
 
             dataProviders = FindObjectsOfType<TooltipDataProvider>().ToList();
+            activeDataProviders = new HashSet<TooltipDataProvider>();
         }
 
         private void OnPoint(InputAction.CallbackContext obj)
@@ -41,25 +48,40 @@ namespace NineEightOhThree.UI.Tooltips
             // Debug.Log(referenceMousePos);
             
             var providers = FindOverlappingDataProviders(gamePos);
-            Debug.Log($"{providers.Count} providers");
-            foreach (var provider in providers)
+
+            foreach (var provider in providers.Where(provider => !activeDataProviders.Contains(provider)))
             {
-                StringBuilder builder = new();
-            
-                builder.Append(provider.gameObject.name).Append(":\n");
-            
-                var data = provider.GetAllData();
-                foreach (TooltipData dataPiece in data)
-                {
-                    builder.Append("-- ").Append(dataPiece.Header).Append(" --\n");
-                    foreach (var (line, address) in dataPiece.Lines)
-                    {
-                        builder.AppendLine($"{line} ({address:X4})");
-                    }
-                }
-                
-                Debug.Log(builder.ToString());
+                OnTooltipActivate?.Invoke(this, provider);
+                Debug.Log($"Activate {provider.gameObject.name}");
             }
+
+            foreach (var provider in activeDataProviders.Where(provider => !providers.Contains(provider)))
+            {
+                OnTooltipDeactivate?.Invoke(this, provider);
+                Debug.Log($"Deactivate {provider.gameObject.name}");
+            }
+
+            activeDataProviders = new HashSet<TooltipDataProvider>(providers);
+
+            // Debug.Log($"{providers.Count} providers");
+            // foreach (var provider in providers)
+            // {
+            //     StringBuilder builder = new();
+            //
+            //     builder.Append(provider.gameObject.name).Append(":\n");
+            //
+            //     var data = provider.GetAllData();
+            //     foreach (TooltipData dataPiece in data)
+            //     {
+            //         builder.Append("-- ").Append(dataPiece.Header).Append(" --\n");
+            //         foreach (var (line, address) in dataPiece.Lines)
+            //         {
+            //             builder.AppendLine($"{line} ({address:X4})");
+            //         }
+            //     }
+            //     
+            //     Debug.Log(builder.ToString());
+            // }
         }
 
         private HashSet<TooltipDataProvider> FindOverlappingDataProviders(Vector2 pos)
