@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -9,14 +10,28 @@ namespace NineEightOhThree.UI.Tooltips
 
         [SerializeField] private GameObject tooltipLinePrefab;
 
+        private List<TooltipLine> lines;
+
         public void MakeFromData(TooltipData data)
         {
-            varNameText.text = data.Header;
-
-            foreach (var (line, address) in data.Lines)
+            lines = new List<TooltipLine>();
+            
+            foreach (var _ in data.Lines)
             {
                 TooltipLine tooltipLine = Instantiate(tooltipLinePrefab, transform).GetComponent<TooltipLine>();
-                tooltipLine.SetLine(line, address);
+                lines.Add(tooltipLine);
+            }
+            
+            UpdateData(data);
+        }
+
+        public void UpdateData(TooltipData data)
+        {
+            varNameText.text = data.Header;
+            for (int i = 0; i < data.Lines.Length; i++)
+            {
+                var (line, address) = data.Lines[i];
+                lines[i].SetLine(line, address);
             }
         }
     }

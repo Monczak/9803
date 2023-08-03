@@ -6,7 +6,6 @@ using System.Text;
 using NineEightOhThree.Managers;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Object = UnityEngine.Object;
 
 namespace NineEightOhThree.UI.Tooltips
 {
@@ -18,11 +17,16 @@ namespace NineEightOhThree.UI.Tooltips
         private RectTransform referenceCanvasTransform;
 
         [Header("Prefabs")] public GameObject tooltipPrefab;
+
+        private RectTransform rectTransform;
         
         private UIControls controls;
         
         private List<TooltipDataProvider> dataProviders;
         private HashSet<TooltipDataProvider> activeDataProviders;
+        private Vector2 gameMousePos;
+
+        private Dictionary<TooltipDataProvider, Tooltip> tooltipDict;
 
         public event EventHandler<TooltipDataProvider> OnTooltipActivate;
         public event EventHandler<TooltipDataProvider> OnTooltipDeactivate;
@@ -37,32 +41,20 @@ namespace NineEightOhThree.UI.Tooltips
 
             dataProviders = FindObjectsOfType<TooltipDataProvider>().ToList();
             activeDataProviders = new HashSet<TooltipDataProvider>();
+            tooltipDict = new Dictionary<TooltipDataProvider, Tooltip>();
+
+            rectTransform = GetComponent<RectTransform>();
         }
 
         private void OnPoint(InputAction.CallbackContext obj)
         {
             Vector2 mousePos = obj.ReadValue<Vector2>();
-            Vector2 referenceMousePos = GetReferenceMousePos(mousePos) / referenceTransform.sizeDelta;
-
-            Vector2 gamePos = GameManager.Instance.GameCamera.ViewportToWorldPoint(referenceMousePos);
-            // Debug.Log(referenceMousePos);
+            rectTransform.anchoredPosition = GetRescaledMousePos(mousePos);
             
-            var providers = FindOverlappingDataProviders(gamePos);
-
-            foreach (var provider in providers.Where(provider => !activeDataProviders.Contains(provider)))
-            {
-                OnTooltipActivate?.Invoke(this, provider);
-                Debug.Log($"Activate {provider.gameObject.name}");
-            }
-
-            foreach (var provider in activeDataProviders.Where(provider => !providers.Contains(provider)))
-            {
-                OnTooltipDeactivate?.Invoke(this, provider);
-                Debug.Log($"Deactivate {provider.gameObject.name}");
-            }
-
-            activeDataProviders = new HashSet<TooltipDataProvider>(providers);
-
+            Vector2 referenceMousePos = GetReferenceMousePos(mousePos);
+            gameMousePos =
+                GameManager.Instance.GameCamera.ViewportToWorldPoint(referenceMousePos / referenceTransform.sizeDelta);
+            
             // Debug.Log($"{providers.Count} providers");
             // foreach (var provider in providers)
             // {
@@ -84,6 +76,61 @@ namespace NineEightOhThree.UI.Tooltips
             // }
         }
 
+        private void Update()
+        {
+            HandleTooltipProviders(gameMousePos);
+        }
+
+        private void SpawnTooltip(TooltipDataProvider provider)
+        {
+            Tooltip tooltip = Instantiate(tooltipPrefab, transform).GetComponent<Tooltip>();
+            tooltip.Make(provider);
+
+            tooltipDict[provider] = tooltip;
+        }
+
+        private void DespawnTooltip(TooltipDataProvider provider)
+        {
+            if (tooltipDict.ContainsKey(provider))
+            {
+                tooltipDict[provider].Despawn();
+                tooltipDict.Remove(provider);
+            }
+            else
+            {
+                Logger.LogWarning($"Tried to despawn nonexistent tooltip for {provider.gameObject.name}!");
+            }
+        }
+
+        private void HandleTooltipProviders(Vector2 mousePos)
+        {
+            var providers = FindOverlappingDataProviders(mousePos);
+
+            foreach (var provider in providers.Where(provider => !activeDataProviders.Contains(provider)))
+            {
+                OnTooltipActivate?.Invoke(this, provider);
+                // Debug.Log($"Activate {provider.gameObject.name}");
+                
+                SpawnTooltip(provider);
+            }
+            
+            foreach (TooltipDataProvider provider in activeDataProviders)
+            {
+                tooltipDict[provider].UpdateData();
+            }
+
+            foreach (var provider in activeDataProviders.Where(provider => !providers.Contains(provider)))
+            {
+                OnTooltipDeactivate?.Invoke(this, provider);
+                // Debug.Log($"Deactivate {provider.gameObject.name}");
+                
+                DespawnTooltip(provider);
+            }
+
+            activeDataProviders = new HashSet<TooltipDataProvider>(providers);
+        }
+
+        // TODO: Probably needs optimization since we're doing this every frame
         private HashSet<TooltipDataProvider> FindOverlappingDataProviders(Vector2 pos)
         {
             HashSet<TooltipDataProvider> overlappingProviders = new();
@@ -96,8 +143,7 @@ namespace NineEightOhThree.UI.Tooltips
 
         private Vector2 GetReferenceMousePos(Vector2 pos)
         {
-            Vector2 mouseViewportPos = GameManager.Instance.UICamera.ScreenToViewportPoint(pos);
-            Vector2 mouseScreenPos = mouseViewportPos * referenceCanvasTransform.sizeDelta;
+            var mouseScreenPos = GetRescaledMousePos(pos);
 
             Vector2 referenceScreenBottomLeft = referenceTransform.anchoredPosition + Vector2.up * referenceCanvasTransform.sizeDelta / 2 - referenceTransform.sizeDelta / 2;
             // Vector2 referenceScreenTopRight = referenceScreenBottomLeft + referenceTransform.sizeDelta;
@@ -117,16 +163,11 @@ namespace NineEightOhThree.UI.Tooltips
             return referenceMousePos;
         }
 
-        // Start is called before the first frame update
-        void Start()
+        private Vector2 GetRescaledMousePos(Vector2 pos)
         {
-            
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
+            Vector2 mouseViewportPos = GameManager.Instance.UICamera.ScreenToViewportPoint(pos);
+            Vector2 mouseScreenPos = mouseViewportPos * referenceCanvasTransform.sizeDelta;
+            return mouseScreenPos;
         }
     }
 }

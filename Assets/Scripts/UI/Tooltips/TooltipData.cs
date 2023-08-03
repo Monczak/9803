@@ -3,7 +3,7 @@ using NineEightOhThree.VirtualCPU.Interfacing;
 
 namespace NineEightOhThree.UI.Tooltips
 {
-    public class TooltipData
+    public struct TooltipData
     {
         public string Header { get; }
         public (string line, ushort address)[] Lines { get; }
