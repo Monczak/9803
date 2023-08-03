@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace NineEightOhThree.UI.Layout
 {
+    // look001 on Unity Forums is a magician
     public class ContentSizeFitterRefresher : MonoBehaviour
     {
         private void Awake()
