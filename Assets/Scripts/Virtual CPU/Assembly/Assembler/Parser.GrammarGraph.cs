@@ -114,21 +114,21 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                         // This could be better - IntermediateStatements could just require the statement that follows
                         // to be of one of the types specified in followedBy
 
-                        Type mostCommonType = TypeUtils.MostDerivedCommonBase(connectTo);
-                        GrammarNode earliest = FindEarliestOfType(Root, mostCommonType);
-                        if (earliest is null)
-                            throw new InternalErrorException($"Earliest node for {mostCommonType} not found");
-                            
-                        node.Children.Add(earliest);
+                        // Type mostCommonType = TypeUtils.MostDerivedCommonBase(connectTo);
+                        // GrammarNode earliest = FindEarliestOfType(Root, mostCommonType);
+                        // if (earliest is null)
+                        //     throw new InternalErrorException($"Earliest node for {mostCommonType} not found");
+                        //     
+                        // node.Children.Add(earliest);
 
-                        // foreach (Type type in connectTo)
-                        // {
-                        //     GrammarNode earliest = FindEarliestOfType(Root, type);
-                        //     if (earliest is null)
-                        //         throw new InternalErrorException($"Earliest node for {type} not found");
-                        //         
-                        //     node.Children.Add(earliest);
-                        // }
+                        foreach (Type type in connectTo)
+                        {
+                            GrammarNode earliest = FindEarliestOfType(Root, type);
+                            if (earliest is null)
+                                throw new InternalErrorException($"Earliest node for {type} not found");
+                                
+                            node.Children.Add(earliest);
+                        }
                     }
                     else
                     {
@@ -171,7 +171,6 @@ namespace NineEightOhThree.VirtualCPU.Assembly.Assembler
                             node.StatementType = TypeUtils.MostDerivedCommonBase(types);
                         }
                     }
-                        
                 }
             }
 
